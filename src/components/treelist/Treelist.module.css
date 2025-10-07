@@ -1,0 +1,46 @@
+.base {
+  width: 30vw;
+  overflow: auto;
+  overflow-x: hidden;
+  padding-left: 0 !important;
+}
+
+.list li > div {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  width: 100%;
+}
+
+.horizontalScroll {
+  overflow-x: initial;
+}
+.horizontalScroll li > div {
+  overflow-x: initial;
+  overflow: initial;
+}
+
+
+.list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  padding-left: 1em;
+}
+
+.item {
+  display: block;
+
+  /* border: 1px solid green; */
+}
+
+.item div {
+  cursor: pointer;
+  padding: 0.85em;
+  /* line-height: 3em; */
+}
+
+.item div[aria-selected] {
+  color: HighlightText;
+  background-color: Highlight;
+}

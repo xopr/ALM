@@ -1,0 +1,62 @@
+:root {
+  /* --text: #0f0f0f;
+  --background: #f6f6f6; */
+
+  font-family: Inter, Avenir, Helvetica, Arial, sans-serif;
+  font-size: 16px;
+  /* line-height: 24px; */
+  font-weight: 400;
+
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  -webkit-text-size-adjust: 100%;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --text: #f9f6ff;
+    --background: #222;
+  }
+
+  html {
+    /* Needed for "safari" linux */
+    color-scheme: dark;
+  }
+}
+
+:root, * {
+  scrollbar-color: rebeccapurple green;
+  scrollbar-width: thin;
+
+}
+body, html {
+  padding: 0;
+  margin: 0;
+  height: 100%;
+  color: var(--text);
+  background-color: var(--background);
+}
+/* 
+input, select, textarea {
+  color: var(--text);
+  background-color: var(--background);
+} */
+
+input,
+button {
+  outline: none;
+}
+
+main {
+  height: 100vh;
+  width: 100wv;
+  overflow: hidden;
+}
+
+
+
+
+
+
