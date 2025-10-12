@@ -21,13 +21,15 @@ export type TabViewProps = {
 export const TabView: Component<TabViewProps> = (props) => {
   const [activeTab, setActiveTab] = createSignal<number>(0);
 
-  return <div class={styles.tabView} style={{flex: "1 1 100%", display: "flex", "flex-direction": "column"}} class={`${styles.list} ${props.class ?? ""}`}>
+  return <div
+    style={{flex: "1 1 100%", display: "flex", "flex-direction": "column"}}
+    class={`${styles.tabView} ${styles.list} ${props.class ?? ""}`}>
     <ul>
       <For each={props.children}>{(tab, index) => {
         // Sanity check
         if (!(tab instanceof HTMLElement)) return undefined;
 
-        return <li aria-selected={index() === activeTab()} onclick={() => setActiveTab(index())}>{tab.dataset.label ?? "Unnamed"}</li>;
+        return <li aria-selected={index() === activeTab()} onClick={() => setActiveTab(index())}>{tab.dataset.label ?? "Unnamed"}</li>;
       }}</For>
     </ul>
     {props.children[activeTab()]}

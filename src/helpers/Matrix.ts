@@ -1,6 +1,6 @@
 #!/usr/bin/env bun
 
-import { Effect } from "../../public/Effect";
+import { IEffect } from "../../public/Effect";
 import { Strip2D } from "./Strip2D";
 
 class Particle
@@ -48,7 +48,7 @@ class Particle
     }
 }
 
-export class Matrix extends Effect
+export class Matrix extends IEffect
 {
     particles: [p1: Particle[], p2: Particle[], p3: Particle[]] = [[], [], []];
     numParticles = [35, 35, 8];

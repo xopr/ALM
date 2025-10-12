@@ -1,59 +1,34 @@
-import { createSignal, onMount, type ParentComponent } from "solid-js";
-import { getCurrentWindow } from '@tauri-apps/api/window';
+import { type ParentComponent } from "solid-js";
 
 import styles from "./treelist/Treelist.module.css";
 
 export type ListItemProps = {
+  id?: string;
   name: string;
   selected?: boolean;
+  outlined?: boolean;
+  /** @deprecated use parent click handler */
   onClick?: (ctrl?: boolean) => void;
+  type?: string;
 };
 
 export const ListItem: ParentComponent<ListItemProps> = (props) => {
-  const [activePointer, setActivePointer] = createSignal<{x:Number, y: number}>();
-
-  const pointerDown = (event: PointerEvent) => {
-    console.log("PD", event.pointerType);
-    if (!event.isPrimary) return;
-    const { pageY: x, pageY: y } = event;
-    setActivePointer({x ,y});
-    // (event.currentTarget as HTMLDivElement).setPointerCapture(event.pointerId);
-
-    // event.preventDefault();
-  };
-  const pointerMove = (event: PointerEvent) => {
-    if (!event.isPrimary || !activePointer()) return;
-    console.log(event.pageX, event.pageY);
-    // event.preventDefault();
-  };
-  const pointerUp = (event: PointerEvent) => {
-    if (!event.isPrimary) return;
-    setActivePointer();
-    console.log(event.pageX, event.pageY);
-    // event.preventDefault();
-  };
-
-  onMount(() => {
-    getCurrentWindow().listen("pointerdown", (event) => {
-      console.log("CURWINPOINTERDN", event.pointerType); // Check the type of pointer event
-    });
-  });
 
   return <li class={styles.item}>
     <div
+      id={props.id}
+      data-draggable={!!props.type}
+      data-type={props.type}
       tabindex={0}
       aria-selected={props.selected ? true : undefined}
-      // onClick={(e) => props.onClick?.(e.ctrlKey)}
-      // onContextMenu={(e) => {
-      //   e.preventDefault()
-      //   e.stopPropagation();
-      //   props.onClick?.(true);
-      //   return false;
-      // }}
-      onPointerDown={pointerDown}
-      onPointerMove={pointerMove}
-      onPointerUp={pointerUp}
-      onPointerCancel={pointerUp}
+      onClick={(e) => props.onClick?.(e.ctrlKey)}
+      style={{ border: props.outlined ? "2px dashed" : undefined}}
+      onContextMenu={(e) => {
+        e.preventDefault()
+        e.stopPropagation();
+        props.onClick?.(true);
+        return false;
+      }}
     >
       {props.name}
     </div>

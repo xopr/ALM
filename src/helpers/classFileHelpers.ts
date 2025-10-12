@@ -1,8 +1,15 @@
 import ts from "typescript";
-import { type Effect } from "../../public/Effect";
+import { Effect, type IEffect } from "../../public/Effect";
 
 /** Class constructor of (interface) type C */
-export type ClassConstructor<C, A = any> = new (...args: Array<A>) => C;
+// export type ClassConstructor<C, A = any> = new (...args: Array<A>) => C;
+
+export type ClassConstructor<C, A = any, T = any> = {
+  new (...args: A[]): C;
+  // [key: string]: any;
+} & T;
+
+
 
 /** Class module with class K export that constructs instance of C */
 type ClassMod<C, K extends string = string, A = any> = {
@@ -24,7 +31,11 @@ export const tsImport = async <T = any>(url: string): Promise<T> => {
     // console.log(result.diagnostics);
     const blob = new Blob([result.outputText], {type: "text/javascript"});
     const modUrl = URL.createObjectURL(blob);
-    const module = import(modUrl);
+    const module = import(
+      /* @vite-ignore */
+      /* We know what we're doing; importing arbitrary modules with a safety guard. */
+      modUrl
+    );
     URL.revokeObjectURL(modUrl);
     return module;
   } catch (e) {
@@ -33,20 +44,20 @@ export const tsImport = async <T = any>(url: string): Promise<T> => {
   }
 };
 
-export const loadEffect = async(url: string): Promise<ClassConstructor<Effect> | undefined> => {
+export const loadEffect = async(url: string): Promise<Effect | undefined> => {
   const className = url.match(/(?:^|\/)([A-Z][a-zA-Z0-9_]*)\.[tj]s$/)?.[1];
 
   if (!className) return;
 
   try {
-    const mod = await tsImport<ClassMod<Effect>>(url);
+    const mod = await tsImport<ClassMod<IEffect>>(url);
     // const eff = new mod.Matrix()
     const EffectClass = mod[className];
 
     if (!EffectClass) return;
     // TODO: verify interface in debug (import.meta.env.DEV)
-    console.log("instance", Object.getOwnPropertyNames(EffectClass.prototype));
-    console.log("static", Object.getOwnPropertyNames(EffectClass));
+    // console.log("instance", Object.getOwnPropertyNames(EffectClass.prototype)); // -> minMax, channels, refreshRate, frame
+    // console.log("static", Object.getOwnPropertyNames(EffectClass)); // -> name
     return EffectClass;
   } catch(e) {
     console.warn("loadEffect", e);

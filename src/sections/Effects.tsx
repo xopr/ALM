@@ -1,24 +1,25 @@
 import { Component, createMemo, createSignal, For, on, onMount } from "solid-js";
-import { type ClassConstructor, loadEffect } from "../helpers/classFileHelpers";
+import { loadEffect } from "../helpers/classFileHelpers";
 import { type Effect } from "../../public/Effect";
 import sectionStyles from "../sections/Section.module.css";
 import ListItem from "../components/ListItem";
-
-// const effectList = [
-//   { name: "Matrix", module: "[Matrix]" }, // Channels w/ type
-// ];
+import { DragDropData } from "../components/DragNode";
 
 type EffectList = {
-  effect: ClassConstructor<Effect>;
+  effect: Effect;
   selected?: boolean;
 }
 
-export const Effects: Component = () => {
+type EffectsProps = {
+  effect?: Effect;
+  onClick?: (effect?: Effect) => void;
+}
+
+export const Effects: Component<EffectsProps> = (props) => {
   // List of available effects
   const [effectList, setEffectList] = createSignal<EffectList[]>([]);
   
   onMount(async () => {
-    console.log(sectionStyles);
     // TODO: invoke file list
     const effectPaths = [
       "/effects/MyEffectTemplate.ts",
@@ -27,13 +28,10 @@ export const Effects: Component = () => {
 
     try {
       effectPaths.forEach(async (effectPath) => {
-        const MyEffect = await loadEffect(effectPath);
-        console.log("effect", MyEffect?.name);
-        if (MyEffect)
-        {
-          setEffectList((list) => [...list, { effect: MyEffect }])
-        }       
-      }); 
+        const effect = await loadEffect(effectPath);
+        if (!effect) return;
+        setEffectList((list) => [...list, { effect }])
+      });
     } catch (e) {
       console.warn(e)
     }
@@ -44,20 +42,52 @@ export const Effects: Component = () => {
     effectList,
     () => {
     return <For each={effectList()}>{(listItem, idx) =>
-        <ListItem name={listItem.effect.name} selected={listItem.selected} onClick={() => {
-          console.log("ITEM SELECT", listItem.effect.name, idx(), !!listItem.selected);
-          const newList = [...effectList()];
-          newList.forEach((listItem) => listItem.selected = false);
-          newList[idx()].selected = !newList[idx()].selected;
-          setEffectList(newList);
-        }}/>
+        <ListItem
+          id={`${idx()}`}
+          name={listItem.effect.name}
+          selected={listItem.selected}
+          type="effect"
+        />
       }</For>;
   }));
+
   return <>
-        <h1>Effects section</h1>
+        <h1>Effects section [{props.effect?.name}]</h1>
         <div class={sectionStyles.container}>
-          <div class={sectionStyles.container}>description, timing info, channel info</div>
-          <ul class={`${sectionStyles.container} ${sectionStyles.vertical}`} style={{flex: "0 0 20vw"}}>
+          <div class={`${sectionStyles.container} ${sectionStyles.vertical}`}>
+            <div>{props.effect?.description}</div>
+            <div>
+              Channels:
+              <ul>
+                <For each={props.effect?.channels}>{(channel) =>
+                  <li>{channel.name}: {channel.description}, default: {(channel.default * 100).toFixed(1)}%</li>
+                }</For>
+              </ul>
+            </div>
+            <div>Frame every {(props.effect?.refreshRate)?.toFixed(3)} seconds</div>
+            <div>Frame {(1 / props.effect?.refreshRate)?.toFixed(0)} times a second</div>
+            <div>Horizontal support: {props.effect?.minMax.x[0]}-{props.effect?.minMax.x[1]} LEDs</div>
+            <div>Vertical support: {props.effect?.minMax.y[0]}-{props.effect?.minMax.y[1]} LEDs</div>
+          </div>
+          <ul
+            class={`${sectionStyles.container} ${sectionStyles.vertical}`}
+            style={{flex: "0 0 20vw"}}
+            onDragStart={(event: CustomEvent<DragDropData>) => {
+              const { sourceId } = event.detail;
+              if (!sourceId) return;
+              event.detail.sourceData = effectList()[parseInt(sourceId)].effect;
+            }}
+            onClick={(event) => {
+              const { target } = event;
+              if (!target.id) return;
+              const newList = [...effectList()];
+              newList.forEach((listItem) => listItem.selected = false);
+              newList[parseInt(target.id)].selected = true;
+              const effect = newList[parseInt(target.id)].effect
+              setEffectList(newList);
+              props.onClick?.(effect);
+            }}
+          >
             {list()}
           </ul>
         </div>

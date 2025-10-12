@@ -1,11 +1,11 @@
 // import { midiChannels, valueFromMax } from "./midiChannels.js";
 
 import { sleep } from "./async.js";
-import { Effect } from "../../public/Effect.js";
+import { IEffect } from "../../public/Effect.js";
 import { RgbOctet } from "./led.js";
 import { Strip2D } from "./Strip2D.js";
 
-export class Fire2 extends Effect
+export class Fire2 extends IEffect
 {
     rdata: number[] = [];
     gdata: number[] = [];

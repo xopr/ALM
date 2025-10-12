@@ -38,6 +38,7 @@
   cursor: pointer;
   padding: 0.85em;
   /* line-height: 3em; */
+  box-sizing: border-box;
 }
 
 .item div[aria-selected] {

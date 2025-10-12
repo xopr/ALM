@@ -6,3 +6,7 @@
 .vertical {
   flex-direction: column;
 }
+
+.noscroll {
+  overflow: hidden;
+}

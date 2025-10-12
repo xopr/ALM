@@ -38,6 +38,11 @@ body, html {
   color: var(--text);
   background-color: var(--background);
 }
+
+* {
+  -webkit-user-select: none;
+  user-select: none;
+}
 /* 
 input, select, textarea {
   color: var(--text);

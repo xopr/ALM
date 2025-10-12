@@ -1,56 +1,67 @@
-import { lazy, onCleanup, onMount, Show } from "solid-js";
+import { createSignal, lazy } from "solid-js";
 import "./App.css";
-// import { Effect } from "./helpers/Effect";
-// import { Matrix } from "./helpers/Matrix";
-// import { Strip2D } from "./helpers/Strip2D";
-// import { Fire2 } from "./helpers/Fire";
 import TabView from "./components/tabView/TabView";
-// import { Effects } from "./sections/Effects";
 const Effects = lazy(() => import("./sections/Effects"));
 
 import sectionStyles from "./sections/Section.module.css";
 import { Lights } from "./sections/Lights";
 import { Control } from "./sections/Control";
 import { LightGroupTree } from "./sections/LightGroupTree";
-
-// let effect: Effect;
+import DragNode from "./components/DragNode";
+import { Effect } from "../public/Effect";
+import Help from "./sections/Help";
 
 function App() {
-  onMount(async () => {
-    // effect = new Matrix(new Strip2D(7,21));
-    // effect = new Fire2(new Strip2D(7,21));
-    // effect.run()
-  });
-
-  onCleanup(async () => {
-    // effect.cleanup();
-  })
+  const [effectName, setEffectName] = createSignal<string>();
+  const [effect, setEffect] = createSignal<Effect>();
+  // const [effectInstance, setEffectInstance] = createSignal<Effect>();
 
   return (
-    <main class={sectionStyles.container}>
-      <LightGroupTree/>
+    <main class={`${sectionStyles.container}`}>
+      <LightGroupTree onEffectName={setEffectName}/>
       <TabView>
         <section
           data-label="Lights"
           class={sectionStyles.vertical}
         >
-          <Lights/>
+          <Lights /*effect={}?*/ /*light={}*/ />
         </section>
+        {/* <section
+          data-label="Map"
+          class={sectionStyles.vertical}
+        >
+        </section> */}
         <section
           data-label="Control"
           class={sectionStyles.vertical}
         >
-          <Control/>
+          <Control effectName={effectName()} effect={undefined} />
         </section>
+        {/* <section
+          data-label="Remote"
+          class={sectionStyles.vertical}
+        >
+        </section> */}
         <section
           data-label="Effects"
           class={sectionStyles.vertical}
         >
-          <Show when={true}>
-            <Effects/>
-          </Show>
+          <Effects
+            onClick={(e) => {
+              // Invoke as function since Effect constructor is a function on its own.
+              setEffect(() => e);
+            }}
+            effect={effect()}
+          />
+        </section>
+        <section
+          data-label="Help"
+          class={sectionStyles.vertical}
+        >
+          <Help/>
         </section>
       </TabView>
+      <DragNode/>
     </main>
   );
 }
