@@ -1,0 +1,39 @@
+import { Component } from "solid-js";
+
+import styles from "./Light.module.css";
+import LabeledInput from "../LabeledInput";
+
+/** Light segment */
+export type SegmentProps = {
+  /** IP address or hostname of the Art-Net node */
+  address: string,
+  /** Port number of the Art-Net node */
+  port: number,
+  /** Target DMX universe for this segment */
+  universe: number,
+  /** offset within Art-Net packet */
+  channelStart: number,   // TODO: warn if: not LED-aligned, overlap w/ other segment
+  /** Channels per LED (typically 3) */
+  channelsPerLed: 1 | 3 | 4, // TODO: use type: "RGB"?
+  /** Amount of LEDs within the light segment, for example: LED sleeve is 7*21 */
+  ledCount: number,     // TODO: warn if: overlap w/ other segment, out of bounds
+  /** Amount of LEDs to skip within effect (bezel/padding) */
+  ledOffset: number,
+}
+
+export const Segment: Component<SegmentProps> = (props) => {
+
+  return <div class={styles.segment} data-draggable="true" data-type="segment">
+    Segment node
+    <LabeledInput label="Address" value={props.address}/>
+    <LabeledInput label="Port" value={props.port} type="number" min={1} max={65535}/>
+    <LabeledInput label="Universe" value={props.port} type="number" min={0} max={65535}/>
+    <LabeledInput label="Channel start" value={props.channelStart} type="number" min={0} max={65535}/>
+    <LabeledInput label="Channels per LED" value={props.channelsPerLed} type="number" min={1} max={5}/>
+    <LabeledInput label="LED count" value={props.channelsPerLed} type="number" min={1} max={512}/>
+    <LabeledInput label="LED offset" value={props.ledOffset} type="number" min={0} max={511}/>
+  </div>
+;
+};
+
+export default Segment;
