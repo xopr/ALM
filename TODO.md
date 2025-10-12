@@ -1,3 +1,8 @@
+* effect icons => place on treeitem
+* effect instance control -> option to follow parent
+* implement DragLeave (remove highlight in rare cases)
+
+
 * create worker threads for effect: post data for artnet
 
 examples

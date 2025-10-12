@@ -58,19 +58,33 @@ type ItemData = {
 };
 
 const drop = (item: TreeItemProps<ItemData>, data: DragDropData<Effect>) => {
-  console.assert(data.type === "effect"); // Future: light
-  if (!data.sourceData) return;
-
-  console.log("DROP", item, data.sourceData);
 
   // Item might not have data object yet
   if (!item.data) item.data = {};
 
-  // Iterate all leafs to update the running effects. Clear effect to allow instance to do its thing.
-  item.data.effect = undefined;
-  instanceLeaf(item, data.sourceData);
-  // Store effect we just dropped
-  item.data.effect = data.sourceData;
+  switch (data.type)
+  {
+    case "effect":
+      if (!data.sourceData) return;
+      // Iterate all leafs to update the running effects. Clear effect to allow instance to do its thing.
+      item.data.effect = undefined;
+      instanceLeaf(item, data.sourceData);
+      // Store effect we just dropped
+      item.data.effect = data.sourceData;
+      break;
+
+    case "light":
+      console.log("special case: light and all its segments as children");
+      break;
+
+    case "segment":
+      console.log("do segment droppings");
+      break;
+
+    default:
+      console.warn("unknown type:", data.type, data);
+  }
+
 };
 
 const instanceLeaf = (item: TreeItemProps<ItemData>, Effect: Effect) => {

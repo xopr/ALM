@@ -19,7 +19,6 @@ export type TreeListProps<T = any> = {
 }
 
 export const TreeList: Component<TreeListProps> = (props) => {
-
   const [classes, setClasses] = createStore<{
     [k: string]: boolean | undefined;
   }>({[styles.list]: true});
@@ -29,12 +28,12 @@ export const TreeList: Component<TreeListProps> = (props) => {
     setClasses([styles.base], !props.partial);
   });
 
-  const onClick = (event) => {
-    if (!props.onClick) return;
+  const onClick = (event: MouseEvent & {currentTarget: HTMLUListElement; target: Element;}) => {
+    const { target } = event;
+    if (!props.onClick || !target) return;
 
-    console.log("TREE CLIKC", event);
-
-    // props.onClick?.(isIndexedAccessTypeNode, ctrl);
+    const indexes = target.id.split("_").map(s => parseInt(s))
+    props.onClick?.(indexes, event.ctrlKey);
   }
 
   return <ul
@@ -43,9 +42,18 @@ export const TreeList: Component<TreeListProps> = (props) => {
     onDragOver={props.onDragOver}
     onDrop={props.onDrop}
     onClick={onClick}
+    onContextMenu={(e) => {
+      const { target } = e;
+      onClick({ target, ctrlKey: true } as any);
+      e.preventDefault()
+      return false;
+    }}
   >
     <For each={props.children}>{(child, i) => 
-      <TreeItem id={props.idPrefix ? `${props.idPrefix}_${i()}` : `${i()}`} {...child} onClick={(list, ctrl) => props.onClick?.(list ? [i(), ...list] : [i()], ctrl)}/>
+      <TreeItem
+        id={props.idPrefix ? `${props.idPrefix}_${i()}` : `${i()}`}
+        {...child}
+      />
     }</For>
   </ul>;
 };

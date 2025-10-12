@@ -51,6 +51,17 @@ export const Effects: Component<EffectsProps> = (props) => {
       }</For>;
   }));
 
+  const onClick = (event: MouseEvent & {currentTarget: HTMLUListElement; target: Element;}) => {
+    const { target } = event;
+    if (!target.id) return;
+    const newList = [...effectList()];
+    newList.forEach((listItem) => listItem.selected = false);
+    newList[parseInt(target.id)].selected = true;
+    const effect = newList[parseInt(target.id)].effect
+    setEffectList(newList);
+    props.onClick?.(effect);
+  }
+
   return <>
         <h1>Effects section [{props.effect?.name}]</h1>
         <div class={sectionStyles.container}>
@@ -77,16 +88,7 @@ export const Effects: Component<EffectsProps> = (props) => {
               if (!sourceId) return;
               event.detail.sourceData = effectList()[parseInt(sourceId)].effect;
             }}
-            onClick={(event) => {
-              const { target } = event;
-              if (!target.id) return;
-              const newList = [...effectList()];
-              newList.forEach((listItem) => listItem.selected = false);
-              newList[parseInt(target.id)].selected = true;
-              const effect = newList[parseInt(target.id)].effect
-              setEffectList(newList);
-              props.onClick?.(effect);
-            }}
+            onClick={onClick}
           >
             {list()}
           </ul>

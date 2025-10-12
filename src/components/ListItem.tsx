@@ -7,8 +7,6 @@ export type ListItemProps = {
   name: string;
   selected?: boolean;
   outlined?: boolean;
-  /** @deprecated use parent click handler */
-  onClick?: (ctrl?: boolean) => void;
   type?: string;
 };
 
@@ -21,14 +19,7 @@ export const ListItem: ParentComponent<ListItemProps> = (props) => {
       data-type={props.type}
       tabindex={0}
       aria-selected={props.selected ? true : undefined}
-      onClick={(e) => props.onClick?.(e.ctrlKey)}
       style={{ border: props.outlined ? "2px dashed" : undefined}}
-      onContextMenu={(e) => {
-        e.preventDefault()
-        e.stopPropagation();
-        props.onClick?.(true);
-        return false;
-      }}
     >
       {props.name}
     </div>

@@ -120,6 +120,7 @@ export const DragNode: Component = () => {
   };
 
   const touchUp = (event: TouchEvent | MouseEvent) => {
+    // TODO: verify pointer id
     // TODO: remove move listener on mouse up (click) even when drag has not yet started -> emulate click
     if (event instanceof TouchEvent) {
       document.body.removeEventListener("touchmove", touchMove);
@@ -128,14 +129,11 @@ export const DragNode: Component = () => {
     }
 
     setOriginNode();
-    // TODO: verify pointer id
     setActivePointer();
-    setDragNode();
-
-    if (!dragNode() || !activePointer()) return;
 
     // Stop on touchcancel
-    if (event.type === "touchcancel") return;
+    if (event.type === "touchcancel" || !dragNode()) return;
+    setDragNode();
 
     // Drop
     const { pageX, pageY } = "changedTouches" in event ? event.changedTouches[0] : event;
