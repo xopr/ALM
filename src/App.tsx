@@ -1,50 +1,74 @@
-import { createSignal, lazy } from "solid-js";
+import { createEffect, createSignal, lazy, onMount, Show } from "solid-js";
 import "./App.css";
 import TabView from "./components/tabView/TabView";
 const Effects = lazy(() => import("./sections/Effects"));
 
-import sectionStyles from "./sections/Section.module.css";
 import { Lights } from "./sections/Lights";
 import { Control } from "./sections/Control";
-import { LightGroupTree } from "./sections/LightGroupTree";
+import { ItemData, LightGroupTree } from "./sections/LightGroupTree";
 import DragNode from "./components/DragNode";
-import { Effect } from "../public/Effect";
+import { DataFrame, Effect, IEffect } from "../public/Effect";
 import Help from "./sections/Help";
 
+import lightgroup_add_svg from "/src/assets/lightgroup.svg";
+import lightgroup_remove_svg from "/src/assets/lightgroup.svg";
+import effect_on_svg from "/src/assets/effect.svg";
+import effect_off_svg from "/src/assets/effect.svg";
+import effect_remove_svg from "/src/assets/effect.svg";
+import delete_svg from "/src/assets/delete.svg";
+import { TreeItemProps } from "./components/treelist/TreeItem";
+
 function App() {
-  const [effectName, setEffectName] = createSignal<string>();
+  const [activeEffect, setActiveEffect] = createSignal<Effect>();
   const [effect, setEffect] = createSignal<Effect>();
-  // const [effectInstance, setEffectInstance] = createSignal<Effect>();
+  const [effectInstances, setEffectInstances] = createSignal<IEffect[]>();
+  const [selectedItem, setSelectedItem] = createSignal<TreeItemProps<ItemData>>();
+
+  createEffect(() => {
+    // Selected effect instances to control
+    // console.log(effectInstances());
+  })
 
   return (
-    <main class={`${sectionStyles.container}`}>
-      <LightGroupTree onEffectName={setEffectName}/>
+    <main>
+      <div class="inbetweenContainer vertical">
+        <LightGroupTree class="itemContainer inbetweenChild list" onEffect={setActiveEffect} onSelect={setSelectedItem} onInstances={setEffectInstances}/>
+        <div>
+          <button disabled={!selectedItem()?.data?.segment}><img src={lightgroup_add_svg}/></button>
+          <button disabled={!selectedItem()?.data?.segment}><img src={lightgroup_remove_svg}/></button>
+          {/* <button><img src={effect_on_svg}/></button> */}
+          <button disabled={!selectedItem()?.data?.effect}><img src={effect_remove_svg}/></button>
+          <Show when={false/*drag*/}>
+            <button><img src={delete_svg}/></button>
+          </Show>
+        </div>
+      </div>
       <TabView>
         <section
           data-label="Lights"
-          class={sectionStyles.vertical}
+          class="contentContainer"
         >
           <Lights /*effect={}?*/ /*light={}*/ />
         </section>
         {/* <section
           data-label="Map"
-          class={sectionStyles.vertical}
+          class="contentContainer"
         >
         </section> */}
         <section
           data-label="Control"
-          class={sectionStyles.vertical}
+          class="contentContainer"
         >
-          <Control effectName={effectName()} effect={undefined} />
+          <Control effect={activeEffect()} instances={effectInstances()} />
         </section>
         {/* <section
           data-label="Remote"
-          class={sectionStyles.vertical}
+          class="contentContainer"
         >
         </section> */}
         <section
           data-label="Effects"
-          class={sectionStyles.vertical}
+          class="contentContainer"
         >
           <Effects
             onClick={(e) => {
@@ -56,7 +80,7 @@ function App() {
         </section>
         <section
           data-label="Help"
-          class={sectionStyles.vertical}
+          class="contentContainer"
         >
           <Help/>
         </section>

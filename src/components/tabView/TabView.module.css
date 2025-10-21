@@ -1,20 +1,20 @@
-.tabView > ul {
+/* .tabView > ul {
   list-style: none;
   padding: 0;
   margin: 0;
-}
-.tabView > ul > li {
+} */
+/* .tabView > ul > li {
   display: inline-block;
   padding: 1em;
   border: 1px solid;
   cursor: pointer;
-}
+} */
 
-.tabView > ul > li[aria-selected=true] {
+/* .tabView > ul > li[aria-selected=true] {
   font-weight: bold;
-}
+} */
 
-.tabView > section {
+/* .tabView > section {
   display: flex;
   flex: 1 0 auto;
-}
+} */

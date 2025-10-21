@@ -4,7 +4,7 @@ import SliderGroup from "../components/sliderGroup/SliderGroup";
 export const Help: Component = (props) => {
   // TODO: automatically (re)attach light group selection channels to slider groups
   // H+S+L, R+G+B, C+M+Y+K
-  return <>
+  return <div id="content" class="contentContainer vertical">
     <h1>Help</h1>
     <ul>
       <li>Left tree: grouped setup of your light segments to apply effects to</li>
@@ -22,7 +22,15 @@ export const Help: Component = (props) => {
         </ul>
       </li>
     </ul>
-  </>;
+    <h1>Getting started</h1>
+    <ul>
+      <li>Add lights to the list in the Light section on the right hand side.</li>
+      <li>Configure segments per light (like spokes on a parasol or multiple universes on a display).</li>
+      <li>Drag the Light (or segments) into the tree list on the left hand side to make it a child of it.</li>
+      <li>Add effects to the groups or individual lights in the Effect section on the right hand side.</li>
+      <li>Control the effect by clicking on a tree item and selecting Control.</li>
+    </ul>
+  </div>;
 }
 
 export default Help;

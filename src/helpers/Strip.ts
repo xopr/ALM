@@ -1,4 +1,4 @@
-import { Artnet } from "./ArtNet";
+import { Artnet } from "./ArtNet_migrate";
 import { RgbOctet } from "./led";
 import { AddressListUnsanitized } from "./migrationFunctions";
 

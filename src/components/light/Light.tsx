@@ -9,15 +9,13 @@ export type LightProps = {
 };
 
 export const Light: Component<LightProps> = (props) => {
-
-  return <div class={`${sectionStyles.container} ${sectionStyles.vertical} ${sectionStyles.scroll}`}>
+  return <>
     {/* {props.} */}
-    <ul>
+    <ul class="contentContainer vertical">
       <For each={props.data}>{(segment) => <Segment {...segment} />}</For>
     </ul>
 
-  </div>
-;
+  </>;
 };
 
 export default Light;

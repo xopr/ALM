@@ -1,24 +1,38 @@
-import { Component } from "solid-js";
+import { Component, createMemo } from "solid-js";
 import SliderGroup from "../components/sliderGroup/SliderGroup";
-import { IEffect } from "../../public/Effect";
+import { ChannelValues, Effect, IEffect } from "../../public/Effect";
 
 type ControlProps = {
-  effectName?: string;
-  effect?: IEffect;
+  effect?: Effect;
+  instances?: IEffect[];
 }
 
 export const Control: Component<ControlProps> = (props) => {
   // TODO: automatically (re)attach light group selection channels to slider groups
   // H+S+L, R+G+B, C+M+Y+K
-  return <>
-    <h1>Control section - [{props.effectName}]</h1>
-    <div>
-      <SliderGroup/>
-      <SliderGroup/>            
+  const channelValues = createMemo(() => {
+    return props.effect?.channels.map((chan, idx) => ({...chan, value: props.instances?.[0].channelValues[idx] })) as ChannelValues;
+  });
+  const group1 = createMemo(() => {
+    return channelValues()?.slice(0, 4);
+  });
+  const group2 = createMemo(() => {
+    return channelValues()?.slice(4, 8);
+  });
+  return <div id="content" class="inbetweenContainer vertical">
+    <h1>Control section - [{props.effect?.name}]</h1>
+    <div class="contentContainer horizontal">
+      <SliderGroup channels={group1()}/>
+      <SliderGroup channels={group2()}/>            
     </div>
+
+    {}
     List effect channel preset for current (group) effect
-    channels: {props.effect?.channels.length}
-  </>;
+    Affected lights: {props.instances?.length}<br/>
+    channels: {props.instances?.[0]?.channelValues.length}
+    TODO: map channel names on top of each other
+    OR: ignore the other effect tree!
+  </div>;
 }
 
 export default Control;

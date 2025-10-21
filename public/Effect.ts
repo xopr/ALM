@@ -11,6 +11,7 @@ type Channel = {
   // persistent?: boolean;
 };
 export type Channels = Channel[];
+export type ChannelValues = Array<Channel & { value: number}>;
 
 type EffectStatics = {
   /** Description of what this effect can do. */
@@ -19,7 +20,7 @@ type EffectStatics = {
   /** Compatibility: 1D, 2D */
   type: Type;
 
-  // TODO: Color channels? 3:RGB, 4:RGBW, 5:RGBWW
+  // TODO: Color channels? 1:L, 3:RGB, 4:RGBW, 5:RGBWW
 
   /** Minimum / maximum LEDs per axis supported by the effect; if one axis defines [1,1], it is considered as 1D */
   minMax: MinMax;
@@ -31,15 +32,18 @@ type EffectStatics = {
   refreshRate: number;
 }
 
-export type Effect = ClassConstructor<IEffect, any, EffectStatics>;
+export type Effect = ClassConstructor<IEffect, [x: number, y: number, channels: number, id?: string], EffectStatics>;
 
 /**
  * Effect interface
  * NOTE: this interface is heavily in flux and might break existing Effects regularly until further notice
  */
 export interface IEffect {
+  channelValues: number[];
+  id: string;
+
   // TODO: might not need to be async
-  frame(timestamp: number): void | Promise<void>;
+  frame(timestamp: number, data: ArrayBuffer): void | Promise<void>;
 
   //reset(): void;
   //cleanup(): void;
@@ -47,3 +51,4 @@ export interface IEffect {
 
 // document.timeline.currentTime
 // "requestAnimationFrame"
+export type DataFrame = MessageEvent<[string, number, ArrayBuffer]>

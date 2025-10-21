@@ -1,6 +1,9 @@
 * effect icons => place on treeitem
 * effect instance control -> option to follow parent
 * implement DragLeave (remove highlight in rare cases)
+* drag on offsettop/bottom->scroll
+* drag in between items
+* custom dragnode
 
 
 * create worker threads for effect: post data for artnet
@@ -12,7 +15,7 @@ examples
 light
 * ArtNet ip, port, universe, offset, synchronize same universe (default: true; only send when all channels are emitted)
 * 1 or more segments: channel range (RGB, start, length)
-  * types: cone (spiral,zigzag), 2d (spiral,zigzag), 1d
+  * types: cone (spiral,zigzag), 2d (spiral,zigzag/serpentine), 1d
   * >512: multiple universes (hard linked segments?)
   * auto group segments
 * sync/group data transfers -> synchronize effect group (only send when all effect instances have run/tick)

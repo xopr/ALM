@@ -38,8 +38,6 @@ export const arrayFromTreeItem = (parent: TreeListProps | TreeItemProps, item: T
   return [];
 };
 
-
-
 export const getParent = (treeList: TreeListProps, indexes?: number[]): TreeItemProps | undefined => {
   if (!indexes?.length) return undefined;
   return treeItemFromArray(treeList, indexes.slice(0,-1));
@@ -48,7 +46,7 @@ export const getParent = (treeList: TreeListProps, indexes?: number[]): TreeItem
 // TODO: treeClickHelper is executed every time the list is updated. Find a way to do a set per tree
 const selectSet = new Set<TreeItemProps>();
 
-type CallbackSingle = (selected: TreeItemProps) => void;
+type CallbackSingle = (selected?: TreeItemProps) => void;
 type CallbackMulti = (selected: TreeItemProps[]) => void;
 type ClickHandler = (indexes?: number[], ctrl?: boolean) => void;
 export function treeClickHelper(treeList: TreeListProps, callback?: CallbackMulti, multiSelect?: true): ClickHandler;
@@ -56,7 +54,15 @@ export function treeClickHelper(treeList: TreeListProps, callback?: CallbackSing
 export function treeClickHelper(treeList: TreeListProps, callback?: CallbackSingle | CallbackMulti, multiSelect?: boolean): ClickHandler {
   return (indexes?: number[], ctrl?: boolean) => {
     const clickedChild = treeItemFromArray(treeList, indexes);
-    if (!clickedChild) return;
+    if (!clickedChild) {
+      if (!multiSelect) {
+        // Deselect all
+        setRecursiveProperty(treeList);
+        // @ts-expect-error -- Typescript doesn't understand the overloads
+        callback?.(undefined);
+      }
+      return;
+    };
 
     // Since the original item may not have an id, extract it from the indexes, if needed.
     // Note that we wan't use an array since it would be unique every time.
@@ -87,7 +93,8 @@ export function treeClickHelper(treeList: TreeListProps, callback?: CallbackSing
   }
 }
 
-export const treeDragHelper = (treeList: TreeListProps, callback?: (item: TreeItemProps, data: DragDropData) => void) => {
+type DragCallback = (item: TreeItemProps, data: DragDropData, side: string) => void;
+export const treeDragHelper = (treeList: TreeListProps, callback?: DragCallback) => {
   return (event: DragEvent | CustomEvent<DragDropData>): boolean => {
     setRecursiveProperty(treeList, "outlined", false);
     const target = event.target as HTMLElement;
@@ -100,7 +107,7 @@ export const treeDragHelper = (treeList: TreeListProps, callback?: (item: TreeIt
     if (event.type === "dragover")
       child.outlined = true;
 
-    callback?.(child, event.detail as DragDropData);
+    callback?.(child, event.detail as DragDropData, "center");
     return false;
   };
 };

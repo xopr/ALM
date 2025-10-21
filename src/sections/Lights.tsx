@@ -4,8 +4,14 @@ import { createMutable } from "solid-js/store";
 import TreeList, { TreeListProps } from "../components/treelist/TreeList";
 import { treeClickHelper } from "../components/treelist/treeListHelpers";
 import { TreeItemProps } from "../components/treelist/TreeItem";
-import Light, { LightProps } from "../components/Light/Light";
-import { SegmentProps } from "../components/Light/Segment";
+import Light, { LightProps } from "../components/light/Light";
+import { SegmentProps } from "../components/light/Segment";
+
+import light_add_svg from "/src/assets/light_add.svg";
+import light_remove_svg from "/src/assets/light_remove.svg";
+import segment_add_svg from "/src/assets/segment_add.svg";
+import segment_remove_svg from "/src/assets/segment_remove.svg";
+import edit_svg from "/src/assets/edit.svg";
 
 // List of lights with their segments to direct Art-net data
 const lights = createMutable<TreeListProps<SegmentProps[]>>({
@@ -63,7 +69,7 @@ const lights = createMutable<TreeListProps<SegmentProps[]>>({
 
 export const Lights: Component = () => {
   const [light, setLight] = createSignal<TreeItemProps<SegmentProps[]>>();
-  const onClick = (selected: TreeItemProps<SegmentProps[]>) => {
+  const onClick = (selected?: TreeItemProps<SegmentProps[]>) => {
     setLight(selected);
     // selected.data[0].address
     // console.log(selected.data)
@@ -71,22 +77,29 @@ export const Lights: Component = () => {
   };
   
   return <>
-        <h1>Lights section [{light()?.name}]</h1>
-        <div class={sectionStyles.container}>
-          <div class={`${sectionStyles.container} ${sectionStyles.vertical}`}>
+        <div class="contentContainer vertical">
+          <h1>Lights section [{light()?.name}]</h1>
+          <div class="contentContainer vertical">
+            <button><img src={edit_svg}/></button>
             Also list the effects that are currently tied to it?<br/>
             <Show when={light()}>
               <Light {...light() as LightProps} />
             </Show>
           </div>
-          <div class={`${sectionStyles.container} ${sectionStyles.vertical}`} style={{flex: "0 0 20vw"}}>
-            <TreeList
-              children={lights.children}
-              onClick={treeClickHelper(lights, onClick)}
-            />
+        </div>
+        <div class="inbetweenContainer vertical">
+          <TreeList
+            class="itemContainer list inbetweenChild"
+            children={lights.children}
+            onClick={treeClickHelper(lights, onClick)}
+          />
+          <div>
+            <button><img src={light_add_svg}/></button>
+            <button disabled={!light()}><img src={light_remove_svg}/></button>
+            <button disabled={!light()}><img src={segment_add_svg}/></button>
+            <button disabled={!(light()?.data?.length > 1) }><img src={segment_remove_svg}/></button>
           </div>
         </div>
-
       </>;
 }
 

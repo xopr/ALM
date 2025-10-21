@@ -1,8 +1,8 @@
 import { Component, createEffect, For } from "solid-js";
 import TreeItem, { type TreeItemProps } from "./TreeItem";
 
-import styles from "./Treelist.module.css";
-import { createStore } from "solid-js/store";
+// import styles from "./Treelist.module.css";
+// import { createStore } from "solid-js/store";
 export type TreeListProps<T = any> = {
   children: TreeItemProps<T>[];
   onClick?: (indexes?: number[], ctrl?: boolean) => void; // TODO: index(es)
@@ -19,14 +19,6 @@ export type TreeListProps<T = any> = {
 }
 
 export const TreeList: Component<TreeListProps> = (props) => {
-  const [classes, setClasses] = createStore<{
-    [k: string]: boolean | undefined;
-  }>({[styles.list]: true});
-
-  createEffect(() => {
-    setClasses([styles.horizontalScroll], props.horizontalScroll);
-    setClasses([styles.base], !props.partial);
-  });
 
   const onClick = (event: MouseEvent & {currentTarget: HTMLUListElement; target: Element;}) => {
     const { target } = event;
@@ -37,7 +29,7 @@ export const TreeList: Component<TreeListProps> = (props) => {
   }
 
   return <ul
-    classList={classes}
+    class={props.class}
     data-accept={props.accept}
     onDragOver={props.onDragOver}
     onDrop={props.onDrop}

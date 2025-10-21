@@ -10,3 +10,9 @@
 .noscroll {
   overflow: hidden;
 }
+
+.scroll {
+  overflow: auto;
+  overflow-x: hidden;
+  max-height: 100%;
+}

@@ -4,8 +4,9 @@ import { Effect, type IEffect } from "../../public/Effect";
 /** Class constructor of (interface) type C */
 // export type ClassConstructor<C, A = any> = new (...args: Array<A>) => C;
 
-export type ClassConstructor<C, A = any, T = any> = {
-  new (...args: A[]): C;
+export type ClassConstructor<C, A = any[], T = any> = {
+  // @ts-ignore - We defined it as any[] already
+  new (...args: A): C;
   // [key: string]: any;
 } & T;
 

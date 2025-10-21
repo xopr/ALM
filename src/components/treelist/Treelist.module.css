@@ -1,5 +1,6 @@
 .base {
-  width: 30vw;
+  flex: 0 0 auto;
+  width: 20vw;
   overflow: auto;
   overflow-x: hidden;
   padding-left: 0 !important;
@@ -30,7 +31,6 @@
 
 .item {
   display: block;
-
   /* border: 1px solid green; */
 }
 
@@ -44,4 +44,19 @@
 .item div[aria-selected] {
   color: HighlightText;
   background-color: Highlight;
+}
+
+.item > div > img {
+  height: 1em;
+  padding-right: 0.5em;
+}
+
+.item div[aria-disabled] {
+  cursor: not-allowed;
+  /* color: Field; */
+  /* text-shadow: 1px 1px 0 GrayText; */
+  
+  color: GrayText;
+  /* text-shadow: 1px 1px 0 Field; */
+  /* background-color: Highlight; */
 }

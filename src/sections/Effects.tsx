@@ -63,37 +63,34 @@ export const Effects: Component<EffectsProps> = (props) => {
   }
 
   return <>
-        <h1>Effects section [{props.effect?.name}]</h1>
-        <div class={sectionStyles.container}>
-          <div class={`${sectionStyles.container} ${sectionStyles.vertical}`}>
-            <div>{props.effect?.description}</div>
-            <div>
-              Channels:
-              <ul>
-                <For each={props.effect?.channels}>{(channel) =>
-                  <li>{channel.name}: {channel.description}, default: {(channel.default * 100).toFixed(1)}%</li>
-                }</For>
-              </ul>
-            </div>
-            <div>Frame every {(props.effect?.refreshRate)?.toFixed(3)} seconds</div>
-            <div>Frame {(1 / props.effect?.refreshRate)?.toFixed(0)} times a second</div>
-            <div>Horizontal support: {props.effect?.minMax.x[0]}-{props.effect?.minMax.x[1]} LEDs</div>
-            <div>Vertical support: {props.effect?.minMax.y[0]}-{props.effect?.minMax.y[1]} LEDs</div>
-          </div>
-          <ul
-            class={`${sectionStyles.container} ${sectionStyles.vertical}`}
-            style={{flex: "0 0 20vw"}}
-            onDragStart={(event: CustomEvent<DragDropData>) => {
-              const { sourceId } = event.detail;
-              if (!sourceId) return;
-              event.detail.sourceData = effectList()[parseInt(sourceId)].effect;
-            }}
-            onClick={onClick}
-          >
-            {list()}
-          </ul>
-        </div>
-      </>;
+    <div class="contentContainer vertical">
+      <h1>Effects section [{props.effect?.name}]</h1>
+      <div>{props.effect?.description}</div>
+      <div>
+        Channels:
+        <ul>
+          <For each={props.effect?.channels}>{(channel) =>
+            <li>{channel.name}: {channel.description}, default: {(channel.default * 100).toFixed(1)}%</li>
+          }</For>
+        </ul>
+      </div>
+      <div>Frame every {(props.effect?.refreshRate)?.toFixed(3)} seconds</div>
+      <div>Frame {(1 / props.effect?.refreshRate)?.toFixed(0)} times a second</div>
+      <div>Horizontal support: {props.effect?.minMax.x[0]}-{props.effect?.minMax.x[1]} LEDs</div>
+      <div>Vertical support: {props.effect?.minMax.y[0]}-{props.effect?.minMax.y[1]} LEDs</div>
+    </div>
+    <ul
+      class="itemContainer list"
+      onDragStart={(event: CustomEvent<DragDropData>) => {
+        const { sourceId } = event.detail;
+        if (!sourceId) return;
+        event.detail.sourceData = effectList()[parseInt(sourceId)].effect;
+      }}
+      onClick={onClick}
+    >
+      {list()}
+    </ul>
+  </>;
 }
 
 export default Effects;

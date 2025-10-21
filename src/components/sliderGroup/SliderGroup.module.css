@@ -1,9 +1,11 @@
 .sliderGroup {
   font-size: 2.5vh;
   display: inline-block;
-  transform: rotate(90deg);
+  transform: rotate(-90deg);
   aspect-ratio: 1;
   width: 19.5em;
+  /* undo the item white-space */
+  white-space: initial;
 }
 
 .sliderGroup input {
