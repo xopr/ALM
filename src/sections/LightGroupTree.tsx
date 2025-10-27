@@ -3,7 +3,7 @@ import TreeList, { TreeListProps } from "../components/treelist/TreeList";
 import { createMutable } from "solid-js/store";
 import { arrayFromTreeItem, treeClickHelper, treeDragHelper, treeItemFromArray } from "../components/treelist/treeListHelpers";
 import { type DragDropData } from "../components/DragNode";
-import { DataFrame, Effect, type IEffect } from "../../public/Effect";
+import { MessageData, Effect, type IEffect } from "../../public/Effect";
 import { TreeItemProps } from "../components/treelist/TreeItem";
 import { instanceLeaf } from "../helpers/effectHelpers";
 
@@ -13,6 +13,7 @@ import { Artnet } from "../helpers/ArtNet";
 
 type LightGroupTreeProps = {
   onEffect?: (effect?: Effect) => void;
+  onChannelValues?: (values: number[]) => void;  
   onSelect?: (item?: TreeItemProps<ItemData>) => void;
   onInstances?: (instances?: IEffect[]) => void;  
   class?: string;
@@ -183,7 +184,6 @@ const lightGroups = createMutable<TreeListProps>({
               name: "Display (1)(2)(3)",
               type: "segment",
               disabled: true,
-              // TODO: segment array?
             },
           ],
         },
@@ -193,9 +193,6 @@ const lightGroups = createMutable<TreeListProps>({
 });
 
 const over = (item: TreeItemProps<ItemData>, data: DragDropData<Effect>, side: string) => {
-  // TODO: set drag over highlight side (for light)
-  //side: center, top/bottom/left/right
-  // item.outlined = "top"
 };
 
 const drop = (item: TreeItemProps<ItemData>, data: DragDropData<Effect>) => {
@@ -239,22 +236,32 @@ export const LightGroupTree: Component<LightGroupTreeProps> = (props) => {
 
   onMount(() => {
     // window.onmessage
-    window.addEventListener("message", ({ data: [id, timestamp, data] }: DataFrame) => {
+    window.addEventListener("message", ({ data: [id, timestamp, type, data] }: MessageData) => {
       if (timestamp) return; // Only from Effect
       if (!(id in instances)) return;
+
       // Get corresponding segment
       const treeItem = treeItemFromArray<TreeItemProps<ItemData>>(lightGroups, id.split("_").map(s => parseInt(s)));
-      // console.log("incoming frame", id, timestamp, data, treeItem?.data?.segment);
-
       if (!treeItem?.data?.segment) return;
 
-      const { address, port, universe, channelStart, channelsPerLed, ledCount, ledOffset } = treeItem.data.segment;
-      artnet.send(data, address, port, universe, channelStart, channelsPerLed, ledCount, ledOffset)
+      switch (type)
+      {
+        case "frame":
+          const { address, port, universe, channelStart, channelsPerLed, ledCount, ledOffset } = treeItem.data.segment;
+          void artnet.send(data, address, port, universe, channelStart, channelsPerLed, ledCount, ledOffset)
 
-      setTimeout(() => {
-        // Hand over the leds buffer
-        window.postMessage([id, performance.now(), data], { transfer: [data] } );
-      }, instances[id][1]);
+          setTimeout(() => {
+            // window.postMessage([id, performance.now(), "frame", data] );
+            // Hand over the leds buffer
+            window.postMessage([id, performance.now(), type, data], { transfer: [data] } );
+          }, instances[id][1]);
+          break;
+
+        case "channels":
+          // Handle initial channel values
+          props.onChannelValues?.(data);
+          break;
+      }
 
     });
   });
@@ -272,23 +279,27 @@ export const LightGroupTree: Component<LightGroupTreeProps> = (props) => {
         effect = treeItemFromArray<TreeItemProps<ItemData>>(lightGroups, indexes)?.data?.effect;
       }
 
-      // Calculate indexes from item
-      const selectedId = arrayFromTreeItem(lightGroups, selectedItem).join("_");
-      // Filter out other effects
-      const selectedInstances = Object.keys(instances).filter((id) => {
-        if (!id.startsWith(selectedId)) return false;
-        if (instances[id][0] instanceof effect) return true;
-        return false;
-      }).map((id) => instances[id][0]);
+      if (effect)
+      {
+        // Calculate indexes from item
+        const selectedId = arrayFromTreeItem(lightGroups, selectedItem).join("_");
+        // Filter out other effects
+        const selectedInstances = Object.keys(instances).filter((id) => {
+          if (!id.startsWith(selectedId)) return false;
+          if (instances[id][0] instanceof effect) return true;
+          return false;
+        }).map((id) => instances[id][0]);
+        props.onInstances?.(selectedInstances);
+      } else {
+        props.onInstances?.([]);
+      }
 
-      props.onInstances?.(selectedInstances);
     } else {
       props.onInstances?.([]);
     }
+
     // DON'T instantiate
     props.onEffect?.(() => effect);
-
-    // TODO: do we want to select the light effect for light view?
   };
 
   return <TreeList

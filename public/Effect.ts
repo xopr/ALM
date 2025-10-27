@@ -20,8 +20,6 @@ type EffectStatics = {
   /** Compatibility: 1D, 2D */
   type: Type;
 
-  // TODO: Color channels? 1:L, 3:RGB, 4:RGBW, 5:RGBWW
-
   /** Minimum / maximum LEDs per axis supported by the effect; if one axis defines [1,1], it is considered as 1D */
   minMax: MinMax;
 
@@ -42,13 +40,9 @@ export interface IEffect {
   channelValues: number[];
   id: string;
 
-  // TODO: might not need to be async
-  frame(timestamp: number, data: ArrayBuffer): void | Promise<void>;
-
-  //reset(): void;
-  //cleanup(): void;
+  frame(timestamp: number, data: ArrayBuffer): void;
 }
 
-// document.timeline.currentTime
-// "requestAnimationFrame"
-export type DataFrame = MessageEvent<[string, number, ArrayBuffer]>
+type DataFrame = [string, number, "frame", ArrayBuffer];
+type DataChannels = [string, number, "channels", number[]];
+export type MessageData = MessageEvent<DataFrame | DataChannels>;

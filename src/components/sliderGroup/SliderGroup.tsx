@@ -5,17 +5,26 @@ import { ChannelValues } from "../../../public/Effect";
 
 export type SliderGroupProps = {
   // name: string;
-  // onClick?: (indexes?: number[]) => void; // TODO: index(es)
+  // onClick?: (index: number) => void;
   channels?: ChannelValues;
+  channelOffset?: number;
   onValueChanged?: (index: number, value: number) => void;
 };
+
+const RES = 16384;
 
 export const SliderGroup: Component<SliderGroupProps> = (props) => {
 
   return <div class="stubbornContainer vertical">
     <div class={styles.sliderGroup}>
       <For each={props.channels}>{(channel, idx) =>
-        <input type="range" value={channel.value} onchange={(event) => props.onValueChanged?.(idx(), Number(event.target.value))}/>
+        <input
+          type="range"
+          value={Math.round(channel.value * RES)}
+          min={0}
+          max={RES}
+          onInput={(event) => props.onValueChanged?.(idx() + (props.channelOffset ?? 0), Number(event.target.value) / RES)}
+        />
       }</For>
     </div>
     <div class="stubbornContainer horizontal" style={{

@@ -1,15 +1,15 @@
 // Note: cannot import TypeScript files, only types
 // Can only import single level javascript files
-import { type Type, type IEffect, MinMax, Channels, DataFrame } from "../Effect";
+import { type IEffect, MinMax, Channels, MessageData } from "../Effect";
 
 // Uncomment this block to allow for importing single javascript files; remove if not needed
-// async function jsimport<T = any>(url : string): Promise<T> {
+// async function jsImport<T = any>(url : string): Promise<T> {
 //   const modUrl = URL.createObjectURL(new Blob([await (await fetch(url)).text()], {type: "text/javascript"}));
 //   const module = import(modUrl);
 //   URL.revokeObjectURL(modUrl);
 //   return module;
 // }
-// const myJsModule = await jsimport("/publicFolderFile.js");
+// const myJsModule = await jsImport("/publicFolderFile.js");
 
 export class Turquoise implements IEffect {
   static description = "Turns all LEDs turquoise to check RGB/GRB alignment.";
@@ -34,16 +34,37 @@ export class Turquoise implements IEffect {
     this.id = id ?? (Math.random() + 1).toString(36).substring(2);
     this.leds = new ArrayBuffer(x * y * channels);
 
-    window.addEventListener("message", ({ data: [id, timestamp, data] }: DataFrame) => {
+    window.addEventListener("message", ({ data: [id, timestamp, type, data] }: MessageData) => {
       if (this.id !== id) return;
-      this.frame(timestamp, data);
+      switch (type)
+      {
+        case "frame":
+          this.frame(timestamp, data);
+          break;
+
+        case "channels":
+          // Check if we even have data
+          if (!data.length)
+          {
+            // Channel "request", response with values
+            window.postMessage([this.id, 0, type, this.channelValues] );
+          } else {
+            // Iterate sparse array
+            data.forEach((v,i) => this.channelValues[i] = v);
+            this.frame(timestamp, this.leds);
+          }
+          break;
+      }
     });
+
+    // Initial channel values
+    window.postMessage([this.id, 0, "channels", this.channelValues] );
 
     // Initial "frame" Hand over the leds buffer
     this.frame(-1, this.leds);
   }
 
-  frame(timestamp: number, data: ArrayBuffer): void | Promise<void> {
+  frame(timestamp: number, data: ArrayBuffer): void {
     // Migration: ignore messages from Effects
     if (!timestamp) return;
 
@@ -52,14 +73,14 @@ export class Turquoise implements IEffect {
 
     for (let i = 0; i < view.length; i += 3/*channels*/) {
       // view[i + 0] = 0; // R
-      view[i + 1] = 255; // G
-      view[i + 2] = 204; // B
+      view[i + 1] = Math.round(255 * this.channelValues[0]); // G
+      view[i + 2] = Math.round(204 * this.channelValues[0]); // B
     }
 
-    // console.log("draw frame", timestamp, Array.from(view), data);
     // #0fc
+    window.postMessage([this.id, 0, "frame", this.leds] );
     // Hand over the leds buffer
-    window.postMessage([this.id, 0, this.leds], { transfer: [this.leds] } );
+    // window.postMessage([this.id, 0, this.leds], { transfer: [this.leds] } );
   }
 }
 

@@ -1,4 +1,4 @@
-import { createEffect, createSignal, lazy, onMount, Show } from "solid-js";
+import { createSignal, lazy, Show } from "solid-js";
 import "./App.css";
 import TabView from "./components/tabView/TabView";
 const Effects = lazy(() => import("./sections/Effects"));
@@ -7,7 +7,7 @@ import { Lights } from "./sections/Lights";
 import { Control } from "./sections/Control";
 import { ItemData, LightGroupTree } from "./sections/LightGroupTree";
 import DragNode from "./components/DragNode";
-import { DataFrame, Effect, IEffect } from "../public/Effect";
+import { type Effect, type IEffect } from "../public/Effect";
 import Help from "./sections/Help";
 
 import lightgroup_add_svg from "/src/assets/lightgroup.svg";
@@ -22,17 +22,19 @@ function App() {
   const [activeEffect, setActiveEffect] = createSignal<Effect>();
   const [effect, setEffect] = createSignal<Effect>();
   const [effectInstances, setEffectInstances] = createSignal<IEffect[]>();
+  const [channelValues, setChannelValues] = createSignal<number[]>([]);
   const [selectedItem, setSelectedItem] = createSignal<TreeItemProps<ItemData>>();
-
-  createEffect(() => {
-    // Selected effect instances to control
-    // console.log(effectInstances());
-  })
 
   return (
     <main>
       <div class="inbetweenContainer vertical">
-        <LightGroupTree class="itemContainer inbetweenChild list" onEffect={setActiveEffect} onSelect={setSelectedItem} onInstances={setEffectInstances}/>
+        <LightGroupTree
+          class="itemContainer inbetweenChild list"
+          onEffect={setActiveEffect}
+          onSelect={setSelectedItem}
+          onChannelValues={setChannelValues}
+          onInstances={setEffectInstances}
+        />
         <div>
           <button disabled={!selectedItem()?.data?.segment}><img src={lightgroup_add_svg}/></button>
           <button disabled={!selectedItem()?.data?.segment}><img src={lightgroup_remove_svg}/></button>
@@ -59,7 +61,7 @@ function App() {
           data-label="Control"
           class="contentContainer"
         >
-          <Control effect={activeEffect()} instances={effectInstances()} />
+          <Control effect={activeEffect()} instances={effectInstances()} channelValues={channelValues()}/>
         </section>
         {/* <section
           data-label="Remote"
