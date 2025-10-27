@@ -20,7 +20,6 @@ export const Effects: Component<EffectsProps> = (props) => {
   const [effectList, setEffectList] = createSignal<EffectList[]>([]);
   
   onMount(async () => {
-    // TODO: invoke file list
     const effectPaths = [
       "/effects/MyEffectTemplate.ts",
       "/effects/Turquoise.ts",

@@ -29,7 +29,6 @@ export const tsImport = async <T = any>(url: string): Promise<T> => {
   {
     const data = await (await fetch(url)).text();
     let result = ts.transpileModule(data, { compilerOptions: { module: ts.ModuleKind.ES2015 }});
-    // console.log(result.diagnostics);
     const blob = new Blob([result.outputText], {type: "text/javascript"});
     const modUrl = URL.createObjectURL(blob);
     const module = import(
@@ -52,17 +51,20 @@ export const loadEffect = async(url: string): Promise<Effect | undefined> => {
 
   try {
     const mod = await tsImport<ClassMod<IEffect>>(url);
-    // const eff = new mod.Matrix()
     const EffectClass = mod[className];
 
     if (!EffectClass) return;
-    // TODO: verify interface in debug (import.meta.env.DEV)
-    // console.log("instance", Object.getOwnPropertyNames(EffectClass.prototype)); // -> minMax, channels, refreshRate, frame
-    // console.log("static", Object.getOwnPropertyNames(EffectClass)); // -> name
+    // Verify interface in debug mode
+    if (import.meta.env.DEV)
+    {
+      const c = Object.getOwnPropertyNames(EffectClass.prototype);
+      const i = Object.getOwnPropertyNames(EffectClass);
+      console.assert(["constructor", "frame"].every((k) => c.includes(k)));
+      console.assert(["name", "description", "channels", "minMax", "refreshRate"].every((k) => i.includes(k)));
+    }
     return EffectClass;
   } catch(e) {
     console.warn("loadEffect", e);
-    // throw new TypeError("TypeScript import failed");
     return undefined;
   }
 };

@@ -12,11 +12,11 @@ export type SegmentProps = {
   /** Target DMX universe for this segment */
   universe: number,
   /** offset within Art-Net packet */
-  channelStart: number,   // TODO: warn if: not LED-aligned, overlap w/ other segment
+  channelStart: number,
   /** Channels per LED (typically 3) */
-  channelsPerLed: 1 | 3 | 4, // TODO: use type: "RGB"?
+  channelsPerLed: 1 | 3 | 4,
   /** Amount of LEDs within the light segment, for example: LED sleeve is 7*21 */
-  ledCount: number,     // TODO: warn if: overlap w/ other segment, out of bounds
+  ledCount: number,
   /** Amount of LEDs to skip within effect (bezel/padding) */
   ledOffset: number,
 }

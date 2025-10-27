@@ -71,9 +71,6 @@ export const Lights: Component = () => {
   const [light, setLight] = createSignal<TreeItemProps<SegmentProps[]>>();
   const onClick = (selected?: TreeItemProps<SegmentProps[]>) => {
     setLight(selected);
-    // selected.data[0].address
-    // console.log(selected.data)
-
   };
   
   return <>

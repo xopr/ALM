@@ -1,13 +1,13 @@
-import { Component, createSignal, For, JSX } from "solid-js";
+import { Component, createMemo, createSignal, For, JSX } from "solid-js";
 
 export type TabViewProps = {
-  // TODO: move towards key: child so that we don't need to instantiate the components (twice) 
   children: JSX.Element[];
   class?: string;
 };
 
 export const TabView: Component<TabViewProps> = (props) => {
   const [activeTab, setActiveTab] = createSignal<number>(0);
+  const child = createMemo(() => props.children[activeTab()]);
 
   return <div class="itemContainer tabs">
     <ul class="itemContainer horizontal">
@@ -22,7 +22,7 @@ export const TabView: Component<TabViewProps> = (props) => {
         >{tab.dataset.label ?? "Unnamed"}</li>;
       }}</For>
     </ul>
-    {props.children[activeTab()]}
+    {child()}
   </div>;
 };
 

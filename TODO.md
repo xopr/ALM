@@ -1,9 +1,36 @@
-* effect icons => place on treeitem
-* effect instance control -> option to follow parent
-* implement DragLeave (remove highlight in rare cases)
-* drag on offsettop/bottom->scroll
-* drag in between items
-* custom dragnode
+* DataObject cannot be cloned bug -> running in background issue?
+
+* connect control to selected sleeve instance(s)
+* tauri directory scanner -> ["/effects/MyEffectTemplate.ts"]
+* attach buttons
+  * LightGroup add
+  * LightGroup delete
+  * (Effect on/off)
+  * Effect remove
+  * (drag delete)
+  * Edit light name
+  * Add light
+  * Delete light
+  * Add segment
+  * Delete segment
+* Preview tab
+* Map tab
+* Midi remote tab
+  * (connect)
+* pointer events
+  * verify dragdrop pointer id (against multi touch)
+  * dragover: set highlight style (light reordering) (drag in between items)
+  * emulate click instead of relying on native click
+  * drag on offsettop/bottom->scroll
+  * custom dragnode
+  * implement DragLeave (remove highlight in rare cases)
+* segment settings:
+  * allow for array in treeList
+  * warn if: channelStart/ledCount not LED-aligned, overlap w/ other segment
+  * channelsPerLed: enum? "RGB" "BRG" -> fix device-side?
+* Effect
+  * add Color channels? 1:L, 3:RGB, 4:RGBW, 5:RGBWW
+  * effect instance control -> option to follow parent
 
 
 * create worker threads for effect: post data for artnet

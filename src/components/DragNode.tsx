@@ -55,13 +55,9 @@ export const DragNode: Component = () => {
   };
 
   const touchMove = (event: TouchEvent | MouseEvent) => {
-    // TODO: mouse changes target: store separately (as drag node dragNode)
     const target = originNode() ?? event.target as HTMLElement;
     if (!target || target.dataset.draggable !== "true" || event.touches?.length > 1) return;
 
-    // TODO: verify pointer id
-
-    // DRAG_THRESHOLD
     const { pageX, pageY } = "touches" in event ? event.touches[0] : event;
     const { x, y } = activePointer()!;
 
@@ -78,15 +74,11 @@ export const DragNode: Component = () => {
       target.dispatchEvent(dragStart);
       setOriginNode(target);
 
-      // const style = window.getComputedStyle(target);
       const clone = target.cloneNode(true) as HTMLElement;
-      // TODO: create mechanism that instantiates a complete clone
       clone.style.backgroundColor = "Highlight";
       clone.style.color = "HighlightText";
       clone.style.padding = "0.85em";
       clone.style.pointerEvents = "none";
-      // clone.style = style.cssText;
-      // clone.className = target.className
       clone.style.position = "absolute";
       clone.style.zIndex = "1000";
 
@@ -120,8 +112,6 @@ export const DragNode: Component = () => {
   };
 
   const touchUp = (event: TouchEvent | MouseEvent) => {
-    // TODO: verify pointer id
-    // TODO: remove move listener on mouse up (click) even when drag has not yet started -> emulate click
     if (event instanceof TouchEvent) {
       document.body.removeEventListener("touchmove", touchMove);
     } else {

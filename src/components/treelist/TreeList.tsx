@@ -1,11 +1,11 @@
-import { Component, createEffect, For } from "solid-js";
+import { Component, For } from "solid-js";
 import TreeItem, { type TreeItemProps } from "./TreeItem";
 
 // import styles from "./Treelist.module.css";
 // import { createStore } from "solid-js/store";
 export type TreeListProps<T = any> = {
   children: TreeItemProps<T>[];
-  onClick?: (indexes?: number[], ctrl?: boolean) => void; // TODO: index(es)
+  onClick?: (indexes?: number[], ctrl?: boolean) => void;
   class?: string;
   /** Whether to allow horizontal scrolling */
   horizontalScroll?: boolean;

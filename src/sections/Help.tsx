@@ -1,9 +1,6 @@
 import { Component } from "solid-js";
-import SliderGroup from "../components/sliderGroup/SliderGroup";
 
-export const Help: Component = (props) => {
-  // TODO: automatically (re)attach light group selection channels to slider groups
-  // H+S+L, R+G+B, C+M+Y+K
+export const Help: Component = () => {
   return <div id="content" class="contentContainer vertical">
     <h1>Help</h1>
     <ul>

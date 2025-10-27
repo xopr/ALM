@@ -5,7 +5,6 @@ import { arrayFromTreeItem } from "../components/treelist/treeListHelpers";
 import { ItemData } from "../sections/LightGroupTree";
 
 export const instanceLeaf = (tree: TreeListProps, item: TreeItemProps<ItemData>, Effect: Effect): Record<string, [effectInstance: IEffect, frameTime: number]> => {
-  // TODO: collect instances, merge arrays so we can isolate this method
   const newInstances: Record<string, [effectInstance: IEffect, frameTime: number]> = {};
 
   // (Different) effect applied to this subtree, stop propagation.

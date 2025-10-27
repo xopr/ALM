@@ -43,7 +43,6 @@ export const getParent = (treeList: TreeListProps, indexes?: number[]): TreeItem
   return treeItemFromArray(treeList, indexes.slice(0,-1));
 };
 
-// TODO: treeClickHelper is executed every time the list is updated. Find a way to do a set per tree
 const selectSet = new Set<TreeItemProps>();
 
 type CallbackSingle = (selected?: TreeItemProps) => void;
@@ -52,6 +51,7 @@ type ClickHandler = (indexes?: number[], ctrl?: boolean) => void;
 export function treeClickHelper(treeList: TreeListProps, callback?: CallbackMulti, multiSelect?: true): ClickHandler;
 export function treeClickHelper(treeList: TreeListProps, callback?: CallbackSingle, multiSelect?: false | undefined): ClickHandler;
 export function treeClickHelper(treeList: TreeListProps, callback?: CallbackSingle | CallbackMulti, multiSelect?: boolean): ClickHandler {
+  // TODO: treeClickHelper is executed every time the list is updated. Probably due to reactive treeList parameter.
   return (indexes?: number[], ctrl?: boolean) => {
     const clickedChild = treeItemFromArray(treeList, indexes);
     if (!clickedChild) {

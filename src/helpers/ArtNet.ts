@@ -16,7 +16,6 @@ export class Artnet
   constructor()
   {
     // listen<Payload>("plugin://udp", (x) => console.log(x.payload)).then(unlisten => this.cleanupListener = unlisten);
-    // TODO: sync?
     bind(this.id, "0.0.0.0:6454").catch((e) => {
       console.warn("Failed to bind:", e);
     });
@@ -27,13 +26,9 @@ export class Artnet
    *
    * @param {*} current_strip 
    */
-  send(effectBuffer: ArrayBuffer, address: string, port: number, universe: number, channelStart: number, channelsPerLed: number, ledCount: number, ledOffset = 0)
+  async send(effectBuffer: ArrayBuffer, address: string, port: number, universe: number, channelStart: number, channelsPerLed: number, ledCount: number, ledOffset = 0)
   {
-    // console.log("incoming frame", effectBuffer, address, port, universe, channelStart, channelStart, ledCount, ledOffset);
-
     const effectData = new Uint8Array(effectBuffer);
-    // console.log("send data");
-    
     const data = new Uint8Array(this.dataHeader.length + channelStart + channelsPerLed * ledCount);
     data.set(this.dataHeader);
     data.set(effectData.slice(ledOffset), this.dataHeader.length + channelStart);
@@ -41,9 +36,7 @@ export class Artnet
     // Set universe
     data.set([universe], 14 );
 
-    // TODO: await loop?
-    console.log(Array.from(data));
-    void send(this.id, `${address}:${port}`, Array.from(data)).catch((e) => { console.warn("cannot send", e)});
+    await send(this.id, `${address}:${port}`, Array.from(data)).catch((e) => { console.warn("cannot send", e)});
   }
 
   /**
