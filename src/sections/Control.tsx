@@ -50,7 +50,7 @@ export const Control: Component<ControlProps> = (props) => {
 
     List effect channel preset for current (group) effect
     Affected lights: {props.instances?.length}<br/>
-    channels: {channelValues().length}
+    channels: {channelValues()?.length}
     TODO: map channel names on top of each other
     OR: ignore the other effect tree!
   </div>;
