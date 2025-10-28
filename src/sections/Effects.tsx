@@ -1,9 +1,42 @@
 import { Component, createMemo, createSignal, For, on, onMount } from "solid-js";
 import { loadEffect } from "../helpers/classFileHelpers";
 import { type Effect } from "../../public/Effect";
-import sectionStyles from "../sections/Section.module.css";
 import ListItem from "../components/ListItem";
 import { DragDropData } from "../components/DragNode";
+import { readDir } from "@tauri-apps/plugin-fs";
+import * as path from "@tauri-apps/api/path";
+
+const getEffects = async (): Promise<string[]> => {
+  let fullPath: string;
+  let files: string[] = [];
+
+  try {
+    fullPath = await path.resolve("../public/effects");
+    if (fullPath) {
+      console.log("found at", fullPath);
+      const fileEntries = await readDir(fullPath);
+      files = fileEntries.map(entry => `${fullPath}${path.sep()}${entry.name}`);
+    }
+  } catch {
+    // Pass
+  }
+
+  if (!files.length) {
+    try {
+      fullPath = await path.resolve("effects");
+      if (fullPath) {
+        console.log("found at", fullPath);
+        const fileEntries = await readDir(fullPath);
+        files = fileEntries.map(entry => `${fullPath}${path.sep()}${entry.name}`);
+      }
+    } catch {
+      // Pass
+    }
+  }
+
+  return files;
+}
+
 
 type EffectList = {
   effect: Effect;
@@ -20,10 +53,7 @@ export const Effects: Component<EffectsProps> = (props) => {
   const [effectList, setEffectList] = createSignal<EffectList[]>([]);
   
   onMount(async () => {
-    const effectPaths = [
-      "/effects/MyEffectTemplate.ts",
-      "/effects/Turquoise.ts",
-    ];
+    const effectPaths = await getEffects();
 
     try {
       effectPaths.forEach(async (effectPath) => {

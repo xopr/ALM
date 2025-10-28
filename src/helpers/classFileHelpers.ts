@@ -1,5 +1,6 @@
 import ts from "typescript";
 import { Effect, type IEffect } from "../../public/Effect";
+import { readTextFile } from "@tauri-apps/plugin-fs";
 
 /** Class constructor of (interface) type C */
 // export type ClassConstructor<C, A = any> = new (...args: Array<A>) => C;
@@ -27,7 +28,9 @@ type ClassMod<C, K extends string = string, A = any> = {
 export const tsImport = async <T = any>(url: string): Promise<T> => {
   try
   {
-    const data = await (await fetch(url)).text();
+    const data = await readTextFile(url);
+    // Used to read internal (public folder) files 
+    // const data = await (await fetch(url)).text();
     let result = ts.transpileModule(data, { compilerOptions: { module: ts.ModuleKind.ES2015 }});
     const blob = new Blob([result.outputText], {type: "text/javascript"});
     const modUrl = URL.createObjectURL(blob);

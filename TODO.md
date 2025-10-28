@@ -1,7 +1,5 @@
 * DataObject cannot be cloned bug -> running in background issue?
 
-* connect control to selected sleeve instance(s)
-* tauri directory scanner -> ["/effects/MyEffectTemplate.ts"]
 * attach buttons
   * LightGroup add
   * LightGroup delete
@@ -13,17 +11,9 @@
   * Delete light
   * Add segment
   * Delete segment
-* Preview tab
-* Map tab
+* store tree and lights/segments in localStorage
 * Midi remote tab
   * (connect)
-* pointer events
-  * verify dragdrop pointer id (against multi touch)
-  * dragover: set highlight style (light reordering) (drag in between items)
-  * emulate click instead of relying on native click
-  * drag on offsettop/bottom->scroll
-  * custom dragnode
-  * implement DragLeave (remove highlight in rare cases)
 * segment settings:
   * allow for array in treeList
   * warn if: channelStart/ledCount not LED-aligned, overlap w/ other segment
@@ -31,9 +21,20 @@
 * Effect
   * add Color channels? 1:L, 3:RGB, 4:RGBW, 5:RGBWW
   * effect instance control -> option to follow parent
+* pointer events
+  * verify dragdrop pointer id (against multi touch)
+  * dragover: set highlight style (light reordering) (drag in between items)
+  * emulate click instead of relying on native click
+  * drag on offsettop/bottom->scroll
+  * custom dragnode
+  * implement DragLeave (remove highlight in rare cases)
+* read/import config as an external file
+* Preview tab
+* Map tab
 
 
 * create worker threads for effect: post data for artnet
+* tauri directory scanner -> fall back to internal (public) folder
 
 examples
 8*64 LED display: 3 universes
