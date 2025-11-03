@@ -119,15 +119,20 @@ export const Lights: Component = () => {
     });
   };
 
-  const removeSegment = (light: TreeItemProps<SegmentProps[]>) => {
-    light.data?.splice(-1, 1);
+  const removeSegment = (light?: TreeItemProps<SegmentProps[]>) => {
+    light?.data?.splice(-1, 1);
   };
-  
+
+  const renameItem = (light?: TreeItemProps<SegmentProps[]>) => {
+    if (!light) return;
+    const name = prompt("New name", light.name);
+    if (name) light.name = name;
+  };
+
   return <>
         <div class="contentContainer vertical">
           <h1>Lights section [{light()?.name}]</h1>
           <div class="contentContainer vertical">
-            <button><img src={edit_svg}/></button>
             Also list the effects that are currently tied to it?<br/>
             <Show when={light()}>
               <Light {...light() as LightProps} />
@@ -145,6 +150,7 @@ export const Lights: Component = () => {
             <button onClick={() => removeLight(light()!)} disabled={!light()}><img src={light_remove_svg}/></button>
             <button onClick={() => addSegment(light()!)} disabled={!light()}><img src={segment_add_svg}/></button>
             <button onClick={() => removeSegment(light()!)} disabled={!(light()?.data?.length > 1) }><img src={segment_remove_svg}/></button>
+          <button onclick={() => renameItem(light())} disabled={!light()}><img src={edit_svg}/></button>
           </div>
         </div>
       </>;

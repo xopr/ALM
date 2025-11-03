@@ -13,6 +13,7 @@ import { TreeItemProps } from "./components/treelist/TreeItem";
 
 import control from "/src/assets/control.svg";
 import delete_svg from "/src/assets/delete.svg";
+import edit_svg from "/src/assets/edit.svg";
 import effect_on_svg from "/src/assets/effect.svg";
 import effect_off_svg from "/src/assets/effect_off1.svg";
 import effect_remove_svg from "/src/assets/effect_remove.svg";
@@ -58,6 +59,12 @@ function App() {
     removeEffect(item);
   }
 
+  const renameItem = (item?: TreeItemProps<ItemData>) => {
+    if (!item) return;
+    const name = prompt("New name", item.name);
+    if (name) item.name = name;
+  }
+
   return (
     <main>
       <div class="inbetweenContainer vertical">
@@ -73,6 +80,7 @@ function App() {
           <button onclick={() => removeLightGroup(selectedItem())} disabled={!!selectedItem()?.data?.segment}><img src={lightgroup_remove_svg}/></button>
           <button onclick={() => toggleEffect(selectedItem())} disabled={!activeEffect()}><img src={(!activeEffect() || enabledEffect()) ? effect_off_svg : effect_on_svg}/></button>
           <button onclick={() => removeEffectHandler(selectedItem())} disabled={!activeEffect()}><img src={effect_remove_svg}/></button>
+          <button onclick={() => renameItem(selectedItem())} disabled={!selectedItem()}><img src={edit_svg}/></button>
           <Show when={false/*drag*/}>
             <button><img src={delete_svg}/></button>
           </Show>
