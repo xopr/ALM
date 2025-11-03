@@ -25,15 +25,14 @@ export const Segment: Component<SegmentProps> = (props) => {
 
   return <div class={styles.segment} data-draggable="true" data-type="segment">
     Segment node
-    <LabeledInput label="Address" value={props.address}/>
-    <LabeledInput label="Port" value={props.port} type="number" min={1} max={65535}/>
-    <LabeledInput label="Universe" value={props.port} type="number" min={0} max={65535}/>
-    <LabeledInput label="Channel start" value={props.channelStart} type="number" min={0} max={65535}/>
-    <LabeledInput label="Channels per LED" value={props.channelsPerLed} type="number" min={1} max={5}/>
-    <LabeledInput label="LED count" value={props.channelsPerLed} type="number" min={1} max={512}/>
-    <LabeledInput label="LED offset" value={props.ledOffset} type="number" min={0} max={511}/>
+    <LabeledInput label="Address" value={props.address} onInput={(e) => props.address = e.currentTarget.value}/>
+    <LabeledInput label="Port" value={props.port} type="number" min={1} max={65535} onInput={(e) => props.port = parseInt(e.currentTarget.value)}/>
+    <LabeledInput label="Universe" value={props.universe} type="number" min={0} max={65535} onInput={(e) => props.universe = parseInt(e.currentTarget.value)}/>
+    <LabeledInput label="Channel start" value={props.channelStart} type="number" min={0} max={65535} onInput={(e) => props.channelStart = parseInt(e.currentTarget.value)}/>
+    <LabeledInput label="Channels per LED" value={props.channelsPerLed} type="number" min={1} max={5} onInput={(e) => props.channelsPerLed = parseInt(e.currentTarget.value)}/>
+    <LabeledInput label="LED count" value={props.ledCount} type="number" min={1} max={512} onInput={(e) => props.ledCount = parseInt(e.currentTarget.value)}/>
+    <LabeledInput label="LED offset" value={props.ledOffset} type="number" min={0} max={511} onInput={(e) => props.ledOffset = parseInt(e.currentTarget.value)}/>
   </div>
-;
 };
 
 export default Segment;

@@ -1,4 +1,4 @@
-import { Component, createMemo, createSignal, For, JSX } from "solid-js";
+import { Component, createMemo, createSignal, For, JSX, Show } from "solid-js";
 
 export type TabViewProps = {
   children: JSX.Element[];
@@ -19,7 +19,12 @@ export const TabView: Component<TabViewProps> = (props) => {
           aria-selected={index() === activeTab()}
           onClick={() => setActiveTab(index())}
           tabindex={0}
-        >{tab.dataset.label ?? "Unnamed"}</li>;
+        >
+          <Show when={tab.dataset.icon}>
+            <img src={tab.dataset.icon}/>
+          </Show>
+          {tab.dataset.label ?? "Unnamed"}
+          </li>;
       }}</For>
     </ul>
     {child()}

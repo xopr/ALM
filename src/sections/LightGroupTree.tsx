@@ -1,7 +1,7 @@
 import { Component, onMount } from "solid-js";
 import TreeList, { TreeListProps } from "../components/treelist/TreeList";
 import { createMutable } from "solid-js/store";
-import { arrayFromTreeItem, treeClickHelper, treeDragHelper, treeItemFromArray } from "../components/treelist/treeListHelpers";
+import { arrayFromTreeItem, getParent, treeClickHelper, treeDragHelper, treeItemFromArray } from "../components/treelist/treeListHelpers";
 import { type DragDropData } from "../components/DragNode";
 import { MessageData, Effect, type IEffect } from "../../public/Effect";
 import { TreeItemProps } from "../components/treelist/TreeItem";
@@ -24,11 +24,39 @@ export type ItemData = {
   segment?: SegmentProps;
 };
 
+// TODO: migrate instances to treeitem data
 const instances: Record<string, [effectInstance: IEffect, frameTime: number]> = {};
 
+export const removeEffect = (item: TreeItemProps<ItemData>, effect?: string) => {
+  const eff = effect ?? item.data?.effect?.name;
+  if (!eff) return;
+  // Don't delete different effect (instances)
+  if (item.data?.effect?.name && item.data.effect.name !== eff) return;
+
+  const indexes = arrayFromTreeItem(lightGroups, item)
+  delete instances[indexes.join("_")];
+
+  delete item.data?.effect;
+  item.disabled = true;
+  delete item.icon;
+
+  item.children?.forEach(child => {
+    removeEffect(child, eff);
+  });
+}
+
+export const removeItem = (item: TreeItemProps<ItemData>) => {
+  const indexes = arrayFromTreeItem(lightGroups, item)
+  const parent = getParent(lightGroups, indexes);
+
+  // Skip root node as well
+  if (!parent || indexes.length <= 1) return;
+
+  parent.children?.splice(indexes.pop()!, 1);
+}
 const artnet = new Artnet();
 // Groups of light(-segment)s to attach an effect to.
-const lightGroups = createMutable<TreeListProps>({
+export const lightGroups = createMutable<TreeListProps>({
   children: [
     {
       name: "Boshovenpop",
@@ -253,7 +281,11 @@ export const LightGroupTree: Component<LightGroupTreeProps> = (props) => {
           setTimeout(() => {
             // window.postMessage([id, performance.now(), "frame", data] );
             // Hand over the leds buffer
-            window.postMessage([id, performance.now(), type, data], { transfer: [data] } );
+            // Error: DataCloneError: The object can not be cloned.
+            if (data.byteLength)
+              window.postMessage([id, performance.now(), type, data], { transfer: [data] } );
+            else
+              console.warn("No data to transmit.");
           }, instances[id][1]);
           break;
 

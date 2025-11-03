@@ -9,13 +9,9 @@ export type LightProps = {
 };
 
 export const Light: Component<LightProps> = (props) => {
-  return <>
-    {/* {props.} */}
-    <ul class="contentContainer vertical">
+  return <ul class="contentContainer vertical">
       <For each={props.data}>{(segment) => <Segment {...segment} />}</For>
-    </ul>
-
-  </>;
+    </ul>;
 };
 
 export default Light;

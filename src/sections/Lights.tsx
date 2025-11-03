@@ -13,12 +13,15 @@ import segment_add_svg from "/src/assets/segment_add.svg";
 import segment_remove_svg from "/src/assets/segment_remove.svg";
 import edit_svg from "/src/assets/edit.svg";
 
+import light_svg from "/src/assets/light.svg";
+
 // List of lights with their segments to direct Art-net data
 const lights = createMutable<TreeListProps<SegmentProps[]>>({
   children: [
     {
       name: "Torch",
       type: "light",
+      icon: light_svg,
       data: [
         {
           address: "127.0.0.1",
@@ -34,6 +37,7 @@ const lights = createMutable<TreeListProps<SegmentProps[]>>({
     {
       name: "Parasol",
       type: "light",
+      icon: light_svg,
       data: [
         {
           address: "127.0.0.1",
@@ -72,6 +76,52 @@ export const Lights: Component = () => {
   const onClick = (selected?: TreeItemProps<SegmentProps[]>) => {
     setLight(selected);
   };
+
+  const addLight = (type = "torch") => {
+    // light()
+    lights.children.push({
+      name: `New ${type}`,
+      type: "light",
+      icon: light_svg,
+      data: [
+        {
+          address: "127.0.0.1",
+          port: 7000,
+          universe: 1,
+          channelStart: 0,   // offset within Art-Net packet, warn if: not LED-aligned, overlap w/ other segment
+          channelsPerLed: 3, // type: "RGB"
+          ledCount: 147,     // 7 * 21, warn if: overlap w/ other segment, out of bounds
+          ledOffset: 0,      // amount of LEDs to skip within effect (bezel/padding)
+        }
+      ]
+    });
+  };
+
+  const removeLight = (light: TreeItemProps<SegmentProps[]>) => {
+    lights.children.some((child, idx) => {
+      if (child === light) {
+        lights.children.splice(idx, 1);
+        setLight();
+        return true;
+      }
+    })
+  };
+
+  const addSegment = (light: TreeItemProps<SegmentProps[]>) => {
+    light.data?.push(        {
+      address: "127.0.0.1",
+      port: 7000,
+      universe: 1,
+      channelStart: 0,   // offset within Art-Net packet, warn if: not LED-aligned, overlap w/ other segment
+      channelsPerLed: 3, // type: "RGB"
+      ledCount: 147,     // 7 * 21, warn if: overlap w/ other segment, out of bounds
+      ledOffset: 0,      // amount of LEDs to skip within effect (bezel/padding)
+    });
+  };
+
+  const removeSegment = (light: TreeItemProps<SegmentProps[]>) => {
+    light.data?.splice(-1, 1);
+  };
   
   return <>
         <div class="contentContainer vertical">
@@ -86,15 +136,15 @@ export const Lights: Component = () => {
         </div>
         <div class="inbetweenContainer vertical">
           <TreeList
-            class="itemContainer list inbetweenChild"
+            class="contentContainer list vertical"
             children={lights.children}
             onClick={treeClickHelper(lights, onClick)}
           />
           <div>
-            <button><img src={light_add_svg}/></button>
-            <button disabled={!light()}><img src={light_remove_svg}/></button>
-            <button disabled={!light()}><img src={segment_add_svg}/></button>
-            <button disabled={!(light()?.data?.length > 1) }><img src={segment_remove_svg}/></button>
+            <button onClick={() => addLight()}><img src={light_add_svg}/></button>
+            <button onClick={() => removeLight(light()!)} disabled={!light()}><img src={light_remove_svg}/></button>
+            <button onClick={() => addSegment(light()!)} disabled={!light()}><img src={segment_add_svg}/></button>
+            <button onClick={() => removeSegment(light()!)} disabled={!(light()?.data?.length > 1) }><img src={segment_remove_svg}/></button>
           </div>
         </div>
       </>;

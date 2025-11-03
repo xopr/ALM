@@ -6,6 +6,8 @@ import { DragDropData } from "../components/DragNode";
 import { readDir } from "@tauri-apps/plugin-fs";
 import * as path from "@tauri-apps/api/path";
 
+import effect_off_svg from "/src/assets/effect_off1.svg";
+
 const getEffects = async (): Promise<string[]> => {
   let fullPath: string;
   let files: string[] = [];
@@ -73,6 +75,7 @@ export const Effects: Component<EffectsProps> = (props) => {
     return <For each={effectList()}>{(listItem, idx) =>
         <ListItem
           id={`${idx()}`}
+          icon={effect_off_svg}
           name={listItem.effect.name}
           selected={listItem.selected}
           type="effect"

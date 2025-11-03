@@ -75,8 +75,6 @@ main {
   padding: 0;
   margin: 0;
 
-  white-space: nowrap;
-
   &.horizontal {
     white-space: nowrap;
     /* scrollbar-width: none; */
@@ -108,6 +106,10 @@ main {
         color: ButtonText;
         background-color: ButtonFace;
       }
+      & > img {
+        vertical-align: bottom;
+        padding-right: 0.5em;
+      }
     }
   }
 }
@@ -116,7 +118,6 @@ main {
   /* flex: 0 0 auto; */
   flex: 0 1 auto;
 
-  overflow: auto;
   overflow: auto;
   display: flex;
 
@@ -128,7 +129,6 @@ main {
 .stubbornContainer {
   flex: 0 1 auto;
 
-  overflow: auto;
   overflow: auto;
   display: flex;
 
@@ -144,6 +144,7 @@ main {
 
 .list {
   width: 15em;
+  white-space: nowrap;
 }
 
 button:not(:disabled) {
