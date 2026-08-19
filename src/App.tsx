@@ -30,7 +30,7 @@ function App() {
   const [selectedItem, setSelectedItem] = createSignal<TreeItemProps<ItemData>>();
 
   const enabledEffect = createMemo(() => {
-    return !!selectedItem()?.data?.effect;
+    return !!selectedItem()?.data?.effect && !selectedItem()?.data?.effectDisabled;
   });
 
   const addLightGroup = (parent?: TreeItemProps<ItemData>) => {
@@ -51,7 +51,8 @@ function App() {
 
   const toggleEffect = (item?: TreeItemProps<ItemData>) => {
     if (!item?.data?.effect) return;
-    console.log("TODO", item.data.effect);
+    item.data.effectDisabled = !item.data.effectDisabled;
+    item.icon =item.data.effectDisabled ?  effect_off_svg : effect_on_svg;
   }
 
   const removeEffectHandler = (item?: TreeItemProps<ItemData>) => {
@@ -88,19 +89,6 @@ function App() {
       </div>
       <TabView>
         <section
-          data-label="Lights"
-          data-icon={light_on}
-          class="contentContainer"
-        >
-          <Lights /*effect={}?*/ /*light={}*/ />
-        </section>
-        {/* <section
-          data-label="Map"
-          data-icon={map}
-          class="contentContainer"
-        >
-        </section> */}
-        <section
           data-label="Control"
           data-icon={control}
           class="contentContainer"
@@ -126,6 +114,22 @@ function App() {
             effect={effect()}
           />
         </section>
+        <section
+          data-label="Lights"
+          data-icon={light_on}
+          class="contentContainer"
+        >
+        <Show when={process.env.NODE_ENV === "development"}>
+          <button onClick={() => window.location.reload()}>reload</button>
+        </Show>
+          <Lights /*effect={}?*/ /*light={}*/ />
+        </section>
+        {/* <section
+          data-label="Map"
+          data-icon={map}
+          class="contentContainer"
+        >
+        </section> */}
         <section
           data-label="Help"
           data-icon={help}

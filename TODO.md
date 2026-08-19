@@ -1,17 +1,34 @@
+* check error on dropping dummy light effect
+
+* builds steps -> "../public/effects/"
+
+* drag drop Light to Scene tree (group item)
+* refresh effect folder
+
+* swap control+lights
+
+
 * DataObject cannot be cloned bug -> running in background issue?
 
+Better tree:
+* lightGroupTree -> data
+  * disabled state
+
+* presets / scene selection
+
 * attach buttons
-  * LightGroup add
-  * LightGroup delete
-  * (Effect on/off)
-  * Effect remove
+  * Effect on -> trigger postmessage (like change channel) to restart animation
   * (drag delete)
-  * Edit light name
-  * Add light
-  * Delete light
-  * Add segment
-  * Delete segment
-* store tree and lights/segments in localStorage
+* pointer events
+  * drag drop lights/segments
+  * verify dragdrop pointer id (against multi touch)
+  * dragover: set highlight style (light reordering) (drag in between items)
+  * emulate click instead of relying on native click
+  * drag on offsettop/bottom->scroll
+  * custom dragnode
+  * implement DragLeave (remove highlight in rare cases)
+* store tree and lights/segments in localStorage/indexedDB?
+  * read/import config as an external file
 * Midi remote tab
   * (connect)
 * segment settings:
@@ -21,20 +38,13 @@
 * Effect
   * add Color channels? 1:L, 3:RGB, 4:RGBW, 5:RGBWW
   * effect instance control -> option to follow parent
-* pointer events
-  * verify dragdrop pointer id (against multi touch)
-  * dragover: set highlight style (light reordering) (drag in between items)
-  * emulate click instead of relying on native click
-  * drag on offsettop/bottom->scroll
-  * custom dragnode
-  * implement DragLeave (remove highlight in rare cases)
-* read/import config as an external file
 * Preview tab
 * Map tab
 
 
 * create worker threads for effect: post data for artnet
 * tauri directory scanner -> fall back to internal (public) folder
+* chain effects (lightning override, etc)
 
 examples
 8*64 LED display: 3 universes
