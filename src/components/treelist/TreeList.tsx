@@ -1,11 +1,13 @@
-import { Component, For } from "solid-js";
+import { Component, splitProps } from "solid-js";
 import TreeItem, { type TreeItemProps } from "./TreeItem";
 
-// import styles from "./Treelist.module.css";
-// import { createStore } from "solid-js/store";
 export type TreeListProps<T = any> = {
-  children: TreeItemProps<T>[];
-  onClick?: (indexes?: number[], ctrl?: boolean) => void;
+  /** Root node of the tree */
+  item: TreeItemProps<T>;
+  /** Whether to hide the root node to show a flat list */
+  hideRoot?: boolean;
+  /** Tree item click handler */
+  onClick?: (indexes: number[], ctrl?: boolean) => void;
   class?: string;
   /** Whether to allow horizontal scrolling */
   horizontalScroll?: boolean;
@@ -13,13 +15,14 @@ export type TreeListProps<T = any> = {
   accept?: string[]
   /** Whether we're a partial tree (i.e. child) */
   partial?: boolean;
+  /** Drag handler */
   onDragOver?: (event: DragEvent) => boolean;
+  /** Drag handler */
   onDrop?: (event: DragEvent) => boolean;
-  idPrefix?: string;
 }
 
 export const TreeList: Component<TreeListProps> = (props) => {
-
+  const [name, other] = splitProps(props.item, ["name"]);
   const onClick = (event: MouseEvent & {currentTarget: HTMLUListElement; target: Element;}) => {
     const { target } = event;
     if (!props.onClick || !target) return;
@@ -41,12 +44,11 @@ export const TreeList: Component<TreeListProps> = (props) => {
       return false;
     }}
   >
-    <For each={props.children}>{(child, i) => 
-      <TreeItem
-        id={props.idPrefix ? `${props.idPrefix}_${i()}` : `${i()}`}
-        {...child}
-      />
-    }</For>
+    <TreeItem
+      {...other}
+      name={props.hideRoot ? undefined : name.name}
+      id="0"
+    />
   </ul>;
 };
 

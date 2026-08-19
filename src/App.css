@@ -1,6 +1,6 @@
 :root {
-  /* --text: #0f0f0f;
-  --background: #f6f6f6; */
+  --text: #0f0f0f;
+  --background: #f6f6f6;
 
   font-family: Inter, Avenir, Helvetica, Arial, sans-serif;
   font-size: 16px;
@@ -145,6 +145,21 @@ main {
 .list {
   width: 15em;
   white-space: nowrap;
+  padding: 0;
+  margin: 0;
+  & ul {
+    padding: 0;
+  }
+  & li {
+    padding-left: 2em;
+  }
+
+  & .flat {
+    padding: 0;
+    & > ul > li {
+      padding-left: 0;
+    }
+  }
 }
 
 button:not(:disabled) {

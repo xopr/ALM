@@ -1,7 +1,6 @@
 import { Component, createSignal, Show } from "solid-js";
-import sectionStyles from "../sections/Section.module.css";
 import { createMutable } from "solid-js/store";
-import TreeList, { TreeListProps } from "../components/treelist/TreeList";
+import TreeList from "../components/treelist/TreeList";
 import { treeClickHelper } from "../components/treelist/treeListHelpers";
 import { TreeItemProps } from "../components/treelist/TreeItem";
 import Light, { LightProps } from "../components/light/Light";
@@ -16,7 +15,9 @@ import edit_svg from "/src/assets/edit.svg";
 import light_svg from "/src/assets/light.svg";
 
 // List of lights with their segments to direct Art-net data
-const lights = createMutable<TreeListProps<SegmentProps[]>>({
+const lights = createMutable<TreeItemProps<SegmentProps[]>>({
+  name: "$ROOT",
+  type: "$ROOT",
   children: [
     {
       name: "Torch",
@@ -79,7 +80,7 @@ export const Lights: Component = () => {
 
   const addLight = (type = "torch") => {
     // light()
-    lights.children.push({
+    lights?.children?.push({
       name: `New ${type}`,
       type: "light",
       icon: light_svg,
@@ -98,9 +99,9 @@ export const Lights: Component = () => {
   };
 
   const removeLight = (light: TreeItemProps<SegmentProps[]>) => {
-    lights.children.some((child, idx) => {
+    lights?.children?.some((child, idx) => {
       if (child === light) {
-        lights.children.splice(idx, 1);
+        lights?.children?.splice(idx, 1);
         setLight();
         return true;
       }
@@ -141,8 +142,9 @@ export const Lights: Component = () => {
         </div>
         <div class="inbetweenContainer vertical">
           <TreeList
+            hideRoot
             class="contentContainer list vertical"
-            children={lights.children}
+            item={lights}
             onClick={treeClickHelper(lights, onClick)}
           />
           <div>
