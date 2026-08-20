@@ -9,7 +9,7 @@
     "build": "vite build",
     "serve": "vite preview",
     "tauri": "tauri",
-    "simstrip": "cd ../../bitlair-ohm2013-ledstrip-contol/tools; ./simstrip.py"
+    "simstrips": "cd ../../bitlair-ohm2013-ledstrip-contol/tools; ./simstrip.py 2"
   },
   "license": "MIT",
   "dependencies": {

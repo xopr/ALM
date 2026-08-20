@@ -55,7 +55,7 @@ export const removeItem = (item: TreeItemProps<ItemData>) => {
 const artnet = new Artnet();
 // Groups of light(-segment)s to attach an effect to.
 export const lightGroups = createMutable<TreeItemProps>({
-  name: "$ROOT",  
+  name: "$ROOT",
   children: [
     {
       name: "Boshovenpop",
@@ -73,12 +73,28 @@ export const lightGroups = createMutable<TreeItemProps>({
               disabled: true,
               data: {
                 segment: {
-                  address: "127.0.0.1",
-                  port: 7000,
+                  address: "192.168.7.230",
+                  port: 6454,
                   universe: 0,
                   channelStart: 9,   // offset within Art-Net packet, warn if: not LED-aligned, overlap w/ other segment
                   channelsPerLed: 3, // type: "RGB"
                   ledCount: 147,     // 7 * 21, warn if: overlap w/ other segment, out of bounds
+                  ledOffset: 0,      // amount of LEDs to skip within effect (bezel/padding)
+                },
+              },
+            },
+            {
+              name: "String",
+              type: "segment",
+              disabled: true,
+              data: {
+                segment: {
+                  address: "192.168.7.234",
+                  port: 6454,
+                  universe: 0,
+                  channelStart: 0,   // offset within Art-Net packet, warn if: not LED-aligned, overlap w/ other segment
+                  channelsPerLed: 3, // type: "RGB"
+                  ledCount: 99,     // 7 * 21, warn if: overlap w/ other segment, out of bounds
                   ledOffset: 0,      // amount of LEDs to skip within effect (bezel/padding)
                 },
               },
@@ -96,8 +112,8 @@ export const lightGroups = createMutable<TreeItemProps>({
               disabled: true,
               data: {
                 segment: {
-                  address: "127.0.0.1",
-                  port: 7000,
+                  address: "192.168.7.231",
+                  port: 6454,
                   universe: 1,
                   channelStart: 0,   // offset within Art-Net packet, warn if: not LED-aligned, overlap w/ other segment
                   channelsPerLed: 3, // type: "RGB"
@@ -112,8 +128,8 @@ export const lightGroups = createMutable<TreeItemProps>({
               disabled: true,
               data: {
                 segment: {
-                  address: "127.0.0.1",
-                  port: 7000,
+                  address: "192.168.7.233",
+                  port: 6454,
                   universe: 1,
                   channelStart: 0,   // offset within Art-Net packet, warn if: not LED-aligned, overlap w/ other segment
                   channelsPerLed: 3, // type: "RGB"
@@ -140,8 +156,8 @@ export const lightGroups = createMutable<TreeItemProps>({
                   disabled: true,
                   data: {
                     segment: {
-                      address: "127.0.0.1",
-                      port: 7000,
+                      address: "192.168.7.235",
+                      port: 6454,
                       universe: 1,
                       channelStart: 0,   // offset within Art-Net packet, warn if: not LED-aligned, overlap w/ other segment
                       channelsPerLed: 3, // type: "RGB"
@@ -156,8 +172,8 @@ export const lightGroups = createMutable<TreeItemProps>({
                   disabled: true,
                   data: {
                     segment: {
-                      address: "127.0.0.1",
-                      port: 7000,
+                      address: "192.168.7.235",
+                      port: 6454,
                       universe: 1,
                       channelStart: 240, // offset within Art-Net packet, warn if: not LED-aligned, overlap w/ other segment
                       channelsPerLed: 3, // type: "RGB"
@@ -172,8 +188,8 @@ export const lightGroups = createMutable<TreeItemProps>({
                   disabled: true,
                   data: {
                     segment: {
-                      address: "127.0.0.1",
-                      port: 7000,
+                      address: "192.168.7.235",
+                      port: 6454,
                       universe: 2,
                       channelStart: 0,   // offset within Art-Net packet, warn if: not LED-aligned, overlap w/ other segment
                       channelsPerLed: 3, // type: "RGB"
@@ -190,8 +206,8 @@ export const lightGroups = createMutable<TreeItemProps>({
               disabled: true,
               data: {
                 segment: {
-                  address: "127.0.0.1",
-                  port: 7000,
+                  address: "192.168.7.233",
+                  port: 6454,
                   universe: 1,
                   channelStart: 0,   // offset within Art-Net packet, warn if: not LED-aligned, overlap w/ other segment
                   channelsPerLed: 3, // type: "RGB"
@@ -202,6 +218,46 @@ export const lightGroups = createMutable<TreeItemProps>({
             },
           ],
         },
+        {
+          name: "PC",
+          disabled: true,
+          type: "group",
+          children: [
+            {
+              name: "simstrip1",
+              type: "segment",
+              disabled: true,
+              data: {
+                segment: {
+                  address: "127.0.0.1",
+                  port: 7000,
+                  universe: 0,
+                  channelStart: 0,   // offset within Art-Net packet, warn if: not LED-aligned, overlap w/ other segment
+                  channelsPerLed: 3, // type: "RGB"
+                  ledCount: 147,     // 7 * 21, warn if: overlap w/ other segment, out of bounds
+                  ledOffset: 0,      // amount of LEDs to skip within effect (bezel/padding)
+                },
+              },
+            },
+            {
+              name: "simstrip2",
+              type: "segment",
+              disabled: true,
+              data: {
+                segment: {
+                  address: "127.0.0.1",
+                  port: 7001,
+                  universe: 0,
+                  channelStart: 0,   // offset within Art-Net packet, warn if: not LED-aligned, overlap w/ other segment
+                  channelsPerLed: 3, // type: "RGB"
+                  ledCount: 147,       // 7 * 21, warn if: overlap w/ other segment, out of bounds
+                  ledOffset: 3,      // amount of LEDs to skip within effect (bezel/padding)
+                },
+              },
+            },
+          ],
+        },
+
         // {
         //   name: "Display",
         //   disabled: true,
@@ -302,7 +358,7 @@ export const LightGroupTree: Component<LightGroupTreeProps> = (props) => {
   const getInstances = (item?: TreeItemProps<ItemData>): IEffect[] => {
     // We're not leaf level; collect our descendants
     if (item?.children?.length) {
-      return Array.prototype.concat.call(item.children.map(getInstances))
+      return Array.prototype.concat.call(item.children.map(getInstances)).flat()
     }
     console.log("I", item?.data?.effectInstance);
     // Do we have an instance?
