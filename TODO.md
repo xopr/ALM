@@ -1,11 +1,27 @@
+* MB sometimes, dropping effect on group does not encompass all children
+  * 0 children means no slider?
+  -> needs effect hover or select to "initialize"
+* MB onload/overload(?) does not remove instance -> network is spammed!
+* MB multiple layered different effects trigger all instance values!
+
+* B ledOffset is channel offset
+* F list the effect(s) that are tight to the Lights section segment
+* F add segment drag handle
+* ? List effect channel preset for current (group) effect
+* ? TODO: map channel names on top of each other OR: ignore the other effect tree!
+* group slider value is equal to last child value
+
+TESTPLAN
+* drop different effect on different layers: slider -> override child mode
+
+-----------------------------
+
 * check error on dropping dummy light effect
 
 * builds steps -> "../public/effects/"
 
 * drag drop Light to Scene tree (group item)
 * refresh effect folder
-
-* swap control+lights
 
 
 * DataObject cannot be cloned bug -> running in background issue?
@@ -42,8 +58,6 @@ Better tree:
 * Map tab
 
 
-* create worker threads for effect: post data for artnet
-* tauri directory scanner -> fall back to internal (public) folder
 * chain effects (lightning override, etc)
 
 examples
@@ -74,26 +88,3 @@ controls
 * link multiple controls to same channel (hard/soft link -> with/without feedback)
 * channels (analog, digital, 2-way) on/off/toggle/pulse, value, up/dn/pgup/pgdn
 * highlight light to indicate light segment connections
-
-|  
-+-lightgroup
-| +-light
-| '-light
-|   +-segment1 
-|   '-segment2
-'-lightgroup
-  '-light
-    +-segment1
-    +-segment2
-    '-segment3
-
-
-bind light segment at other group,
-or
-put effect on segment
-
-
-lights
-  segment(s)
-
-  segments in lightgroup

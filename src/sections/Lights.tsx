@@ -134,7 +134,6 @@ export const Lights: Component = () => {
         <div class="contentContainer vertical">
           <h1>Lights section [{light()?.name}]</h1>
           <div class="contentContainer vertical">
-            Also list the effects that are currently tied to it?<br/>
             <Show when={light()}>
               <Light {...light() as LightProps} />
             </Show>

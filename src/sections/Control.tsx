@@ -38,7 +38,7 @@ export const Control: Component<ControlProps> = (props) => {
       // Set sparse array and post
       const data = [];
       data[idx] = value;
-      window.postMessage([instance.id, performance.now(), "channels", data] );
+      window.postMessage([instance.id, performance.now(), "channels", data]);
     })
   }
   return <div id="content" class="inbetweenContainer vertical">
@@ -48,11 +48,8 @@ export const Control: Component<ControlProps> = (props) => {
       <SliderGroup channels={group2()} onValueChanged={valueChanged} channelOffset={4}/>
     </div>
 
-    List effect channel preset for current (group) effect
-    Affected lights: {props.instances?.length}<br/>
-    channels: {channelValues()?.length}
-    TODO: map channel names on top of each other
-    OR: ignore the other effect tree!
+    
+    Affected lights: {props.instances?.length}
   </div>;
 }
 
