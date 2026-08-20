@@ -1,4 +1,4 @@
-import ts from "typescript";
+import ts from "@typescript/typescript6";
 import { Effect, type IEffect } from "../../public/Effect";
 import { readTextFile } from "@tauri-apps/plugin-fs";
 
@@ -29,12 +29,10 @@ export const tsImport = async <T = any>(url: string): Promise<T> => {
   try
   {
     const data = await readTextFile(url);
-    // Used to read internal (public folder) files 
-    // const data = await (await fetch(url)).text();
     let result = ts.transpileModule(data, { compilerOptions: { module: ts.ModuleKind.ES2015 }});
     const blob = new Blob([result.outputText], {type: "text/javascript"});
     const modUrl = URL.createObjectURL(blob);
-    const module = import(
+    const module = await import(
       /* @vite-ignore */
       /* We know what we're doing; importing arbitrary modules with a safety guard. */
       modUrl
@@ -47,13 +45,15 @@ export const tsImport = async <T = any>(url: string): Promise<T> => {
   }
 };
 
-export const loadEffect = async(url: string): Promise<Effect | undefined> => {
-  const className = url.match(/(?:^|\/)([A-Z][a-zA-Z0-9_]*)\.[tj]s$/)?.[1];
+export const loadEffect = async(fileName: string): Promise<Effect | undefined> => {
+  const className = fileName.match(/(?:^|\/)([A-Z][a-zA-Z0-9_]*)\.[tj]s$/)?.[1];
+
+  // const file = await invoke<string>("read_file", { fileName });
 
   if (!className) return;
 
   try {
-    const mod = await tsImport<ClassMod<IEffect>>(url);
+    const mod = await tsImport<ClassMod<IEffect>>(fileName);
     const EffectClass = mod[className];
 
     if (!EffectClass) return;

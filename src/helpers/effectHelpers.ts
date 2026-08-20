@@ -1,14 +1,10 @@
-import { IEffect, Effect } from "../../public/Effect";
+import { Effect } from "../../public/Effect";
 import { TreeItemProps } from "../components/treelist/TreeItem";
-import { TreeListProps } from "../components/treelist/TreeList";
-import { arrayFromTreeItem } from "../components/treelist/treeListHelpers";
 import { ItemData } from "../sections/LightGroupTree";
 
-export const instanceLeaf = (tree: TreeListProps, item: TreeItemProps<ItemData>, Effect: Effect): Record<string, [effectInstance: IEffect, frameTime: number]> => {
-  const newInstances: Record<string, [effectInstance: IEffect, frameTime: number]> = {};
-
+export const instanceLeaf = (item: TreeItemProps<ItemData>, Effect: Effect) => {
   // (Different) effect applied to this subtree, stop propagation.
-  if (item.data?.effect) return newInstances;
+  if (item.data?.effect) return;
 
   // Enable item
   item.disabled = false;
@@ -16,27 +12,22 @@ export const instanceLeaf = (tree: TreeListProps, item: TreeItemProps<ItemData>,
   if (item.children) {
     // Iterate children recursively
     item.children.forEach((child) => {
-      const childInstances = instanceLeaf(tree, child, Effect);
-
-      // Merge objects (Object.assign?)
-      for (const idx in childInstances ) {
-        newInstances[idx] = childInstances[idx];
-      }
+      instanceLeaf(child, Effect);
+      console.log("CHILDREN", child.name);
     });
 
-    return newInstances;
+    return;
   }
+  console.log("CREATE EFFECT", Effect.name, item);
 
   // Calculate indexes from item
-  const id = arrayFromTreeItem(tree, item).join("_");
+  const { id } = item;
 
-  // if (id && item.data?.segment) {
   if (id && item.data?.segment) {
     // Segment? create (new) instance
     // TODO: check segment settings (dimensions, type,...)
     const { channelsPerLed, ledCount } = item.data.segment;
-    newInstances[id] = [new Effect(ledCount, 1, channelsPerLed, id), Effect.refreshRate * 1000];
+    item.data.effectInstance = new Effect(ledCount, 1, channelsPerLed, id)
+    item.data.nextTick = Effect.refreshRate * 1000;
   }
-
-  return newInstances;
 }

@@ -13,6 +13,7 @@ type Channel = {
 export type Channels = Channel[];
 export type ChannelValues = Array<Channel & { value: number}>;
 
+/** Static properties for Effect */
 type EffectStatics = {
   /** Description of what this effect can do. */
   description: string;
@@ -30,10 +31,11 @@ type EffectStatics = {
   refreshRate: number;
 }
 
+/** Effect type/class */
 export type Effect = ClassConstructor<IEffect, [x: number, y: number, channels: number, id?: string], EffectStatics>;
 
 /**
- * Effect interface
+ * Effect interface (instance)
  * NOTE: this interface is heavily in flux and might break existing Effects regularly until further notice
  */
 export interface IEffect {
