@@ -1,4 +1,4 @@
-import { Component, createEffect, For } from "solid-js";
+import { Component, For } from "solid-js";
 
 import styles from "./SliderGroup.module.css";
 import { ChannelValues } from "../../../public/Effect";

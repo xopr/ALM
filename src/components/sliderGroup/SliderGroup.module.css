@@ -20,17 +20,17 @@
   font-size: 1em;
   cursor: pointer;
 }
-.sliderGroup input, .sliderGroup input::-webkit-slider-runnable-track, .sliderGroup input::-webkit-slider-thumb {
+.sliderGroup input[type="range"], .sliderGroup input[type="range"]::-webkit-slider-runnable-track, .sliderGroup input[type="range"]::-webkit-slider-thumb {
   -webkit-appearance: none;
 }
-.sliderGroup input::-webkit-slider-runnable-track {
+.sliderGroup input[type="range"]::-webkit-slider-runnable-track {
   position: relative;
   width: 16em;
   height: 0.5em;
   border-radius: .1875em;
   background: rgba(202, 191, 191, 0.825);
 }
-.sliderGroup input::-webkit-slider-thumb {
+.sliderGroup input[type="range"]::-webkit-slider-thumb {
   margin-top: -0.75em;
   border: none;
   width: 4em;
