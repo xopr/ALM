@@ -41,10 +41,12 @@ function App() {
       name: "New group",
       disabled: true,
       type: "group",
+      id: `${parent.id}_${parent.children.length}`,
     });
   }
 
   const removeLightGroup = (item?: TreeItemProps<ItemData>) => {
+    // TODO: also remove segments?
     if (item?.type !== "group") return;
     removeItem(item!);
   }
@@ -68,7 +70,7 @@ function App() {
 
   return (
     <main>
-      <div class="inbetweenContainer vertical">
+      <div class="inbetweenContainer vertical" style="min-width:240px">
         <LightGroupTree
           class="contentContainer list"
           onEffect={setActiveEffect}
@@ -77,11 +79,11 @@ function App() {
           onInstances={setEffectInstances}
         />
         <div>
-          <button onclick={() => addLightGroup(selectedItem())} disabled={!!selectedItem()?.data?.segment}><img src={lightgroup_add_svg}/></button>
-          <button onclick={() => removeLightGroup(selectedItem())} disabled={!!selectedItem()?.data?.segment}><img src={lightgroup_remove_svg}/></button>
-          <button onclick={() => toggleEffect(selectedItem())} disabled={!activeEffect()}><img src={(!activeEffect() || enabledEffect()) ? effect_off_svg : effect_on_svg}/></button>
-          <button onclick={() => removeEffectHandler(selectedItem())} disabled={!activeEffect()}><img src={effect_remove_svg}/></button>
-          <button onclick={() => renameItem(selectedItem())} disabled={!selectedItem()}><img src={edit_svg}/></button>
+          <button title="Add child light group" onclick={() => addLightGroup(selectedItem())} disabled={!!selectedItem()?.data?.segment}><img src={lightgroup_add_svg}/></button>
+          <button title="Remove light group" onclick={() => removeLightGroup(selectedItem())} disabled={!!selectedItem()?.data?.segment}><img src={lightgroup_remove_svg}/></button>
+          <button title="Toggle effect" onclick={() => toggleEffect(selectedItem())} disabled={!activeEffect()}><img src={(!activeEffect() || enabledEffect()) ? effect_off_svg : effect_on_svg}/></button>
+          <button title="Remove effect" onclick={() => removeEffectHandler(selectedItem())} disabled={!activeEffect()}><img src={effect_remove_svg}/></button>
+          <button title="Rename group" onclick={() => renameItem(selectedItem())} disabled={!selectedItem()}><img src={edit_svg}/></button>
           <Show when={false/*drag*/}>
             <button><img src={delete_svg}/></button>
           </Show>

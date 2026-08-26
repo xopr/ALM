@@ -2,6 +2,11 @@ import { batch } from "solid-js";
 import { TreeItemProps } from "./TreeItem";
 import { DragDropData } from "../DragNode";
 
+export const assignId = (item: TreeItemProps, id: string): void => {
+  item.id = id;
+  item.children?.forEach((child, idx) => assignId(child, `${id}_${idx}`));
+}
+
 export const setRecursiveProperty = (treeitem: TreeItemProps, property = "selected", value: any = false) => {
   if (property in treeitem)
     //@ts-ignore - We just checked

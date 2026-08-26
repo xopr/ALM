@@ -1,15 +1,24 @@
-* MB sometimes, dropping effect on group does not encompass all children
+* verify (destroy): MB onload/overload(?) does not remove instance -> network is spammed!
+  * delete and add also doesn't work (pauses effect)
+* verify (destroy): MB multiple layered different effects trigger all instance values!
+
+* verify: MB group effect only transmits last segment on timer (or previously transmitted selected child)
+
+* verify: MB sometimes, dropping effect on group does not encompass all children
   * 0 children means no slider?
   -> needs effect hover or select to "initialize"
-* MB onload/overload(?) does not remove instance -> network is spammed!
-* MB multiple layered different effects trigger all instance values!
+
+* MB separate segment on same IP/universe glitches (not uniform packet)
+  -> 80 skip 190 to trigger next universe ([v] Custom bus start indices)
 
 * B ledOffset is channel offset
+* B refreshRate is renderDelay
 * F list the effect(s) that are tight to the Lights section segment
 * F add segment drag handle
 * ? List effect channel preset for current (group) effect
-* ? TODO: map channel names on top of each other OR: ignore the other effect tree!
+* ? map channel names on top of each other OR: ignore the other effect tree!
 * group slider value is equal to last child value
+* changing 3 channels simultaneously for 10 segments introduces some lag
 
 TESTPLAN
 * drop different effect on different layers: slider -> override child mode
@@ -49,7 +58,7 @@ Better tree:
   * (connect)
 * segment settings:
   * allow for array in treeList
-  * warn if: channelStart/ledCount not LED-aligned, overlap w/ other segment
+  * warn if: channelStart/ledCount(w*h) not LED-aligned, overlap w/ other segment
   * channelsPerLed: enum? "RGB" "BRG" -> fix device-side?
 * Effect
   * add Color channels? 1:L, 3:RGB, 4:RGBW, 5:RGBWW

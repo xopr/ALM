@@ -1,7 +1,7 @@
 import { Component, onMount } from "solid-js";
 import TreeList from "../components/treelist/TreeList";
 import { createMutable } from "solid-js/store";
-import { arrayFromTreeItem, getParent, treeClickHelper, treeDragHelper, treeItemFromArray } from "../components/treelist/treeListHelpers";
+import { arrayFromTreeItem, assignId, getParent, treeClickHelper, treeDragHelper, treeItemFromArray } from "../components/treelist/treeListHelpers";
 import { type DragDropData } from "../components/DragNode";
 import { MessageData, Effect, type IEffect } from "../../public/Effect";
 import { TreeItemProps } from "../components/treelist/TreeItem";
@@ -33,10 +33,13 @@ export const removeEffect = (item: TreeItemProps<ItemData>, effect?: string) => 
   // Don't delete different effect (instances)
   if (item.data?.effect?.name && item.data.effect.name !== eff) return;
 
+  item.data?.effectInstance?.destroy();
   delete item.data?.effectInstance;
   delete item.data?.effect;
   delete item.icon;
   item.disabled = true;
+
+  // TODO: inherit effect instance from ancestor
 
   item.children?.forEach(child => {
     removeEffect(child, eff);
@@ -50,7 +53,12 @@ export const removeItem = (item: TreeItemProps<ItemData>) => {
   // Skip root node as well
   if (!parent || indexes.length <= 1) return;
 
-  parent.children?.splice(indexes.pop()!, 1);
+  const removedItem = parent.children?.splice(indexes.pop()!, 1);
+  // TODO: remove instance
+  // removedItem?.[0].data.instance
+  // TODO: remove/destroy children
+  // Recalculate indices
+  assignId(parent, parent.id ?? "B0RK");
 }
 const artnet = new Artnet();
 // Groups of light(-segment)s to attach an effect to.
@@ -78,7 +86,8 @@ export const lightGroups = createMutable<TreeItemProps>({
                   universe: 0,
                   channelStart: 9,   // offset within Art-Net packet, warn if: not LED-aligned, overlap w/ other segment
                   channelsPerLed: 3, // type: "RGB"
-                  ledCount: 147,     // 7 * 21, warn if: overlap w/ other segment, out of bounds
+                  width: 7,
+                  height: 21,
                   ledOffset: 0,      // amount of LEDs to skip within effect (bezel/padding)
                 },
               },
@@ -94,7 +103,8 @@ export const lightGroups = createMutable<TreeItemProps>({
                   universe: 0,
                   channelStart: 0,   // offset within Art-Net packet, warn if: not LED-aligned, overlap w/ other segment
                   channelsPerLed: 3, // type: "RGB"
-                  ledCount: 99,     // 7 * 21, warn if: overlap w/ other segment, out of bounds
+                  width: 99,
+                  height: 1,
                   ledOffset: 0,      // amount of LEDs to skip within effect (bezel/padding)
                 },
               },
@@ -117,7 +127,8 @@ export const lightGroups = createMutable<TreeItemProps>({
                   universe: 1,
                   channelStart: 0,   // offset within Art-Net packet, warn if: not LED-aligned, overlap w/ other segment
                   channelsPerLed: 3, // type: "RGB"
-                  ledCount: 147,     // 7 * 21, warn if: overlap w/ other segment, out of bounds
+                  width: 7,
+                  height: 21,
                   ledOffset: 0,      // amount of LEDs to skip within effect (bezel/padding)
                 },
               },
@@ -133,7 +144,8 @@ export const lightGroups = createMutable<TreeItemProps>({
                   universe: 1,
                   channelStart: 0,   // offset within Art-Net packet, warn if: not LED-aligned, overlap w/ other segment
                   channelsPerLed: 3, // type: "RGB"
-                  ledCount: 1,       // 7 * 21, warn if: overlap w/ other segment, out of bounds
+                  width: 1,
+                  height: 1,
                   ledOffset: 1,      // amount of LEDs to skip within effect (bezel/padding)
                 },
               },
@@ -158,10 +170,11 @@ export const lightGroups = createMutable<TreeItemProps>({
                     segment: {
                       address: "192.168.7.235",
                       port: 6454,
-                      universe: 1,
+                      universe: 0,
                       channelStart: 0,   // offset within Art-Net packet, warn if: not LED-aligned, overlap w/ other segment
                       channelsPerLed: 3, // type: "RGB"
-                      ledCount: 80,      // 2 parallel spokes of 80 LEDs
+                      width: 1,
+                      height: 80,
                       ledOffset: 0,      // amount of LEDs to skip within effect (bezel/padding)
                     },
                   },
@@ -174,10 +187,11 @@ export const lightGroups = createMutable<TreeItemProps>({
                     segment: {
                       address: "192.168.7.235",
                       port: 6454,
-                      universe: 1,
-                      channelStart: 240, // offset within Art-Net packet, warn if: not LED-aligned, overlap w/ other segment
+                      universe: 1, // was: 0
+                      channelStart: 0, // was: 240; offset within Art-Net packet, warn if: not LED-aligned, overlap w/ other segment
                       channelsPerLed: 3, // type: "RGB"
-                      ledCount: 80,      // 2 parallel spokes of 80 LEDs
+                      width: 1,
+                      height: 80,
                       ledOffset: 0,      // amount of LEDs to skip within effect (bezel/padding)
                     },
                   },
@@ -190,10 +204,11 @@ export const lightGroups = createMutable<TreeItemProps>({
                     segment: {
                       address: "192.168.7.235",
                       port: 6454,
-                      universe: 2,
+                      universe: 2, // was: 1
                       channelStart: 0,   // offset within Art-Net packet, warn if: not LED-aligned, overlap w/ other segment
                       channelsPerLed: 3, // type: "RGB"
-                      ledCount: 80,      // 2 parallel spokes of 80 LEDs
+                      width: 1,
+                      height: 80,
                       ledOffset: 0,      // amount of LEDs to skip within effect (bezel/padding)
                     },
                   },
@@ -211,7 +226,8 @@ export const lightGroups = createMutable<TreeItemProps>({
                   universe: 1,
                   channelStart: 0,   // offset within Art-Net packet, warn if: not LED-aligned, overlap w/ other segment
                   channelsPerLed: 3, // type: "RGB"
-                  ledCount: 147,     // 7 * 21, warn if: overlap w/ other segment, out of bounds
+                  width: 7,
+                  height: 21,
                   ledOffset: 0,      // amount of LEDs to skip within effect (bezel/padding)
                 },
               },
@@ -234,7 +250,8 @@ export const lightGroups = createMutable<TreeItemProps>({
                   universe: 0,
                   channelStart: 0,   // offset within Art-Net packet, warn if: not LED-aligned, overlap w/ other segment
                   channelsPerLed: 3, // type: "RGB"
-                  ledCount: 147,     // 7 * 21, warn if: overlap w/ other segment, out of bounds
+                  width: 7,
+                  height: 21,
                   ledOffset: 0,      // amount of LEDs to skip within effect (bezel/padding)
                 },
               },
@@ -250,7 +267,8 @@ export const lightGroups = createMutable<TreeItemProps>({
                   universe: 0,
                   channelStart: 0,   // offset within Art-Net packet, warn if: not LED-aligned, overlap w/ other segment
                   channelsPerLed: 3, // type: "RGB"
-                  ledCount: 147,       // 7 * 21, warn if: overlap w/ other segment, out of bounds
+                  width: 7,
+                  height: 21,
                   ledOffset: 3,      // amount of LEDs to skip within effect (bezel/padding)
                 },
               },
@@ -298,11 +316,11 @@ const drop = (item: TreeItemProps<ItemData>, data: DragDropData<Effect>) => {
       break;
 
     case "light":
-      console.log("special case: light and all its segments as children");
+      console.debug("TODO: special case: light and all its segments as children");
       break;
 
     case "segment":
-      console.log("do segment droppings");
+      console.debug("TODO: do segment droppings");
       break;
 
     default:
@@ -316,8 +334,10 @@ export const LightGroupTree: Component<LightGroupTreeProps> = (props) => {
   // const [selectedSegment, setSelectedSegment] = createSignal<SegmentProps>();
 
   onMount(() => {
-    // window.onmessage
-    let timer: number;
+    // Assign id to each element
+    assignId(lightGroups, "0");
+
+    let timer: Record<string,number> = [];
     window.addEventListener("message", ({ data: [id, timestamp, type, data] }: MessageData) => {
       if (timestamp) return; // Only from Effect
 
@@ -329,14 +349,16 @@ export const LightGroupTree: Component<LightGroupTreeProps> = (props) => {
       switch (type)
       {
         case "frame":
-          const { address, port, universe, channelStart, channelsPerLed, ledCount, ledOffset } = treeItem.data.segment;
-          void artnet.send(data, address, port, universe, channelStart, channelsPerLed, ledCount, ledOffset)
+          const { address, port, universe, channelStart, channelsPerLed, width, height, ledOffset } = treeItem.data.segment;
+          // TODO: we want to provide parent data, but not own effect data
+          // if (treeItem.data.effectDisabled) return;
 
-          console.assert(treeItem.data.nextTick);
+          void artnet.send(data, address, port, universe, channelStart, channelsPerLed, width * height, ledOffset)
+
           if (treeItem.data.effectDisabled) return;
 
-          clearTimeout(timer);
-          timer = window.setTimeout(() => {
+          clearTimeout(timer[id]);
+          timer[id] = window.setTimeout(() => {
             // Hand over the leds buffer
             // Error: DataCloneError: The object can not be cloned.
             if (data.byteLength)
@@ -358,9 +380,9 @@ export const LightGroupTree: Component<LightGroupTreeProps> = (props) => {
   const getInstances = (item?: TreeItemProps<ItemData>): IEffect[] => {
     // We're not leaf level; collect our descendants
     if (item?.children?.length) {
-      return Array.prototype.concat.call(item.children.map(getInstances)).flat()
+      return Array.prototype.concat.call(item.children.map(getInstances)).flat();
     }
-    console.log("I", item?.data?.effectInstance);
+    console.log("Instance", item?.data?.effectInstance, item?.data?.effectDisabled);
     // Do we have an instance?
     if (item?.data?.effectInstance)
       return [item.data.effectInstance];

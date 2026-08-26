@@ -12,13 +12,12 @@ export const instanceLeaf = (item: TreeItemProps<ItemData>, Effect: Effect) => {
   if (item.children) {
     // Iterate children recursively
     item.children.forEach((child) => {
-      instanceLeaf(child, Effect);
       console.log("CHILDREN", child.name);
+      instanceLeaf(child, Effect);
     });
 
     return;
   }
-  console.log("CREATE EFFECT", Effect.name, item);
 
   // Calculate indexes from item
   const { id } = item;
@@ -26,8 +25,10 @@ export const instanceLeaf = (item: TreeItemProps<ItemData>, Effect: Effect) => {
   if (id && item.data?.segment) {
     // Segment? create (new) instance
     // TODO: check segment settings (dimensions, type,...)
-    const { channelsPerLed, ledCount } = item.data.segment;
-    item.data.effectInstance = new Effect(ledCount, 1, channelsPerLed, id)
+    const { channelsPerLed, width, height } = item.data.segment;
+    item.data.effectInstance?.destroy();
+    item.data.effectInstance = new Effect(width, height, channelsPerLed, id);
+
     item.data.nextTick = Effect.refreshRate * 1000;
   }
 }

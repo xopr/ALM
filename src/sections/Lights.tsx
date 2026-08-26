@@ -30,7 +30,8 @@ const lights = createMutable<TreeItemProps<SegmentProps[]>>({
           universe: 1,
           channelStart: 0,   // offset within Art-Net packet, warn if: not LED-aligned, overlap w/ other segment
           channelsPerLed: 3, // type: "RGB"
-          ledCount: 147,     // 7 * 21, warn if: overlap w/ other segment, out of bounds
+          width: 7,
+          height: 21,
           ledOffset: 0,      // amount of LEDs to skip within effect (bezel/padding)
         }
       ]
@@ -46,7 +47,8 @@ const lights = createMutable<TreeItemProps<SegmentProps[]>>({
           universe: 1,
           channelStart: 0,   // offset within Art-Net packet, warn if: not LED-aligned, overlap w/ other segment
           channelsPerLed: 3, // type: "RGB"
-          ledCount: 80,      // 2 parallel spokes of 80 LEDs
+          width: 1,
+          height: 80,
           ledOffset: 0,      // amount of LEDs to skip within effect (bezel/padding)
         },
         {
@@ -55,7 +57,8 @@ const lights = createMutable<TreeItemProps<SegmentProps[]>>({
           universe: 1,
           channelStart: 240, // offset within Art-Net packet, warn if: not LED-aligned, overlap w/ other segment
           channelsPerLed: 3, // type: "RGB"
-          ledCount: 80,      // 2 parallel spokes of 80 LEDs
+          width: 1,
+          height: 80,
           ledOffset: 0,      // amount of LEDs to skip within effect (bezel/padding)
         },
         {
@@ -64,7 +67,8 @@ const lights = createMutable<TreeItemProps<SegmentProps[]>>({
           universe: 2,
           channelStart: 0,   // offset within Art-Net packet, warn if: not LED-aligned, overlap w/ other segment
           channelsPerLed: 3, // type: "RGB"
-          ledCount: 80,      // 2 parallel spokes of 80 LEDs
+          width: 1,
+          height: 80,
           ledOffset: 0,      // amount of LEDs to skip within effect (bezel/padding)
         }
       ]
@@ -91,7 +95,8 @@ export const Lights: Component = () => {
           universe: 1,
           channelStart: 0,   // offset within Art-Net packet, warn if: not LED-aligned, overlap w/ other segment
           channelsPerLed: 3, // type: "RGB"
-          ledCount: 147,     // 7 * 21, warn if: overlap w/ other segment, out of bounds
+          width: 7,
+          height: 21,
           ledOffset: 0,      // amount of LEDs to skip within effect (bezel/padding)
         }
       ]
@@ -115,7 +120,8 @@ export const Lights: Component = () => {
       universe: 1,
       channelStart: 0,   // offset within Art-Net packet, warn if: not LED-aligned, overlap w/ other segment
       channelsPerLed: 3, // type: "RGB"
-      ledCount: 147,     // 7 * 21, warn if: overlap w/ other segment, out of bounds
+      width: 7,
+      height: 21,
       ledOffset: 0,      // amount of LEDs to skip within effect (bezel/padding)
     });
   };
@@ -147,11 +153,11 @@ export const Lights: Component = () => {
             onClick={treeClickHelper(lights, onClick)}
           />
           <div>
-            <button onClick={() => addLight()}><img src={light_add_svg}/></button>
-            <button onClick={() => removeLight(light()!)} disabled={!light()}><img src={light_remove_svg}/></button>
-            <button onClick={() => addSegment(light()!)} disabled={!light()}><img src={segment_add_svg}/></button>
-            <button onClick={() => removeSegment(light()!)} disabled={!(light()?.data?.length > 1) }><img src={segment_remove_svg}/></button>
-          <button onclick={() => renameItem(light())} disabled={!light()}><img src={edit_svg}/></button>
+            <button title="Add light" onClick={() => addLight()}><img src={light_add_svg}/></button>
+            <button title="Delete light" onClick={() => removeLight(light()!)} disabled={!light()}><img src={light_remove_svg}/></button>
+            <button title="Add segment" onClick={() => addSegment(light()!)} disabled={!light()}><img src={segment_add_svg}/></button>
+            <button title="Remove last segment" onClick={() => removeSegment(light()!)} disabled={!(light()?.data?.length > 1) }><img src={segment_remove_svg}/></button>
+          <button title="Rename light" onclick={() => renameItem(light())} disabled={!light()}><img src={edit_svg}/></button>
           </div>
         </div>
       </>;

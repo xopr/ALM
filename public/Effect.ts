@@ -42,6 +42,7 @@ export interface IEffect {
   channelValues: number[];
   id: string;
 
+  destroy: () => void;
   frame(timestamp: number, data: ArrayBuffer): void;
 }
 
