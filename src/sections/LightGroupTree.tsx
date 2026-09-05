@@ -81,14 +81,14 @@ export const lightGroups = createMutable<TreeItemProps>({
               disabled: true,
               data: {
                 segment: {
-                  address: "192.168.7.230",
+                  address: "192.168.2.232",
                   port: 6454,
                   universe: 0,
-                  channelStart: 9,   // offset within Art-Net packet, warn if: not LED-aligned, overlap w/ other segment
-                  channelsPerLed: 3, // type: "RGB"
+                  channelStart: 9,
+                  channelsPerLed: 3,
                   width: 7,
                   height: 21,
-                  ledOffset: 0,      // amount of LEDs to skip within effect (bezel/padding)
+                  ledOffset: 0,
                 },
               },
             },
@@ -98,14 +98,14 @@ export const lightGroups = createMutable<TreeItemProps>({
               disabled: true,
               data: {
                 segment: {
-                  address: "192.168.7.234",
+                  address: "192.168.7.20", // was 234
                   port: 6454,
                   universe: 0,
-                  channelStart: 0,   // offset within Art-Net packet, warn if: not LED-aligned, overlap w/ other segment
-                  channelsPerLed: 3, // type: "RGB"
+                  channelStart: 0,
+                  channelsPerLed: 3,
                   width: 99,
                   height: 1,
-                  ledOffset: 0,      // amount of LEDs to skip within effect (bezel/padding)
+                  ledOffset: 0,
                 },
               },
             },
@@ -122,14 +122,14 @@ export const lightGroups = createMutable<TreeItemProps>({
               disabled: true,
               data: {
                 segment: {
-                  address: "192.168.7.231",
+                  address: "192.168.2.231",
                   port: 6454,
-                  universe: 1,
-                  channelStart: 0,   // offset within Art-Net packet, warn if: not LED-aligned, overlap w/ other segment
-                  channelsPerLed: 3, // type: "RGB"
+                  universe: 0,
+                  channelStart: 9,
+                  channelsPerLed: 3,
                   width: 7,
                   height: 21,
-                  ledOffset: 0,      // amount of LEDs to skip within effect (bezel/padding)
+                  ledOffset: 0,
                 },
               },
             },
@@ -141,12 +141,12 @@ export const lightGroups = createMutable<TreeItemProps>({
                 segment: {
                   address: "192.168.7.233",
                   port: 6454,
-                  universe: 1,
-                  channelStart: 0,   // offset within Art-Net packet, warn if: not LED-aligned, overlap w/ other segment
-                  channelsPerLed: 3, // type: "RGB"
+                  universe: 0,
+                  channelStart: 0,
+                  channelsPerLed: 3,
                   width: 1,
                   height: 1,
-                  ledOffset: 1,      // amount of LEDs to skip within effect (bezel/padding)
+                  ledOffset: 0,
                 },
               },
             },
@@ -171,11 +171,11 @@ export const lightGroups = createMutable<TreeItemProps>({
                       address: "192.168.7.235",
                       port: 6454,
                       universe: 0,
-                      channelStart: 0,   // offset within Art-Net packet, warn if: not LED-aligned, overlap w/ other segment
-                      channelsPerLed: 3, // type: "RGB"
+                      channelStart: 0,
+                      channelsPerLed: 3,
                       width: 1,
                       height: 80,
-                      ledOffset: 0,      // amount of LEDs to skip within effect (bezel/padding)
+                      ledOffset: 0,
                     },
                   },
                 },
@@ -188,11 +188,11 @@ export const lightGroups = createMutable<TreeItemProps>({
                       address: "192.168.7.235",
                       port: 6454,
                       universe: 1, // was: 0
-                      channelStart: 0, // was: 240; offset within Art-Net packet, warn if: not LED-aligned, overlap w/ other segment
-                      channelsPerLed: 3, // type: "RGB"
+                      channelStart: 0, // was: 240
+                      channelsPerLed: 3,
                       width: 1,
                       height: 80,
-                      ledOffset: 0,      // amount of LEDs to skip within effect (bezel/padding)
+                      ledOffset: 0,
                     },
                   },
                 },
@@ -204,12 +204,12 @@ export const lightGroups = createMutable<TreeItemProps>({
                     segment: {
                       address: "192.168.7.235",
                       port: 6454,
-                      universe: 2, // was: 1
-                      channelStart: 0,   // offset within Art-Net packet, warn if: not LED-aligned, overlap w/ other segment
-                      channelsPerLed: 3, // type: "RGB"
+                      universe: 2,
+                      channelStart: 0,
+                      channelsPerLed: 3,
                       width: 1,
                       height: 80,
-                      ledOffset: 0,      // amount of LEDs to skip within effect (bezel/padding)
+                      ledOffset: 0,
                     },
                   },
                 },
@@ -221,60 +221,60 @@ export const lightGroups = createMutable<TreeItemProps>({
               disabled: true,
               data: {
                 segment: {
-                  address: "192.168.7.233",
+                  address: "192.168.2.230",
                   port: 6454,
-                  universe: 1,
-                  channelStart: 0,   // offset within Art-Net packet, warn if: not LED-aligned, overlap w/ other segment
-                  channelsPerLed: 3, // type: "RGB"
+                  universe: 0,
+                  channelStart: 9,
+                  channelsPerLed: 3,
                   width: 7,
                   height: 21,
-                  ledOffset: 0,      // amount of LEDs to skip within effect (bezel/padding)
+                  ledOffset: 0,
                 },
               },
             },
           ],
         },
-        {
-          name: "PC",
-          disabled: true,
-          type: "group",
-          children: [
-            {
-              name: "simstrip1",
-              type: "segment",
-              disabled: true,
-              data: {
-                segment: {
-                  address: "127.0.0.1",
-                  port: 7000,
-                  universe: 0,
-                  channelStart: 0,   // offset within Art-Net packet, warn if: not LED-aligned, overlap w/ other segment
-                  channelsPerLed: 3, // type: "RGB"
-                  width: 7,
-                  height: 21,
-                  ledOffset: 0,      // amount of LEDs to skip within effect (bezel/padding)
-                },
-              },
-            },
-            {
-              name: "simstrip2",
-              type: "segment",
-              disabled: true,
-              data: {
-                segment: {
-                  address: "127.0.0.1",
-                  port: 7001,
-                  universe: 0,
-                  channelStart: 0,   // offset within Art-Net packet, warn if: not LED-aligned, overlap w/ other segment
-                  channelsPerLed: 3, // type: "RGB"
-                  width: 7,
-                  height: 21,
-                  ledOffset: 3,      // amount of LEDs to skip within effect (bezel/padding)
-                },
-              },
-            },
-          ],
-        },
+        // {
+        //   name: "PC",
+        //   disabled: true,
+        //   type: "group",
+        //   children: [
+        //     {
+        //       name: "simstrip1",
+        //       type: "segment",
+        //       disabled: true,
+        //       data: {
+        //         segment: {
+        //           address: "127.0.0.1",
+        //           port: 7000,
+        //           universe: 0,
+        //           channelStart: 0,   // offset within Art-Net packet, warn if: not LED-aligned, overlap w/ other segment
+        //           channelsPerLed: 3, // type: "RGB"
+        //           width: 7,
+        //           height: 21,
+        //           ledOffset: 0,      // amount of LEDs to skip within effect (bezel/padding)
+        //         },
+        //       },
+        //     },
+        //     {
+        //       name: "simstrip2",
+        //       type: "segment",
+        //       disabled: true,
+        //       data: {
+        //         segment: {
+        //           address: "127.0.0.1",
+        //           port: 7001,
+        //           universe: 0,
+        //           channelStart: 0,   // offset within Art-Net packet, warn if: not LED-aligned, overlap w/ other segment
+        //           channelsPerLed: 3, // type: "RGB"
+        //           width: 7,
+        //           height: 21,
+        //           ledOffset: 3,      // amount of LEDs to skip within effect (bezel/padding)
+        //         },
+        //       },
+        //     },
+        //   ],
+        // },
 
         // {
         //   name: "Display",

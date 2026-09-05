@@ -11,20 +11,17 @@ import { type Effect, type IEffect } from "../public/Effect";
 import Help from "./sections/Help";
 import { TreeItemProps } from "./components/treelist/TreeItem";
 
-import control from "/src/assets/control.svg";
-import delete_svg from "/src/assets/delete.svg";
-import edit_svg from "/src/assets/edit.svg";
-import effect_on_svg from "/src/assets/effect.svg";
-import effect_off_svg from "/src/assets/effect_off1.svg";
-import effect_remove_svg from "/src/assets/effect_remove.svg";
-import help from "/src/assets/help.svg";
-import light_on from "/src/assets/light_on.svg";
-import lightgroup_add_svg from "/src/assets/lightgroup_add.svg";
-import lightgroup_remove_svg from "/src/assets/lightgroup_remove.svg";
+import DeleteIcon from "/src/assets/delete.svg";
+import EditIcon from "/src/assets/edit.svg";
+import EffectOnIcon from "/src/assets/effect.svg";
+import EffectOffIcon from "/src/assets/effect_off1.svg";
+import EffectRemoveIcon from "/src/assets/effect_remove.svg";
+import LightGroupAddIcon from "/src/assets/lightgroup_add.svg";
+import LightGroupRemoveIcon from "/src/assets/lightgroup_remove.svg";
 
 function App() {
-  const [activeEffect, setActiveEffect] = createSignal<Effect>();
-  const [effect, setEffect] = createSignal<Effect>();
+  const [activeEffect, setActiveEffect] = createSignal<Effect>(); // TODO: inherited?
+  const [selectedEffect, setSelectedEffect] = createSignal<Effect>();
   const [effectInstances, setEffectInstances] = createSignal<IEffect[]>();
   const [channelValues, setChannelValues] = createSignal<number[]>([]);
   const [selectedItem, setSelectedItem] = createSignal<TreeItemProps<ItemData>>();
@@ -54,7 +51,7 @@ function App() {
   const toggleEffect = (item?: TreeItemProps<ItemData>) => {
     if (!item?.data?.effect) return;
     item.data.effectDisabled = !item.data.effectDisabled;
-    item.icon =item.data.effectDisabled ?  effect_off_svg : effect_on_svg;
+    item.icon = item.data.effectDisabled ? <EffectOffIcon/> : <EffectOnIcon/>;
   }
 
   const removeEffectHandler = (item?: TreeItemProps<ItemData>) => {
@@ -79,46 +76,46 @@ function App() {
           onInstances={setEffectInstances}
         />
         <div>
-          <button title="Add child light group" onclick={() => addLightGroup(selectedItem())} disabled={!!selectedItem()?.data?.segment}><img src={lightgroup_add_svg}/></button>
-          <button title="Remove light group" onclick={() => removeLightGroup(selectedItem())} disabled={!!selectedItem()?.data?.segment}><img src={lightgroup_remove_svg}/></button>
-          <button title="Toggle effect" onclick={() => toggleEffect(selectedItem())} disabled={!activeEffect()}><img src={(!activeEffect() || enabledEffect()) ? effect_off_svg : effect_on_svg}/></button>
-          <button title="Remove effect" onclick={() => removeEffectHandler(selectedItem())} disabled={!activeEffect()}><img src={effect_remove_svg}/></button>
-          <button title="Rename group" onclick={() => renameItem(selectedItem())} disabled={!selectedItem()}><img src={edit_svg}/></button>
+          <button title="Add child light group" onclick={() => addLightGroup(selectedItem())} disabled={!!selectedItem()?.data?.segment}>{LightGroupAddIcon}</button>
+          <button title="Remove light group" onclick={() => removeLightGroup(selectedItem())} disabled={!!selectedItem()?.data?.segment}>{LightGroupRemoveIcon}</button>
+          <button title="Toggle effect" onclick={() => toggleEffect(selectedItem())} disabled={!activeEffect()}>{(!activeEffect() || enabledEffect()) ? <EffectOffIcon/> : <EffectOnIcon/>}</button>
+          <button title="Remove effect" onclick={() => removeEffectHandler(selectedItem())} disabled={!activeEffect()}>{EffectRemoveIcon}</button>
+          <button title="Rename group" onclick={() => renameItem(selectedItem())} disabled={!selectedItem()}>{EditIcon}</button>
           <Show when={false/*drag*/}>
-            <button><img src={delete_svg}/></button>
+            <button>{DeleteIcon}</button>
           </Show>
         </div>
       </div>
       <TabView>
         <section
           data-label="Control"
-          data-icon={control}
+          data-icon="control"
           class="contentContainer"
         >
           <Control effect={activeEffect()} instances={effectInstances()} channelValues={channelValues()}/>
         </section>
         {/* <section
           data-label="Remote"
-          data-icon={remote}
+          data-icon="remote"
           class="contentContainer"
         >
         </section> */}
         <section
           data-label="Effects"
-          data-icon={effect_on_svg}
+          data-icon="effect_on"
           class="contentContainer"
         >
           <Effects
             onClick={(e) => {
               // Invoke as function since Effect constructor is a function on its own.
-              setEffect(() => e);
+              setSelectedEffect(() => e);
             }}
-            effect={effect()}
+            effect={selectedEffect()}
           />
         </section>
         <section
           data-label="Lights"
-          data-icon={light_on}
+          data-icon="light_on"
           class="contentContainer"
         >
         <Show when={process.env.NODE_ENV === "development"}>
@@ -128,13 +125,13 @@ function App() {
         </section>
         {/* <section
           data-label="Map"
-          data-icon={map}
+          data-icon="map"
           class="contentContainer"
         >
         </section> */}
         <section
           data-label="Help"
-          data-icon={help}
+          data-icon="help"
           class="contentContainer"
         >
           <Help/>

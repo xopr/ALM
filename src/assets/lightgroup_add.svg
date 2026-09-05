@@ -3,44 +3,10 @@
    height="24px"
    viewBox="0 -960 960 960"
    width="24px"
-   fill="#e3e3e3"
+   fill="currentColor"
    version="1.1"
-   id="svg4"
-   sodipodi:docname="lightgroup_add.svg"
-   inkscape:version="1.1.2 (0a00cf5339, 2022-02-04)"
-   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
-   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
    xmlns="http://www.w3.org/2000/svg"
    xmlns:svg="http://www.w3.org/2000/svg">
-  <sodipodi:namedview
-     id="namedview6"
-     pagecolor="#ffffff"
-     bordercolor="#666666"
-     borderopacity="1.0"
-     inkscape:pageshadow="2"
-     inkscape:pageopacity="0.0"
-     inkscape:pagecheckerboard="0"
-     showgrid="false"
-     showguides="true"
-     inkscape:guide-bbox="true"
-     inkscape:zoom="16.701909"
-     inkscape:cx="14.249868"
-     inkscape:cy="5.9274661"
-     inkscape:window-width="1920"
-     inkscape:window-height="1029"
-     inkscape:window-x="0"
-     inkscape:window-y="0"
-     inkscape:window-maximized="1"
-     inkscape:current-layer="svg4">
-    <sodipodi:guide
-       position="760,360"
-       orientation="1,0"
-       id="guide835" />
-    <sodipodi:guide
-       position="480,80"
-       orientation="0,-1"
-       id="guide839" />
-  </sodipodi:namedview>
   <defs
      id="defs8" />
   <path

@@ -6,13 +6,12 @@ import { TreeItemProps } from "../components/treelist/TreeItem";
 import Light, { LightProps } from "../components/light/Light";
 import { SegmentProps } from "../components/light/Segment";
 
-import light_add_svg from "/src/assets/light_add.svg";
-import light_remove_svg from "/src/assets/light_remove.svg";
-import segment_add_svg from "/src/assets/segment_add.svg";
-import segment_remove_svg from "/src/assets/segment_remove.svg";
-import edit_svg from "/src/assets/edit.svg";
-
-import light_svg from "/src/assets/light.svg";
+import LightAddIcon from "/src/assets/light_add.svg";
+import LightRemoveIcon from "/src/assets/light_remove.svg";
+import SegmentAddIcon from "/src/assets/segment_add.svg";
+import SegmentRemoveIcon from "/src/assets/segment_remove.svg";
+import EditIcon from "/src/assets/edit.svg";
+import LightIcon from "/src/assets/light.svg";
 
 // List of lights with their segments to direct Art-net data
 const lights = createMutable<TreeItemProps<SegmentProps[]>>({
@@ -22,7 +21,7 @@ const lights = createMutable<TreeItemProps<SegmentProps[]>>({
     {
       name: "Torch",
       type: "light",
-      icon: light_svg,
+      icon: LightIcon,
       data: [
         {
           address: "127.0.0.1",
@@ -39,7 +38,7 @@ const lights = createMutable<TreeItemProps<SegmentProps[]>>({
     {
       name: "Parasol",
       type: "light",
-      icon: light_svg,
+      icon: LightIcon,
       data: [
         {
           address: "127.0.0.1",
@@ -87,7 +86,7 @@ export const Lights: Component = () => {
     lights?.children?.push({
       name: `New ${type}`,
       type: "light",
-      icon: light_svg,
+      icon: LightIcon,
       data: [
         {
           address: "127.0.0.1",
@@ -153,11 +152,11 @@ export const Lights: Component = () => {
             onClick={treeClickHelper(lights, onClick)}
           />
           <div>
-            <button title="Add light" onClick={() => addLight()}><img src={light_add_svg}/></button>
-            <button title="Delete light" onClick={() => removeLight(light()!)} disabled={!light()}><img src={light_remove_svg}/></button>
-            <button title="Add segment" onClick={() => addSegment(light()!)} disabled={!light()}><img src={segment_add_svg}/></button>
-            <button title="Remove last segment" onClick={() => removeSegment(light()!)} disabled={!(light()?.data?.length > 1) }><img src={segment_remove_svg}/></button>
-          <button title="Rename light" onclick={() => renameItem(light())} disabled={!light()}><img src={edit_svg}/></button>
+            <button title="Add light" onClick={() => addLight()}>{LightAddIcon}</button>
+            <button title="Delete light" onClick={() => removeLight(light()!)} disabled={!light()}>{LightRemoveIcon}</button>
+            <button title="Add segment" onClick={() => addSegment(light()!)} disabled={!light()}>{SegmentAddIcon}</button>
+            <button title="Remove last segment" onClick={() => removeSegment(light()!)} disabled={!(light()?.data?.length > 1) }>{SegmentRemoveIcon}</button>
+          <button title="Rename light" onclick={() => renameItem(light())} disabled={!light()}>{EditIcon}</button>
           </div>
         </div>
       </>;

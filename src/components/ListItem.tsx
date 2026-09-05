@@ -1,4 +1,4 @@
-import { Show, type ParentComponent } from "solid-js";
+import { JSX, Show, type ParentComponent } from "solid-js";
 
 import styles from "./treelist/Treelist.module.css";
 
@@ -9,7 +9,7 @@ export type ListItemProps = {
   disabled?: boolean;
   outlined?: boolean;
   type?: string;
-  icon?: string;
+  icon?: JSX.Element;
 };
 
 export const ListItem: ParentComponent<ListItemProps> = (props) => {
@@ -26,7 +26,7 @@ export const ListItem: ParentComponent<ListItemProps> = (props) => {
         style={{ border: props.outlined ? "2px dashed" : undefined}}
       >
       <Show when={props.icon}>
-        <img src={props.icon}/>
+        {props.icon}
       </Show>
         {props.name}
       </div>

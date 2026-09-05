@@ -1,8 +1,22 @@
 import { Component, createMemo, createSignal, For, JSX, Show } from "solid-js";
 
+import ControlIcon from "/src/assets/control.svg";
+import EffectOnIcon from "/src/assets/effect.svg";
+import LightOnIcon from "/src/assets/light_on.svg";
+import HelpIcon from "/src/assets/help.svg";
+
 export type TabViewProps = {
   children: JSX.Element[];
   class?: string;
+};
+
+const icons = {
+  control: ControlIcon,
+  // remote: ,
+  effect_on: EffectOnIcon,
+  light_on: LightOnIcon,
+  // map
+  help: HelpIcon,
 };
 
 export const TabView: Component<TabViewProps> = (props) => {
@@ -21,7 +35,7 @@ export const TabView: Component<TabViewProps> = (props) => {
           tabindex={0}
         >
           <Show when={tab.dataset.icon}>
-            <img src={tab.dataset.icon}/>
+            {icons[tab.dataset.icon!]}
           </Show>
           {tab.dataset.label ?? "Unnamed"}
           </li>;

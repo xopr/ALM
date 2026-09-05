@@ -1,4 +1,4 @@
-import { Component, For, Show, splitProps } from "solid-js";
+import { Component, For, JSX, Show, splitProps } from "solid-js";
 import ListItem from "../ListItem";
 
 export type TreeItemProps<T = any> = {
@@ -7,7 +7,7 @@ export type TreeItemProps<T = any> = {
   selected?: boolean;
   disabled?: boolean;
   outlined?: boolean;
-  icon?: string;
+  icon?: JSX.Element;
   id?: string;
   data?: T;
   type?: string;
