@@ -78,8 +78,8 @@ function App() {
         <div>
           <button title="Add child light group" onclick={() => addLightGroup(selectedItem())} disabled={!!selectedItem()?.data?.segment}>{LightGroupAddIcon}</button>
           <button title="Remove light group" onclick={() => removeLightGroup(selectedItem())} disabled={!!selectedItem()?.data?.segment}>{LightGroupRemoveIcon}</button>
-          <button title="Toggle effect" onclick={() => toggleEffect(selectedItem())} disabled={!activeEffect()}>{(!activeEffect() || enabledEffect()) ? <EffectOffIcon/> : <EffectOnIcon/>}</button>
-          <button title="Remove effect" onclick={() => removeEffectHandler(selectedItem())} disabled={!activeEffect()}>{EffectRemoveIcon}</button>
+          <button title="Toggle effect" onclick={() => toggleEffect(selectedItem())} disabled={!selectedItem()?.data?.effect}>{(!activeEffect() || enabledEffect()) ? <EffectOffIcon/> : <EffectOnIcon/>}</button>
+          <button title="Remove effect" onclick={() => removeEffectHandler(selectedItem())} disabled={!selectedItem()?.data?.effect}>{EffectRemoveIcon}</button>
           <button title="Rename group" onclick={() => renameItem(selectedItem())} disabled={!selectedItem()}>{EditIcon}</button>
           <Show when={false/*drag*/}>
             <button>{DeleteIcon}</button>

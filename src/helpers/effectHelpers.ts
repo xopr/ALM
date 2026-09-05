@@ -12,7 +12,6 @@ export const instanceLeaf = (item: TreeItemProps<ItemData>, Effect: Effect) => {
   if (item.children) {
     // Iterate children recursively
     item.children.forEach((child) => {
-      console.log("CHILDREN", child.name);
       instanceLeaf(child, Effect);
     });
 

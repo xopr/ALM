@@ -11,6 +11,9 @@ import effect_svg from "/src/assets/effect.svg";
 import { SegmentProps } from "../components/light/Segment";
 import { Artnet } from "../helpers/ArtNet";
 
+import JSON5 from "json5";
+import { invoke } from "@tauri-apps/api/core";
+
 type LightGroupTreeProps = {
   onEffect?: (effect?: Effect) => void;
   onChannelValues?: (values: number[]) => void;  
@@ -62,236 +65,8 @@ export const removeItem = (item: TreeItemProps<ItemData>) => {
 }
 const artnet = new Artnet();
 // Groups of light(-segment)s to attach an effect to.
-export const lightGroups = createMutable<TreeItemProps>({
-  name: "$ROOT",
-  children: [
-    {
-      name: "Boshovenpop",
-      disabled: true,
-      type: "group",
-      children: [
-        {
-          name: "Camping",
-          disabled: true,
-          type: "group",
-          children: [
-            {
-              name: "Sleeve1 - 1",
-              type: "segment",
-              disabled: true,
-              data: {
-                segment: {
-                  address: "192.168.2.232",
-                  port: 6454,
-                  universe: 0,
-                  channelStart: 9,
-                  channelsPerLed: 3,
-                  width: 7,
-                  height: 21,
-                  ledOffset: 0,
-                },
-              },
-            },
-            {
-              name: "String",
-              type: "segment",
-              disabled: true,
-              data: {
-                segment: {
-                  address: "192.168.7.20", // was 234
-                  port: 6454,
-                  universe: 0,
-                  channelStart: 0,
-                  channelsPerLed: 3,
-                  width: 99,
-                  height: 1,
-                  ledOffset: 0,
-                },
-              },
-            },
-          ],
-        },
-        {
-          name: "Tent",
-          disabled: true,
-          type: "group",
-          children: [
-            {
-              name: "Sleeve2 (1)",
-              type: "segment",
-              disabled: true,
-              data: {
-                segment: {
-                  address: "192.168.2.231",
-                  port: 6454,
-                  universe: 0,
-                  channelStart: 9,
-                  channelsPerLed: 3,
-                  width: 7,
-                  height: 21,
-                  ledOffset: 0,
-                },
-              },
-            },
-            {
-              name: "Flut (1)",
-              type: "segment",
-              disabled: true,
-              data: {
-                segment: {
-                  address: "192.168.7.233",
-                  port: 6454,
-                  universe: 0,
-                  channelStart: 0,
-                  channelsPerLed: 3,
-                  width: 1,
-                  height: 1,
-                  ledOffset: 0,
-                },
-              },
-            },
-          ],
-        },
-        {
-          name: "Terrace",
-          disabled: true,
-          type: "group",
-          children: [
-            {
-              name: "Parasol",
-              disabled: true,
-              type: "group",
-              children: [
-                {
-                  name: "Parasol (1)",
-                  type: "segment",
-                  disabled: true,
-                  data: {
-                    segment: {
-                      address: "192.168.7.235",
-                      port: 6454,
-                      universe: 0,
-                      channelStart: 0,
-                      channelsPerLed: 3,
-                      width: 1,
-                      height: 80,
-                      ledOffset: 0,
-                    },
-                  },
-                },
-                {
-                  name: "Parasol (2)",
-                  type: "segment",
-                  disabled: true,
-                  data: {
-                    segment: {
-                      address: "192.168.7.235",
-                      port: 6454,
-                      universe: 1, // was: 0
-                      channelStart: 0, // was: 240
-                      channelsPerLed: 3,
-                      width: 1,
-                      height: 80,
-                      ledOffset: 0,
-                    },
-                  },
-                },
-                {
-                  name: "Parasol (3)",
-                  type: "segment",
-                  disabled: true,
-                  data: {
-                    segment: {
-                      address: "192.168.7.235",
-                      port: 6454,
-                      universe: 2,
-                      channelStart: 0,
-                      channelsPerLed: 3,
-                      width: 1,
-                      height: 80,
-                      ledOffset: 0,
-                    },
-                  },
-                },
-              ],
-            },
-            {
-              name: "Sleeve3 (1)",
-              type: "segment",
-              disabled: true,
-              data: {
-                segment: {
-                  address: "192.168.2.230",
-                  port: 6454,
-                  universe: 0,
-                  channelStart: 9,
-                  channelsPerLed: 3,
-                  width: 7,
-                  height: 21,
-                  ledOffset: 0,
-                },
-              },
-            },
-          ],
-        },
-        // {
-        //   name: "PC",
-        //   disabled: true,
-        //   type: "group",
-        //   children: [
-        //     {
-        //       name: "simstrip1",
-        //       type: "segment",
-        //       disabled: true,
-        //       data: {
-        //         segment: {
-        //           address: "127.0.0.1",
-        //           port: 7000,
-        //           universe: 0,
-        //           channelStart: 0,   // offset within Art-Net packet, warn if: not LED-aligned, overlap w/ other segment
-        //           channelsPerLed: 3, // type: "RGB"
-        //           width: 7,
-        //           height: 21,
-        //           ledOffset: 0,      // amount of LEDs to skip within effect (bezel/padding)
-        //         },
-        //       },
-        //     },
-        //     {
-        //       name: "simstrip2",
-        //       type: "segment",
-        //       disabled: true,
-        //       data: {
-        //         segment: {
-        //           address: "127.0.0.1",
-        //           port: 7001,
-        //           universe: 0,
-        //           channelStart: 0,   // offset within Art-Net packet, warn if: not LED-aligned, overlap w/ other segment
-        //           channelsPerLed: 3, // type: "RGB"
-        //           width: 7,
-        //           height: 21,
-        //           ledOffset: 3,      // amount of LEDs to skip within effect (bezel/padding)
-        //         },
-        //       },
-        //     },
-        //   ],
-        // },
 
-        // {
-        //   name: "Display",
-        //   disabled: true,
-        //   type: "group",
-        //   children: [
-        //     {
-        //       name: "Display (1)(2)(3)",
-        //       type: "segment",
-        //       disabled: true,
-        //     },
-        //   ],
-        // },
-      ],
-    },
-  ]
-});
+const lightGroups = createMutable<TreeItemProps>({ name: "$ROOT" });
 
 const over = (item: TreeItemProps<ItemData>, data: DragDropData<Effect>, side: string) => {
 };
@@ -329,11 +104,35 @@ const drop = (item: TreeItemProps<ItemData>, data: DragDropData<Effect>) => {
 
 };
 
+const readGroups = async (filename: string): Promise<TreeItemProps | undefined> => {
+  const dirs = [
+        "../../../public/",
+        "../public/",
+        "./",
+    ];
+
+    for await (const dir of dirs) {
+      try {
+        const fileName = `${dir}${filename}`;
+        const data = await invoke<string>("read_file", { fileName });
+        if (!data) continue;
+        return JSON5.parse<TreeItemProps>(data);
+
+      } catch (e) {
+        // Pass
+      }      
+    }
+  return undefined;
+}
+
 export const LightGroupTree: Component<LightGroupTreeProps> = (props) => {
   // const [selectedEffect, setSelectedEffect] = createSignal<Effect>();
   // const [selectedSegment, setSelectedSegment] = createSignal<SegmentProps>();
 
-  onMount(() => {
+  onMount(async () => {
+    const LightGroupsJson = await readGroups("lightgroups.json5");
+    lightGroups.children = LightGroupsJson?.children;
+
     // Assign id to each element
     assignId(lightGroups, "0");
 
@@ -382,9 +181,9 @@ export const LightGroupTree: Component<LightGroupTreeProps> = (props) => {
     if (item?.children?.length) {
       return Array.prototype.concat.call(item.children.map(getInstances)).flat();
     }
-    console.log("Instance", item?.data?.effectInstance, item?.data?.effectDisabled);
+
     // Do we have an instance?
-    if (item?.data?.effectInstance)
+    if (item?.data?.effectInstance && !item.data.effectDisabled)
       return [item.data.effectInstance];
     else
       return [];
@@ -398,12 +197,12 @@ export const LightGroupTree: Component<LightGroupTreeProps> = (props) => {
       
       effect = selectedItem.data?.effect;
       // Get Effect class (recursively by parent)
+      // TODO: inherited
+      const inherited = !effect;
       while (!effect && indexes.length) {
         indexes.pop();
         effect = treeItemFromArray<TreeItemProps<ItemData>>(lightGroups, indexes)?.data?.effect;
       }
-
-      console.log("SELECT", effect, getInstances(selectedItem))
 
       if (effect)
       {
@@ -412,6 +211,8 @@ export const LightGroupTree: Component<LightGroupTreeProps> = (props) => {
       } else {
         props.onInstances?.([]);
       }
+
+      if (inherited) effect = undefined; // TEST
 
     } else {
       props.onInstances?.([]);

@@ -1,0 +1,230 @@
+{
+  name: "$ROOT",
+  children: [
+    {
+      name: "Boshovenpop",
+      disabled: true,
+      type: "group",
+      children: [
+        {
+          name: "Camping",
+          disabled: true,
+          type: "group",
+          children: [
+            {
+              name: "Sleeve1 - 1",
+              type: "segment",
+              disabled: true,
+              data: {
+                segment: {
+                  address: "192.168.2.232",
+                  port: 6454,
+                  universe: 0,
+                  channelStart: 9,
+                  channelsPerLed: 3,
+                  width: 7,
+                  height: 21,
+                  ledOffset: 0,
+                },
+              },
+            },
+            {
+              name: "String",
+              type: "segment",
+              disabled: true,
+              data: {
+                segment: {
+                  address: "192.168.7.20", // was 234
+                  port: 6454,
+                  universe: 0,
+                  channelStart: 0,
+                  channelsPerLed: 3,
+                  width: 99,
+                  height: 1,
+                  ledOffset: 0,
+                },
+              },
+            },
+          ],
+        },
+        {
+          name: "Tent",
+          disabled: true,
+          type: "group",
+          children: [
+            {
+              name: "Sleeve2 (1)",
+              type: "segment",
+              disabled: true,
+              data: {
+                segment: {
+                  address: "192.168.2.231",
+                  port: 6454,
+                  universe: 0,
+                  channelStart: 9,
+                  channelsPerLed: 3,
+                  width: 7,
+                  height: 21,
+                  ledOffset: 0,
+                },
+              },
+            },
+            {
+              name: "Flut (1)",
+              type: "segment",
+              disabled: true,
+              data: {
+                segment: {
+                  address: "192.168.7.233",
+                  port: 6454,
+                  universe: 0,
+                  channelStart: 0,
+                  channelsPerLed: 3,
+                  width: 1,
+                  height: 1,
+                  ledOffset: 0,
+                },
+              },
+            },
+          ],
+        },
+        {
+          name: "Terrace",
+          disabled: true,
+          type: "group",
+          children: [
+            {
+              name: "Parasol",
+              disabled: true,
+              type: "group",
+              children: [
+                {
+                  name: "Parasol (1)",
+                  type: "segment",
+                  disabled: true,
+                  data: {
+                    segment: {
+                      address: "192.168.7.235",
+                      port: 6454,
+                      universe: 0,
+                      channelStart: 0,
+                      channelsPerLed: 3,
+                      width: 1,
+                      height: 80,
+                      ledOffset: 0,
+                    },
+                  },
+                },
+                {
+                  name: "Parasol (2)",
+                  type: "segment",
+                  disabled: true,
+                  data: {
+                    segment: {
+                      address: "192.168.7.235",
+                      port: 6454,
+                      universe: 1, // was: 0
+                      channelStart: 0, // was: 240
+                      channelsPerLed: 3,
+                      width: 1,
+                      height: 80,
+                      ledOffset: 0,
+                    },
+                  },
+                },
+                {
+                  name: "Parasol (3)",
+                  type: "segment",
+                  disabled: true,
+                  data: {
+                    segment: {
+                      address: "192.168.7.235",
+                      port: 6454,
+                      universe: 2,
+                      channelStart: 0,
+                      channelsPerLed: 3,
+                      width: 1,
+                      height: 80,
+                      ledOffset: 0,
+                    },
+                  },
+                },
+              ],
+            },
+            {
+              name: "Sleeve3 (1)",
+              type: "segment",
+              disabled: true,
+              data: {
+                segment: {
+                  address: "192.168.2.230",
+                  port: 6454,
+                  universe: 0,
+                  channelStart: 9,
+                  channelsPerLed: 3,
+                  width: 7,
+                  height: 21,
+                  ledOffset: 0,
+                },
+              },
+            },
+          ],
+        },
+        {
+          name: "PC",
+          disabled: true,
+          type: "group",
+          children: [
+            {
+              name: "simstrip1",
+              type: "segment",
+              disabled: true,
+              data: {
+                segment: {
+                  address: "127.0.0.1",
+                  port: 7000,
+                  universe: 0,
+                  channelStart: 0,   // offset within Art-Net packet, warn if: not LED-aligned, overlap w/ other segment
+                  channelsPerLed: 3, // type: "RGB"
+                  width: 7,
+                  height: 21,
+                  ledOffset: 0,      // amount of LEDs to skip within effect (bezel/padding)
+                },
+              },
+            },
+            {
+              name: "simstrip2",
+              type: "segment",
+              disabled: true,
+              data: {
+                segment: {
+                  address: "127.0.0.1",
+                  port: 7001,
+                  universe: 0,
+                  channelStart: 0,   // offset within Art-Net packet, warn if: not LED-aligned, overlap w/ other segment
+                  channelsPerLed: 3, // type: "RGB"
+                  width: 7,
+                  height: 21,
+                  ledOffset: 3,      // amount of LEDs to skip within effect (bezel/padding)
+                },
+              },
+            },
+          ],
+        },
+
+        // {
+        //   name: "Display",
+        //   disabled: true,
+        //   type: "group",
+        //   children: [
+        //     {
+        //       name: "Display (1)(2)(3)",
+        //       type: "segment",
+        //       disabled: true,
+        //     },
+        //   ],
+        // },
+      ],
+    },
+  ]
+}
