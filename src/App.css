@@ -30,6 +30,7 @@ body, html {
   margin: 0;
   color: var(--text);
   background-color: var(--background);
+  overflow: hidden;
 }
 
 * {
@@ -52,6 +53,7 @@ main {
   display: flex;
   width: 100vw;
   height: 100vh;
+  overflow: hidden;
 }
 
 /************************************************************/

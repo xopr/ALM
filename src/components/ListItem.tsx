@@ -23,7 +23,7 @@ export const ListItem: ParentComponent<ListItemProps> = (props) => {
         tabindex={0}
         aria-selected={props.selected ? true : undefined}
         aria-disabled={props.disabled ? true : undefined}
-        style={{ border: props.outlined ? "2px dashed" : undefined}}
+        style={{ outline: props.outlined ? "2px dashed" : undefined}}
       >
       <Show when={props.icon}>
         {props.icon}

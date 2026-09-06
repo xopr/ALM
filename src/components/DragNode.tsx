@@ -45,6 +45,11 @@ export const DragNode: Component = () => {
 
     const { pageX, pageY } = "touches" in event ? event.touches[0] : event;
 
+    // Explicitly set mouse pointer capture since touch is inherent
+    if (event instanceof MouseEvent) {
+      (target as HTMLElement).setPointerCapture(1);
+    }
+ 
     setActivePointer({x: pageX, y: pageY});
 
     if (event instanceof TouchEvent) {
@@ -70,7 +75,7 @@ export const DragNode: Component = () => {
       const dragStart = new CustomEvent("dragstart", {
         bubbles: true,
         detail,
-      });      
+      });
       target.dispatchEvent(dragStart);
       setOriginNode(target);
 
