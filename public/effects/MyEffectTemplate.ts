@@ -26,7 +26,7 @@ export class MyEffectTemplate implements IEffect {
   ];
   // In case of a 1D effect, prefer to use its x-axis
   static minMax: MinMax = { x: [1, 255], y:[1, 1] };
-  static refreshRate = 1 / 30;
+  static refreshRate = 1 / 1; // One frame per second
 
   channelValues: number[];
   id: string; // Used for non-worker post message
@@ -58,6 +58,7 @@ export class MyEffectTemplate implements IEffect {
         this.frame(timestamp, data);
         break;
       case "channels":
+        console.log("incoming channel data");
         break;
     }
   }
@@ -66,7 +67,10 @@ export class MyEffectTemplate implements IEffect {
     // Migration: ignore messages from Effects
     if (!timestamp) return;
 
-    throw new Error("Method not implemented.");
+    // Send off the updated frame
+    window.postMessage([this.id, 0, "frame", this.leds] );
+    // Hand over the leds buffer
+    // window.postMessage([this.id, 0, this.leds], { transfer: [this.leds] } );
   }
 }
 

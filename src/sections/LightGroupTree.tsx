@@ -24,10 +24,24 @@ type LightGroupTreeProps = {
 
 export type ItemData = {
   effect?: Effect; // TODO: string for better serializing
+  originalEffect?: Effect;
   effectInstance?: IEffect;
   effectDisabled?: boolean;
   nextTick?: number;
   segment?: SegmentProps;
+};
+
+export const getDescendingEffect = (item: TreeItemProps): Effect | undefined => {
+  const indexes = arrayFromTreeItem(lightGroups, item)
+  indexes.pop(); // Needed to get parent
+  let effect = treeItemFromArray<TreeItemProps<ItemData>>(lightGroups, indexes)?.data?.effect;
+
+  while (!effect && indexes.length) {
+    indexes.pop();
+    effect = treeItemFromArray<TreeItemProps<ItemData>>(lightGroups, indexes)?.data?.effect;
+  }
+
+  return effect;
 };
 
 export const removeEffect = (item: TreeItemProps<ItemData>, effect?: string) => {
@@ -35,15 +49,13 @@ export const removeEffect = (item: TreeItemProps<ItemData>, effect?: string) => 
   if (!eff) return;
   // Don't delete different effect (instances)
   if (item.data?.effect?.name && item.data.effect.name !== eff) return;
-
   item.data?.effectInstance?.destroy();
   delete item.data?.effectInstance;
   delete item.data?.effect;
   delete item.icon;
   item.disabled = true;
 
-  // TODO: inherit effect instance from ancestor
-
+  // TODO: optionally NOT recursive!
   item.children?.forEach(child => {
     removeEffect(child, eff);
   });
@@ -136,7 +148,7 @@ export const LightGroupTree: Component<LightGroupTreeProps> = (props) => {
     // Assign id to each element
     assignId(lightGroups, "0");
 
-    let timer: Record<string,number> = [];
+    let timer: Record<string,number> = {};
     window.addEventListener("message", ({ data: [id, timestamp, type, data] }: MessageData) => {
       if (timestamp) return; // Only from Effect
 
@@ -154,7 +166,7 @@ export const LightGroupTree: Component<LightGroupTreeProps> = (props) => {
 
           void artnet.send(data, address, port, universe, channelStart, channelsPerLed, width * height, ledOffset)
 
-          if (treeItem.data.effectDisabled) return;
+          if (treeItem.disabled) return;
 
           clearTimeout(timer[id]);
           timer[id] = window.setTimeout(() => {
@@ -176,14 +188,14 @@ export const LightGroupTree: Component<LightGroupTreeProps> = (props) => {
     });
   });
 
-  const getInstances = (item?: TreeItemProps<ItemData>): IEffect[] => {
+  const getInstances = (effect: Effect, item?: TreeItemProps<ItemData>): IEffect[] => {
     // We're not leaf level; collect our descendants
     if (item?.children?.length) {
-      return Array.prototype.concat.call(item.children.map(getInstances)).flat();
+      return Array.prototype.concat.call(item.children.map(getInstances.bind(this, effect))).flat();
     }
 
-    // Do we have an instance?
-    if (item?.data?.effectInstance && !item.data.effectDisabled)
+    // Do we have an instance that matches our effect?
+    if (item?.data?.effectInstance && item?.data?.effectInstance instanceof effect)
       return [item.data.effectInstance];
     else
       return [];
@@ -197,8 +209,6 @@ export const LightGroupTree: Component<LightGroupTreeProps> = (props) => {
       
       effect = selectedItem.data?.effect;
       // Get Effect class (recursively by parent)
-      // TODO: inherited
-      const inherited = !effect;
       while (!effect && indexes.length) {
         indexes.pop();
         effect = treeItemFromArray<TreeItemProps<ItemData>>(lightGroups, indexes)?.data?.effect;
@@ -206,13 +216,12 @@ export const LightGroupTree: Component<LightGroupTreeProps> = (props) => {
 
       if (effect)
       {
-        const selectedInstances = getInstances(selectedItem);
+        // Only select instances of current effect
+        const selectedInstances = getInstances(effect, selectedItem);
         props.onInstances?.(selectedInstances);
       } else {
         props.onInstances?.([]);
       }
-
-      if (inherited) effect = undefined; // TEST
 
     } else {
       props.onInstances?.([]);

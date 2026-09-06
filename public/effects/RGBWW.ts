@@ -101,11 +101,9 @@ export class RGBWW implements IEffect {
     this.leds = data;
     const view = new Uint8Array(this.leds);
 
-    // TODO: channels
-
-    for (let i = 0; i < view.length; i += 3/*channels*/) {
+    for (let i = 0; i < view.length; i += this.channelValues.length) {
         this.channelValues.forEach((v, c) => {
-            view[i + c] = Math.round(255 * v); // G
+            view[i + c] = Math.round(255 * v);
         })
     }
 

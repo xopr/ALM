@@ -1,33 +1,22 @@
-// Note: cannot import TypeScript files, only types
-// Can only import single level javascript files
 import type { IEffect, MinMax, Channels, MessageData } from "../Effect";
 
-// Uncomment this block to allow for importing single javascript files; remove if not needed
-// async function jsImport<T = any>(url : string): Promise<T> {
-//   const modUrl = URL.createObjectURL(new Blob([await (await fetch(url)).text()], {type: "text/javascript"}));
-//   const module = import(modUrl);
-//   URL.revokeObjectURL(modUrl);
-//   return module;
-// }
-// const myJsModule = await jsImport("/publicFolderFile.js");
-
 export class Fire implements IEffect {
-  static description = "Turns all LEDs the same color.";
+  static description = "Famous OHM2013 fire animation by Prodigity.";
   static channels: Channels = [
     {
       name: "P",
       description: "Palette",
-      default: 0, // TODO: max: 5
+      default: 0, // max: 5
     },
     {
       name: "C",
       description: "Particle count",
-      default: 0.3333, // TODO: max: maxparticles=300
+      default: 0.3333, // max: 300
     },
     {
       name: "H",
       description: "Heat",
-      default: 1, // TODO: max: 255
+      default: 1, // max: 255
     },
   ];
   static minMax: MinMax = { x: [1, 255], y:[1, 255] };
@@ -39,28 +28,20 @@ export class Fire implements IEffect {
   private leds: ArrayBuffer;
   private boundListener: (data: MessageData) => void;
 
-  // Ported from OHM code
-  //pcount = 10 // set at init
-  maxparticles = 300;
-
-  maxbrightness = 255;
-  palette = 0;
-  restoretime = 0;
-
+  maxParticles = 300;
+  maxHeat = 255;
+  maxPalette = 5;
+  
   pcount: number;
 
   particles: Particle[];
 
   width: number;
   height: number;
-  // Ported from OHM code
-
 
   constructor(x: number, y: number, channels: number, id?: string) {
-    console.log("Constructor", x, y, channels, id);
-
     this.channelValues = Fire.channels.map(channel => channel.default);
-    // HACK: channel amount
+    // HACK: channel amount ???
     this.channelValues.length = channels;
 
     this.id = id ?? (Math.random() + 1).toString(36).substring(2);
@@ -69,27 +50,20 @@ export class Fire implements IEffect {
     this.boundListener = this.onWindowMessage.bind(this);
     window.addEventListener("message", this.boundListener);
 
-    // Ported from OHM code
-    // super(strip2D/*, channelHandler*/);
-    // this.strip2D.strip.clear();
-
     this.pcount = 10;
 
-    // this.strip2D.strip.clear([0, 0, 0]);
-    // this.strip2D.send();
-    
-    console.log("create particles");
     this.particles = [];
-    for (let n = 0; n < this.maxparticles; ++n) {
+    for (let n = 0; n < this.maxParticles; ++n) {
       this.particles[n] = new Particle(
         Math.round(Math.random() * x),
         y,
         x,
         y,
         Math.round(this.channelValues[0] * 5),
+        this.maxHeat,
       );
     }
-    // Ported from OHM code
+
     this.width = x;
     this.height = y;
 
@@ -133,14 +107,11 @@ export class Fire implements IEffect {
 
     this.leds = data;
     const view = new Uint8Array(this.leds);
-
-    // Ported from OHM code
-    const heat = Math.round(this.channelValues[2] * 255); // maxHeat
-    const cv = Math.round(this.channelValues[1] * this.maxparticles);
-    const palette = Math.round(this.channelValues[0] * 5);
+    const heat = Math.round(this.channelValues[2] * this.maxHeat);
+    const cv = Math.round(this.channelValues[1] * this.maxParticles);
+    const palette = Math.round(this.channelValues[0] * this.maxPalette);
 
     if (!this.particles || !this.particles.length) {
-      console.log("empty particles", this.particles);
       return;
     }
 
@@ -150,23 +121,14 @@ export class Fire implements IEffect {
     }
 
     for (let i = 0; i < cv; ++i) {
-      this.particles[i].updateparticle( heat, true, palette, view, !i );
+      this.particles[i].updateParticle( heat, true, palette, view, !i );
     }
-    for (let i = cv; i < this.maxparticles; ++i) {
+    for (let i = cv; i < this.maxParticles; ++i) {
       // This is the "poof" magic: heat = 255
-      this.particles[i].updateparticle( 255, false, palette, view, i === cv );
+      this.particles[i].updateParticle( this.maxHeat, false, palette, view, i === cv );
     }
-    // Ported from OHM code
-
-    // for (let i = 0; i < view.length; i += 3/*channels*/) {
-    //     this.channelValues.forEach((v, c) => {
-    //         view[i + c] = Math.round(255 * v); // G
-    //     })
-    // }
 
     window.postMessage([this.id, 0, "frame", this.leds] );
-    // Hand over the leds buffer
-    // window.postMessage([this.id, 0, this.leds], { transfer: [this.leds] } );
   }
 }
 
@@ -176,22 +138,22 @@ export class Fire implements IEffect {
 
 type RgbOctet = [r: number, g: number, b: number];
 
-// Ported from OHM code
 class Particle
 {
     rgb?: RgbOctet;
     x?: number;
     y?: number;
-    rnderp?: number;
     speed?: number;
     life?: number;
     palette?: number;
+    maxHeat: number;
     
     width: number;
     height: number;
 
-    constructor(x: number, y: number, width: number, height: number, palette: number)
+    constructor(x: number, y: number, width: number, height: number, palette: number, maxHeat: number)
     {
+      this.maxHeat = maxHeat;
       this.width = width;
       this.height = height;
       this.init(x, y, palette);
@@ -202,16 +164,15 @@ class Particle
         this.rgb = [0,0,0];
         this.y = y;
         this.x = x;
-        this.rnderp = Math.round(Math.random() * 9);
         this.speed = 1;
         this.life = 5 + Math.round(Math.random() * this.height);
         this.palette = palette;
     }
 
-    updateparticle(heat: number, alive: boolean, palette: number, view: Uint8Array, debug: boolean)
+    updateParticle(heat: number, alive: boolean, palette: number, view: Uint8Array, debug: boolean)
     {
         // Fire goes from white -> yellow -> deep orange
-        let life = Math.round(heat * this.life! / 255);
+        let life = Math.round(heat * this.life! / this.maxHeat);
         if (life < 3)
             life = 3;
         const progress = Math.round(heat * (this.height - this.y!) / life);
@@ -280,8 +241,7 @@ class Particle
         const intx = Math.round(this.x!);
         const inty = Math.round(this.y!);
 
-        debug && console.log(alive, intx, inty, this.rgb);
-        this.intoarray(view, intx, inty, this.rgb);
+        this.intoArray(view, intx, inty, this.rgb);
 
         // Reset if particle is done
         if ((this.height - this.y! ) > life || this.y! > this.height)
@@ -289,7 +249,6 @@ class Particle
             if (alive)
             {
               const x = Math.round(Math.random() * this.width);
-              debug && console.log("reset alive", x, this.height, palette);
               this.init(x, this.height, palette);
             }
             else {
@@ -299,9 +258,9 @@ class Particle
         }    
     }
 
-    intoarray(view: Uint8Array, x: number, y: number, rgb: RgbOctet)
+    intoArray(view: Uint8Array, x: number, y: number, rgb: RgbOctet)
     {
-      // TODO: do this.channelValues.length
+      // Note: we are ignoring this.channelValues.length; RGB only
       const offset = 3 * (y * this.width + x);
       view[offset + 0] = rgb[0];
       view[offset + 1] = rgb[1];
@@ -309,4 +268,3 @@ class Particle
     }
   
 }
-// Ported from OHM code

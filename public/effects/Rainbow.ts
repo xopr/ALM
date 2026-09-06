@@ -24,8 +24,9 @@ const period46 = 4 * period / 6;
 const period56 = 5 * period / 6;
 
 export class Rainbow implements IEffect {
-  static description = "Turns all LEDs the same color.";
+  static description = "Technicolor rainbow!";
   static channels: Channels = [
+    // TODO: speed, density
     // {
     //   name: "R",
     //   description: "Red value",
@@ -117,13 +118,10 @@ export class Rainbow implements IEffect {
       this.count -= period;
 
     window.postMessage([this.id, 0, "frame", this.leds] );
-    // Hand over the leds buffer
-    // window.postMessage([this.id, 0, this.leds], { transfer: [this.leds] } );
   }
 
   getColorValue1(count: number)
   {
-    // TODO: period step: const c = Math.min(Math.max(0, count), period);
     while (count < 0)
       count += period;
 
@@ -173,6 +171,3 @@ export class Rainbow implements IEffect {
   }
   
 }
-
-// Parent:
-// const myWorker = new Worker("/worker.js");
