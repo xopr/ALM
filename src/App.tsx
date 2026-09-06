@@ -80,11 +80,13 @@ function App() {
   }
 
   const removeEffectHandler = (item?: TreeItemProps<ItemData>) => {
-    if (!item?.data?.effect) return;
+    if (!item?.data?.effect && !item?.data?.originalEffect) return;
       const effect = getDescendingEffect(item);
 
       item.data.originalEffect = item.data?.effect;
       removeEffect(item);
+      // Disabled effects are effectively not removed; delete icon
+      delete item.icon;
       if (effect) instanceLeaf(item, effect);
       // TODO: reprocess setChannelValues
   }

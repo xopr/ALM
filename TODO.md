@@ -1,6 +1,8 @@
-* B cannot delete disabled item
-* B channel values are applied from static instead of parent/originalEffect 
-* B (inline) icon v-alignment is wrong
+* B-M channel values are applied from static instead of parent/originalEffect
+
+* B-L icon click not working
+* B-M (inline) icon v-alignment is wrong
+
 * F align effects/lights on left side near tree control (optional?)
 * F check if previous frame is available to do crossover to new effect
 * T check removeEffect recursion on toggle effect
