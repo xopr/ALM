@@ -28,6 +28,6 @@ export const instanceLeaf = (item: TreeItemProps<ItemData>, Effect: Effect) => {
     item.data.effectInstance?.destroy();
     item.data.effectInstance = new Effect(width, height, channelsPerLed, id);
 
-    item.data.nextTick = Effect.refreshRate * 1000;
+    item.data.nextTick = Effect.renderDelay * 1000;
   }
 }

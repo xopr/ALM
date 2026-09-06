@@ -28,11 +28,11 @@ type EffectStatics = {
   channels: Channel[];
 
   /** Desired refresh rate in seconds */
-  refreshRate: number;
+  renderDelay: number;
 }
 
 /** Effect type/class */
-export type Effect = ClassConstructor<IEffect, [x: number, y: number, channels: number, id?: string], EffectStatics>;
+export type Effect = ClassConstructor<IEffect, [width: number, height: number, channelsPerLed: number, id?: string], EffectStatics>;
 
 /**
  * Effect interface (instance)

@@ -21,7 +21,7 @@ export class Turquoise implements IEffect {
     }
   ];
   static minMax: MinMax = { x: [1, 255], y:[1, 255] };
-  static refreshRate = 5;
+  static renderDelay = 5;
 
   channelValues: number[];
   id: string; // Used for non-worker post message
@@ -29,11 +29,10 @@ export class Turquoise implements IEffect {
   private leds: ArrayBuffer;
   private boundListener: (data: MessageData) => void;
 
-  constructor(x: number, y: number, channels: number, id?: string) {
+  constructor(x: number, y: number, channelsPerLed: number, id?: string) {
     this.channelValues = Turquoise.channels.map(channel => channel.default);
-
     this.id = id ?? (Math.random() + 1).toString(36).substring(2);
-    this.leds = new ArrayBuffer(x * y * channels);
+    this.leds = new ArrayBuffer(x * y * channelsPerLed);
 
     this.boundListener = this.onWindowMessage.bind(this);
     window.addEventListener("message", this.boundListener);

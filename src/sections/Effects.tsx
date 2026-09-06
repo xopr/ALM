@@ -74,8 +74,8 @@ export const Effects: Component<EffectsProps> = (props) => {
           }</For>
         </ul>
       </div>
-      <div>Frame every {(props.effect?.refreshRate)?.toFixed(3)} seconds</div>
-      <div>Frame {(1 / props.effect?.refreshRate)?.toFixed(0)} times a second</div>
+      <div>Frame every {(props.effect?.renderDelay)?.toFixed(3)} seconds</div>
+      <div>Frame {(1 / props.effect?.renderDelay)?.toFixed(0)} times a second</div>
       <div>Horizontal support: {props.effect?.minMax.x[0]}-{props.effect?.minMax.x[1]} LEDs</div>
       <div>Vertical support: {props.effect?.minMax.y[0]}-{props.effect?.minMax.y[1]} LEDs</div>
     </div>

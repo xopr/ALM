@@ -26,7 +26,7 @@ export class MyEffectTemplate implements IEffect {
   ];
   // In case of a 1D effect, prefer to use its x-axis
   static minMax: MinMax = { x: [1, 255], y:[1, 1] };
-  static refreshRate = 1 / 1; // One frame per second
+  static renderDelay = 1 / 1; // One frame per second
 
   channelValues: number[];
   id: string; // Used for non-worker post message
@@ -34,10 +34,10 @@ export class MyEffectTemplate implements IEffect {
   private leds: ArrayBuffer;
   private boundListener: (data: MessageData) => void;
 
-  constructor(x: number, y: number, channels: number, id?: string) {
+  constructor(x: number, y: number, channelsPerLed: number, id?: string) {
     this.channelValues = MyEffectTemplate.channels.map(channel => channel.default);
     this.id = id ?? (Math.random() + 1).toString(36).substring(2);
-    this.leds = new ArrayBuffer(x * y * channels);
+    this.leds = new ArrayBuffer(x * y * channelsPerLed);
 
     this.boundListener = this.onWindowMessage.bind(this);
     window.addEventListener("message", this.boundListener);

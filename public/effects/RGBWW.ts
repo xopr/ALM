@@ -41,7 +41,7 @@ export class RGBWW implements IEffect {
     },
   ];
   static minMax: MinMax = { x: [1, 255], y:[1, 255] };
-  static refreshRate = 5;
+  static renderDelay = 5;
 
   channelValues: number[];
   id: string; // Used for non-worker post message
@@ -49,13 +49,13 @@ export class RGBWW implements IEffect {
   private leds: ArrayBuffer;
   private boundListener: (data: MessageData) => void;
 
-  constructor(x: number, y: number, channels: number, id?: string) {
+  constructor(x: number, y: number, channelsPerLed: number, id?: string) {
     this.channelValues = RGBWW.channels.map(channel => channel.default);
-    // HACK: channel amount
-    this.channelValues.length = channels;
+    // HACK: limit effect channel amount to incoming channels
+    this.channelValues.length = channelsPerLed;
 
     this.id = id ?? (Math.random() + 1).toString(36).substring(2);
-    this.leds = new ArrayBuffer(x * y * channels);
+    this.leds = new ArrayBuffer(x * y * channelsPerLed);
 
     this.boundListener = this.onWindowMessage.bind(this);
     window.addEventListener("message", this.boundListener);
@@ -86,8 +86,13 @@ export class RGBWW implements IEffect {
           // Channel "request", response with values
           window.postMessage([this.id, 0, type, this.channelValues] );
         } else {
-          // Iterate sparse array
-          data.forEach((v,i) => this.channelValues[i] = v);
+          console.log("channels", RGBWW.channels.length, this.channelValues.length)
+          // NOTE: Iterate sparse array
+          data.forEach((v,i) => {
+            // Don't set channel value that does not exist on light segment
+            if (i >= this.channelValues.length) return;
+            this.channelValues[i] = v
+          });
           this.frame(timestamp, this.leds);
         }
         break;

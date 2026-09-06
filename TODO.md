@@ -1,24 +1,29 @@
-* verify (destroy): MB onload/overload(?) does not remove instance -> network is spammed!
-  * delete and add also doesn't work (pauses effect)
-* verify (destroy): MB multiple layered different effects trigger all instance values!
+* B cannot delete disabled item
+* B channel values are applied from static instead of parent/originalEffect 
+* B (inline) icon v-alignment is wrong
+* F align effects/lights on left side near tree control (optional?)
+* F check if previous frame is available to do crossover to new effect
+* T check removeEffect recursion on toggle effect
+* B cleanup frame after removing effect
+* F add channel name tooltip
+* F tooltip tap and hold
+-------------------------------------------------------------
 
-* verify: MB group effect only transmits last segment on timer (or previously transmitted selected child)
-
-* verify: MB sometimes, dropping effect on group does not encompass all children
-  * 0 children means no slider?
-  -> needs effect hover or select to "initialize"
 
 * MB separate segment on same IP/universe glitches (not uniform packet)
   -> 80 skip 190 to trigger next universe ([v] Custom bus start indices)
 
-* B ledOffset is channel offset
-* B refreshRate is renderDelay
-* F list the effect(s) that are tight to the Lights section segment
+* B ledOffset is channelOffset -> channelStart??
+  -> seems to be negative
+
+* F list the effect(s) that are tied to the Lights section segment
 * F add segment drag handle
-* ? List effect channel preset for current (group) effect
-* ? map channel names on top of each other OR: ignore the other effect tree!
-* group slider value is equal to last child value
+* B group slider value is equal to last child value
 * changing 3 channels simultaneously for 10 segments introduces some lag
+  -> check frame queue and drop intermediate frames
+* F? List effect channel preset for current (group) effect
+  -> add child slider (snap)tick or button
+* F? map channel names on top of each other OR: ignore the other effect tree!
 
 TESTPLAN
 * drop different effect on different layers: slider -> override child mode
@@ -35,9 +40,6 @@ TESTPLAN
 
 * DataObject cannot be cloned bug -> running in background issue?
 
-Better tree:
-* lightGroupTree -> data
-  * disabled state
 
 * presets / scene selection
 
