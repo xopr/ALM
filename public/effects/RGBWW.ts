@@ -86,7 +86,6 @@ export class RGBWW implements IEffect {
           // Channel "request", response with values
           window.postMessage([this.id, 0, type, this.channelValues] );
         } else {
-          console.log("channels", RGBWW.channels.length, this.channelValues.length)
           // NOTE: Iterate sparse array
           data.forEach((v,i) => {
             // Don't set channel value that does not exist on light segment

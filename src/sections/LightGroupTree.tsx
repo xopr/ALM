@@ -15,9 +15,11 @@ import JSON5 from "json5";
 import { invoke } from "@tauri-apps/api/core";
 
 type LightGroupTreeProps = {
+  /** @deprecated move logic inside onSelect */
   onEffect?: (effect?: Effect) => void;
   onChannelValues?: (values: number[]) => void;  
   onSelect?: (item?: TreeItemProps<ItemData>) => void;
+  /** @deprecated move logic inside onSelect */
   onInstances?: (instances?: IEffect[]) => void;  
   class?: string;
 };
@@ -27,21 +29,31 @@ export type ItemData = {
   originalEffect?: Effect;
   effectInstance?: IEffect;
   effectDisabled?: boolean;
+  channelValues: number[]; // TODO
   nextTick?: number;
   segment?: SegmentProps;
 };
 
-export const getDescendingEffect = (item: TreeItemProps): Effect | undefined => {
+export const getDescendingEffect = (item: TreeItemProps): { effect: Effect | undefined, channelValues: number[] } => {
   const indexes = arrayFromTreeItem(lightGroups, item)
   indexes.pop(); // Needed to get parent
-  let effect = treeItemFromArray<TreeItemProps<ItemData>>(lightGroups, indexes)?.data?.effect;
+  let effect: Effect | undefined;
 
+  // TODO: channelValues not on instance, but item.data /!\
   while (!effect && indexes.length) {
+    const data: ItemData | undefined = treeItemFromArray(lightGroups, indexes)?.data;
+    effect = data?.effect;
+
+    if (effect) {
+      return { effect, channelValues: data?.channelValues.slice() ?? []}
+    }
+
     indexes.pop();
-    effect = treeItemFromArray<TreeItemProps<ItemData>>(lightGroups, indexes)?.data?.effect;
+
   }
 
-  return effect;
+  console.log("Effect not found; empty channel values", effect);
+  return { effect, channelValues: [] };
 };
 
 export const removeEffect = (item: TreeItemProps<ItemData>, effect?: string) => {
@@ -78,7 +90,7 @@ export const removeItem = (item: TreeItemProps<ItemData>) => {
 const artnet = new Artnet();
 // Groups of light(-segment)s to attach an effect to.
 
-const lightGroups = createMutable<TreeItemProps>({ name: "$ROOT" });
+export const lightGroups = createMutable<TreeItemProps>({ name: "$ROOT" });
 
 const over = (item: TreeItemProps<ItemData>, data: DragDropData<Effect>, side: string) => {
 };
@@ -92,14 +104,14 @@ const drop = (item: TreeItemProps<ItemData>, data: DragDropData<Effect>) => {
     case "effect":
       if (!data.sourceData) return;
       // Iterate all leafs to update the running effects. Clear effect to allow instanceLeaf to do its thing.
-      item.data.effect = undefined;
+      item.data!.effect = undefined;
       // Set effect icon      
       item.icon = effect_svg;
 
       instanceLeaf(item, data.sourceData);
 
       // Store effect we just dropped
-      item.data.effect = data.sourceData;
+      item.data!.effect = data.sourceData;
       break;
 
     case "light":
@@ -181,6 +193,8 @@ export const LightGroupTree: Component<LightGroupTreeProps> = (props) => {
 
         case "channels":
           // Handle initial channel values
+          // TODO: either move out of this class or include selected item channel values.
+          //       For now, handle in App.tsx
           props.onChannelValues?.(data);
           break;
       }
@@ -188,47 +202,8 @@ export const LightGroupTree: Component<LightGroupTreeProps> = (props) => {
     });
   });
 
-  const getInstances = (effect: Effect, item?: TreeItemProps<ItemData>): IEffect[] => {
-    // We're not leaf level; collect our descendants
-    if (item?.children?.length) {
-      return Array.prototype.concat.call(item.children.map(getInstances.bind(this, effect))).flat();
-    }
-
-    // Do we have an instance that matches our effect?
-    if (item?.data?.effectInstance && item?.data?.effectInstance instanceof effect)
-      return [item.data.effectInstance];
-    else
-      return [];
-  }
-  
   const onSelect = (selectedItem?: TreeItemProps<ItemData>) => {
-    let effect: Effect | undefined;
     props.onSelect?.(selectedItem);
-    if (selectedItem) {
-      const indexes = arrayFromTreeItem(lightGroups, selectedItem);
-      
-      effect = selectedItem.data?.effect;
-      // Get Effect class (recursively by parent)
-      while (!effect && indexes.length) {
-        indexes.pop();
-        effect = treeItemFromArray<TreeItemProps<ItemData>>(lightGroups, indexes)?.data?.effect;
-      }
-
-      if (effect)
-      {
-        // Only select instances of current effect
-        const selectedInstances = getInstances(effect, selectedItem);
-        props.onInstances?.(selectedInstances);
-      } else {
-        props.onInstances?.([]);
-      }
-
-    } else {
-      props.onInstances?.([]);
-    }
-
-    // DON'T instantiate
-    props.onEffect?.(() => effect);
   };
 
   return <TreeList

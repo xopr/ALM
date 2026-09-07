@@ -2,7 +2,7 @@ import { Effect } from "../../public/Effect";
 import { TreeItemProps } from "../components/treelist/TreeItem";
 import { ItemData } from "../sections/LightGroupTree";
 
-export const instanceLeaf = (item: TreeItemProps<ItemData>, Effect: Effect) => {
+export const instanceLeaf = (item: TreeItemProps<ItemData>, Effect: Effect, channelValues?: number[]) => {
   // (Different) effect applied to this subtree, stop propagation.
   if (item.data?.effect) return;
 
@@ -12,7 +12,7 @@ export const instanceLeaf = (item: TreeItemProps<ItemData>, Effect: Effect) => {
   if (item.children) {
     // Iterate children recursively
     item.children.forEach((child) => {
-      instanceLeaf(child, Effect);
+      instanceLeaf(child, Effect, channelValues);
     });
 
     return;
@@ -27,6 +27,12 @@ export const instanceLeaf = (item: TreeItemProps<ItemData>, Effect: Effect) => {
     const { channelsPerLed, width, height } = item.data.segment;
     item.data.effectInstance?.destroy();
     item.data.effectInstance = new Effect(width, height, channelsPerLed, id);
+    // Override the channel values
+    if (channelValues) {
+      item.data.effectInstance.channelValues = channelValues.slice();
+    }
+    // TODO: messy code
+    item.data.channelValues = item.data.effectInstance.channelValues.slice();
 
     item.data.nextTick = Effect.renderDelay * 1000;
   }

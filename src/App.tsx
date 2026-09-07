@@ -7,7 +7,7 @@ import { Lights } from "./sections/Lights";
 import { Control } from "./sections/Control";
 import { getDescendingEffect, ItemData, LightGroupTree, removeEffect, removeItem } from "./sections/LightGroupTree";
 import DragNode from "./components/DragNode";
-import { type Effect, type IEffect } from "../public/Effect";
+import { type Effect } from "../public/Effect";
 import Help from "./sections/Help";
 import { TreeItemProps } from "./components/treelist/TreeItem";
 
@@ -21,15 +21,22 @@ import LightGroupRemoveIcon from "/src/assets/lightgroup_remove.svg";
 import { instanceLeaf } from "./helpers/effectHelpers";
 
 function App() {
-  const [activeEffect, setActiveEffect] = createSignal<Effect>(); // TODO: inherited?
   const [selectedEffect, setSelectedEffect] = createSignal<Effect>();
-  const [effectInstances, setEffectInstances] = createSignal<IEffect[]>();
   const [channelValues, setChannelValues] = createSignal<number[]>([]);
   const [selectedItem, setSelectedItem] = createSignal<TreeItemProps<ItemData>>();
 
   const enabledEffect = createMemo(() => {
     return !!selectedItem()?.data?.effect && !selectedItem()?.data?.effectDisabled;
   });
+
+  const onChannelValues = (channelValues: number[]) => {
+    // Hacky way to keep values in sync and stored per tree item (group)
+    const data = selectedItem()?.data;
+    // console.log("onChannelValues", channelValues, data);
+    if (data) data.channelValues = channelValues.slice(); // TODO: sparse?
+
+    setChannelValues(channelValues);
+  }
 
   const addLightGroup = (parent?: TreeItemProps<ItemData>) => {
     if (!parent) return;
@@ -53,15 +60,16 @@ function App() {
     if (!item?.data?.effect && !item?.data?.originalEffect) return;
 
     item.data.effectDisabled = !item.data.effectDisabled;
+
+    // Clean up current effect and apply the given one if disabled..
     if (item.data.effectDisabled) {
-      const effect = getDescendingEffect(item);
+      const { effect, channelValues } = getDescendingEffect(item);
 
       item.data.originalEffect = item.data?.effect;
       removeEffect(item);
-      if (effect) instanceLeaf(item, effect);
-      // TODO: reprocess setChannelValues
+      if (effect) instanceLeaf(item, effect, channelValues);
     } else {
-      const effect = getDescendingEffect(item);
+      const { effect } = getDescendingEffect(item);
       item.data.effect = effect; // Store to match
 
       removeEffect(item);
@@ -74,21 +82,22 @@ function App() {
       }
     }
 
-    // Clean up current effect and apply the given one if disabled..
-
     item.icon = item.data.effectDisabled ? <EffectOffIcon/> : <EffectOnIcon/>;
   }
 
   const removeEffectHandler = (item?: TreeItemProps<ItemData>) => {
     if (!item?.data?.effect && !item?.data?.originalEffect) return;
-      const effect = getDescendingEffect(item);
+      const { effect, channelValues } = getDescendingEffect(item);
 
       item.data.originalEffect = item.data?.effect;
       removeEffect(item);
       // Disabled effects are effectively not removed; delete icon
       delete item.icon;
-      if (effect) instanceLeaf(item, effect);
-      // TODO: reprocess setChannelValues
+      if (effect) {
+        console.log("remove", channelValues);
+        instanceLeaf(item, effect, channelValues);
+        // TODO: reprocess setChannelValues
+      }
   }
 
   const renameItem = (item?: TreeItemProps<ItemData>) => {
@@ -102,15 +111,20 @@ function App() {
       <div class="inbetweenContainer vertical" style="min-width:240px">
         <LightGroupTree
           class="contentContainer list"
-          onEffect={setActiveEffect}
           onSelect={setSelectedItem}
-          onChannelValues={setChannelValues}
-          onInstances={setEffectInstances}
+          onChannelValues={onChannelValues}
         />
         <div>
           <button title="Add child light group" onclick={() => addLightGroup(selectedItem())} disabled={!!selectedItem()?.data?.segment}>{LightGroupAddIcon}</button>
           <button title="Remove light group" onclick={() => removeLightGroup(selectedItem())} disabled={!!selectedItem()?.data?.segment}>{LightGroupRemoveIcon}</button>
-          <button title="Toggle effect" onclick={() => toggleEffect(selectedItem())} disabled={!selectedItem()?.data?.effect && !selectedItem()?.data?.originalEffect}>{(!activeEffect() || enabledEffect()) ? <EffectOffIcon/> : <EffectOnIcon/>}</button>
+          <button
+            title="Toggle effect"
+            onclick={() => toggleEffect(selectedItem())}
+            disabled={!selectedItem()?.data?.effect && !selectedItem()?.data?.originalEffect}
+          >
+            {/* TODO verify deprecated !activeEffect() */}
+            {(enabledEffect()) ? <EffectOffIcon/> : <EffectOnIcon/>}
+          </button>
           <button title="Remove effect" onclick={() => removeEffectHandler(selectedItem())} disabled={!selectedItem()?.data?.effect && !selectedItem()?.data?.originalEffect}>{EffectRemoveIcon}</button>
           <button title="Rename group" onclick={() => renameItem(selectedItem())} disabled={!selectedItem()}>{EditIcon}</button>
           <Show when={false/*drag*/}>
@@ -124,7 +138,7 @@ function App() {
           data-icon="control"
           class="contentContainer"
         >
-          <Control effect={activeEffect()} instances={effectInstances()} channelValues={channelValues()}/>
+          <Control selectedItem={selectedItem()} channelValues={channelValues()} /*onChanelValues={onChannelValues}*//>
         </section>
         {/* <section
           data-label="Remote"
