@@ -2,6 +2,54 @@
   name: "$ROOT",
   children: [
     {
+      name: "PC",
+      disabled: true,
+      type: "group",
+      children: [
+        {
+          name: "simstrip1",
+          type: "segment",
+          disabled: true,
+          data: {
+            segment: {
+              address: "127.0.0.1",
+              port: 7000,
+              universe: 0,
+              channelStart: 0,   // offset within Art-Net packet, warn if: not LED-aligned, overlap w/ other segment
+              channelsPerLed: 3, // type: "RGB"
+              width: 7,
+              height: 21,
+              ledOffset: 0,      // amount of LEDs to skip within effect (bezel/padding)
+            },
+          },
+        },
+        {
+          name: "Sub",
+          disabled: true,
+          type: "group",
+          children: [
+            {
+              name: "simstrip2",
+              type: "segment",
+              disabled: true,
+              data: {
+                segment: {
+                  address: "127.0.0.1",
+                  port: 7001,
+                  universe: 0,
+                  channelStart: 0,   // offset within Art-Net packet, warn if: not LED-aligned, overlap w/ other segment
+                  channelsPerLed: 3, // type: "RGB"
+                  width: 7,
+                  height: 21,
+                  ledOffset: 3,      // amount of LEDs to skip within effect (bezel/padding)
+                },
+              },
+            },
+          ],
+        },
+      ],
+    },
+    {
       name: "Boshovenpop",
       disabled: true,
       type: "group",
@@ -167,54 +215,6 @@
                   ledOffset: 0,
                 },
               },
-            },
-          ],
-        },
-        {
-          name: "PC",
-          disabled: true,
-          type: "group",
-          children: [
-            {
-              name: "simstrip1",
-              type: "segment",
-              disabled: true,
-              data: {
-                segment: {
-                  address: "127.0.0.1",
-                  port: 7000,
-                  universe: 0,
-                  channelStart: 0,   // offset within Art-Net packet, warn if: not LED-aligned, overlap w/ other segment
-                  channelsPerLed: 3, // type: "RGB"
-                  width: 7,
-                  height: 21,
-                  ledOffset: 0,      // amount of LEDs to skip within effect (bezel/padding)
-                },
-              },
-            },
-            {
-              name: "Sub",
-              disabled: true,
-              type: "group",
-              children: [
-                {
-                  name: "simstrip2",
-                  type: "segment",
-                  disabled: true,
-                  data: {
-                    segment: {
-                      address: "127.0.0.1",
-                      port: 7001,
-                      universe: 0,
-                      channelStart: 0,   // offset within Art-Net packet, warn if: not LED-aligned, overlap w/ other segment
-                      channelsPerLed: 3, // type: "RGB"
-                      width: 7,
-                      height: 21,
-                      ledOffset: 3,      // amount of LEDs to skip within effect (bezel/padding)
-                    },
-                  },
-                },
-              ],
             },
           ],
         },

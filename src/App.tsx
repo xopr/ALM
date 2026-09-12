@@ -19,6 +19,10 @@ import EffectRemoveIcon from "/src/assets/effect_remove.svg";
 import LightGroupAddIcon from "/src/assets/lightgroup_add.svg";
 import LightGroupRemoveIcon from "/src/assets/lightgroup_remove.svg";
 import { instanceLeaf } from "./helpers/effectHelpers";
+import { EffectHelper } from "./helpers/EffectHelper";
+
+// Assign EffectHelper base class
+globalThis.Effect = EffectHelper;
 
 function App() {
   const [selectedEffect, setSelectedEffect] = createSignal<Effect>();

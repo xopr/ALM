@@ -30,7 +30,6 @@ export type ItemData = {
   effectInstance?: IEffect;
   effectDisabled?: boolean;
   channelValues: number[]; // TODO
-  nextTick?: number;
   segment?: SegmentProps;
 };
 
@@ -181,14 +180,16 @@ export const LightGroupTree: Component<LightGroupTreeProps> = (props) => {
           if (treeItem.disabled) return;
 
           clearTimeout(timer[id]);
-          timer[id] = window.setTimeout(() => {
-            // Hand over the leds buffer
-            // Error: DataCloneError: The object can not be cloned.
-            if (data.byteLength)
-              window.postMessage([id, performance.now(), type, data], { transfer: [data] } );
-            else
-              console.warn("No data to transmit.");
-          }, treeItem.data.nextTick);
+          if (treeItem.data.effectInstance.renderDelay > 0) {
+            timer[id] = window.setTimeout(() => {
+              // Hand over the leds buffer
+              // Error: DataCloneError: The object can not be cloned.
+              if (data.byteLength)
+                window.postMessage([id, performance.now(), type, data], { transfer: [data] } );
+              else
+                console.warn("No data to transmit.");
+            }, treeItem.data.effectInstance.renderDelay * 1000);
+          }
           break;
 
         case "channels":

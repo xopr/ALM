@@ -26,9 +26,6 @@ type EffectStatics = {
 
   /** variable channels (0-1?) */
   channels: Channel[];
-
-  /** Desired refresh rate in seconds */
-  renderDelay: number;
 }
 
 /** Effect type/class */
@@ -39,10 +36,16 @@ export type Effect = ClassConstructor<IEffect, [width: number, height: number, c
  * NOTE: this interface is heavily in flux and might break existing Effects regularly until further notice
  */
 export interface IEffect {
-  channelValues: number[];
+  /** Effect identifier */
   id: string;
 
-  destroy: () => void;
+  /** Current channel values */
+  channelValues: number[];
+
+  /** Desired refresh rate in seconds */
+  renderDelay: number;
+
+  destroy(): void;
   frame(timestamp: number, data: ArrayBuffer): void;
 }
 

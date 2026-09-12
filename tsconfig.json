@@ -22,6 +22,10 @@
     "noUnusedParameters": true,
     "noFallthroughCasesInSwitch": true
   },
-  "include": ["src", "public/Effect.ts"],
+  "include": [
+    "src",
+    "public/Effect.ts",
+    "public/effects",
+  ],
   "references": [{ "path": "./tsconfig.node.json" }]
 }

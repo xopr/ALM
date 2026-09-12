@@ -1,17 +1,5 @@
-// /home/xopr/Projects/ART-net/ledstrip-control-ts
-
 // Note: cannot import TypeScript files, only types
-// Can only import single level javascript files
 import type { IEffect, MinMax, Channels, MessageData } from "../Effect";
-
-// Uncomment this block to allow for importing single javascript files; remove if not needed
-// async function jsImport<T = any>(url : string): Promise<T> {
-//   const modUrl = URL.createObjectURL(new Blob([await (await fetch(url)).text()], {type: "text/javascript"}));
-//   const module = import(modUrl);
-//   URL.revokeObjectURL(modUrl);
-//   return module;
-// }
-// const myJsModule = await jsImport("/publicFolderFile.js");
 
 const period = 1800;
 const period13 = period / 3;
@@ -34,10 +22,10 @@ export class Rainbow implements IEffect {
     // },
   ];
   static minMax: MinMax = { x: [1, 255], y:[1, 255] };
-  static renderDelay = 0.1;
 
-  channelValues: number[];
-  id: string; // Used for non-worker post message
+  public renderDelay = 0.1;
+  public channelValues: number[];
+  public id: string; // Used for non-worker post message
 
   private leds: ArrayBuffer;
   private boundListener: (data: MessageData) => void;
@@ -86,7 +74,6 @@ export class Rainbow implements IEffect {
         } else {
           // Iterate sparse array
           data.forEach((v,i) => this.channelValues[i] = v);
-          this.frame(timestamp, this.leds);
         }
         break;
     }

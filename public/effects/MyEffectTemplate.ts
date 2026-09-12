@@ -26,10 +26,10 @@ export class MyEffectTemplate implements IEffect {
   ];
   // In case of a 1D effect, prefer to use its x-axis
   static minMax: MinMax = { x: [1, 255], y:[1, 1] };
-  static renderDelay = 1 / 1; // One frame per second
 
-  channelValues: number[];
-  id: string; // Used for non-worker post message
+  public renderDelay = 1 / 1; // One frame per second
+  public channelValues: number[];
+  public id: string; // Used for non-worker post message
 
   private leds: ArrayBuffer;
   private boundListener: (data: MessageData) => void;
@@ -41,6 +41,9 @@ export class MyEffectTemplate implements IEffect {
 
     this.boundListener = this.onWindowMessage.bind(this);
     window.addEventListener("message", this.boundListener);
+
+    // Draw initial LED pattern here.
+    // ...
 
     // Initial "frame" Hand over the leds buffer
     this.frame(-1, this.leds);

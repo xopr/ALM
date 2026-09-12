@@ -33,7 +33,5 @@ export const instanceLeaf = (item: TreeItemProps<ItemData>, Effect: Effect, chan
     }
     // TODO: messy code
     item.data.channelValues = item.data.effectInstance.channelValues.slice();
-
-    item.data.nextTick = Effect.renderDelay * 1000;
   }
 }

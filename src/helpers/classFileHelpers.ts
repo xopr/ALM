@@ -63,7 +63,10 @@ export const loadEffect = async(fileName: string): Promise<Effect | undefined> =
       const c = Object.getOwnPropertyNames(EffectClass.prototype);
       const i = Object.getOwnPropertyNames(EffectClass);
       console.assert(["constructor", "frame"].every((k) => c.includes(k)));
-      console.assert(["name", "description", "channels", "minMax", "renderDelay"].every((k) => i.includes(k)));
+
+      // TODO: determine renderDelay property after instantiating.
+
+      console.assert(["name", "description", "channels", "minMax"].every((k) => i.includes(k)));
     }
     return EffectClass;
   } catch(e) {
