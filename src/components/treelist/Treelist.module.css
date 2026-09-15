@@ -47,7 +47,7 @@
   background-color: Highlight;
 }
 
-.item > div > img {
+.item > div > svg {
   /* TODO: inline svg styles */
   height: 1em;
   padding-right: 0.5em;
