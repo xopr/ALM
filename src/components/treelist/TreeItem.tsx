@@ -1,27 +1,15 @@
-import { Component, For, JSX, Show, splitProps } from "solid-js";
+import { Component, For, Show } from "solid-js";
 import ListItem from "../ListItem";
+import type { SegmentTreeItem, LightTreeItem } from "../../types/ItemData";
 
-export type TreeItemProps<T = any> = {
-  name?: string;
-  children?: TreeItemProps[];
-  selected?: boolean;
-  disabled?: boolean;
-  outlined?: boolean;
-  icon?: JSX.Element;
-  id?: string;
-  data?: T;
-  type?: string;
-};
-
-export const TreeItem: Component<TreeItemProps> = (props) => {
-  const [treeItemProps, listItemProps] = splitProps(props, ["children"]);
+export const TreeItem: Component<SegmentTreeItem | LightTreeItem> = (props) => {
   return <ListItem
-    {...listItemProps}
+    {...props}
   >
-    <Show when={treeItemProps.children?.length}>
+    <Show when={props.type === "group" && props}>{(parent) =>
       <ul>
-        <For each={treeItemProps.children}>{(child, idx) => <TreeItem {...child} id={`${props.id}_${idx()}`}/>}</For>
-      </ul>
+        <For each={parent().children}>{(child, idx) => <TreeItem {...child} id={`${props.id}_${idx()}`}/>}</For>
+      </ul>}
     </Show>
   </ListItem>;
 };

@@ -4,82 +4,90 @@ import { createMutable } from "solid-js/store";
 import { arrayFromTreeItem, assignId, getParent, treeClickHelper, treeDragHelper, treeItemFromArray } from "../components/treelist/treeListHelpers";
 import { type DragDropData } from "../components/DragNode";
 import { MessageData, Effect, type IEffect } from "../../public/Effect";
-import { TreeItemProps } from "../components/treelist/TreeItem";
 import { instanceLeaf } from "../helpers/effectHelpers";
-
 import effect_svg from "/src/assets/effect.svg";
-import { SegmentProps } from "../components/light/Segment";
 import { Artnet } from "../helpers/ArtNet";
-
 import JSON5 from "json5";
 import { invoke } from "@tauri-apps/api/core";
+import type { EffectControlData, SegmentTreeGroup, SegmentTreeItem } from "../types/ItemData";
 
 type LightGroupTreeProps = {
-  /** @deprecated move logic inside onSelect */
-  onEffect?: (effect?: Effect) => void;
   onChannelValues?: (values: number[]) => void;  
-  onSelect?: (item?: TreeItemProps<ItemData>) => void;
-  /** @deprecated move logic inside onSelect */
-  onInstances?: (instances?: IEffect[]) => void;  
+  onSelect?: (item?: SegmentTreeItem) => void;
   class?: string;
 };
 
-export type ItemData = {
-  effect?: Effect; // TODO: string for better serializing
-  originalEffect?: Effect;
-  effectInstance?: IEffect;
-  effectDisabled?: boolean;
-  channelValues: number[]; // TODO
-  segment?: SegmentProps;
-};
-
-export const getDescendingEffect = (item: TreeItemProps): { effect: Effect | undefined, channelValues: number[] } => {
-  const indexes = arrayFromTreeItem(lightGroups, item)
-  indexes.pop(); // Needed to get parent
+export const getAncestorEffect = (item: SegmentTreeItem): { effect: Effect | undefined, channelValues: number[] } => {
+  const indexes = arrayFromTreeItem(item)
   let effect: Effect | undefined;
 
-  // TODO: channelValues not on instance, but item.data /!\
   while (!effect && indexes.length) {
-    const data: ItemData | undefined = treeItemFromArray(lightGroups, indexes)?.data;
+    const item = treeItemFromArray(lightGroups, indexes);
+    const data = item?.data as EffectControlData | undefined;
     effect = data?.effect;
 
     if (effect) {
-      return { effect, channelValues: data?.channelValues.slice() ?? []}
+      return { effect, channelValues: data?.channelValues?.slice() ?? []}
     }
 
     indexes.pop();
-
   }
 
-  console.log("Effect not found; empty channel values", effect);
   return { effect, channelValues: [] };
 };
 
-export const removeEffect = (item: TreeItemProps<ItemData>, effect?: string) => {
+export const getDescendingInstances = (effect: Effect, item: SegmentTreeItem): IEffect[] => {
+  switch (item.type) {
+    case "group":
+      // We're not leaf level; collect our descendants
+      if (item.children.length) {
+        return Array.prototype.concat.call(item.children.map(getDescendingInstances.bind(this, effect))).flat();
+      }
+      break;
+
+    case "segment":
+      // Do we have an instance that matches our effect?
+      if (item.data.effectInstance instanceof effect)
+        return [item.data.effectInstance];
+      break;
+  }
+  return [];
+}
+
+export const removeEffect = (item: SegmentTreeItem, effect?: string) => {
   const eff = effect ?? item.data?.effect?.name;
   if (!eff) return;
   // Don't delete different effect (instances)
   if (item.data?.effect?.name && item.data.effect.name !== eff) return;
-  item.data?.effectInstance?.destroy();
-  delete item.data?.effectInstance;
-  delete item.data?.effect;
-  delete item.icon;
-  item.disabled = true;
 
-  // TODO: optionally NOT recursive!
-  item.children?.forEach(child => {
-    removeEffect(child, eff);
-  });
+  delete item.data?.effect;
+  if (!item.data.originalEffect) {
+    delete item.icon;
+    item.disabled = true;
+  }
+
+  switch (item.type) {
+    case "segment":
+      item.data?.effectInstance?.destroy();
+      delete item.data?.effectInstance;
+      break;
+    case "group":
+      // TODO: optionally NOT recursive!
+      item.children.forEach(child => {
+        removeEffect(child, eff);
+      });
+      break;
+  }
 }
 
-export const removeItem = (item: TreeItemProps<ItemData>) => {
-  const indexes = arrayFromTreeItem(lightGroups, item)
+export const removeItem = (item: SegmentTreeItem) => {
+  const indexes = arrayFromTreeItem(item)
   const parent = getParent(lightGroups, indexes);
 
   // Skip root node as well
-  if (!parent || indexes.length <= 1) return;
+  if (!parent || indexes.length <= 1 || parent?.type !== "group") return;
 
-  const removedItem = parent.children?.splice(indexes.pop()!, 1);
+  parent.children.splice(indexes.pop()!, 1);
   // TODO: remove instance
   // removedItem?.[0].data.instance
   // TODO: remove/destroy children
@@ -89,12 +97,12 @@ export const removeItem = (item: TreeItemProps<ItemData>) => {
 const artnet = new Artnet();
 // Groups of light(-segment)s to attach an effect to.
 
-export const lightGroups = createMutable<TreeItemProps>({ name: "$ROOT" });
+export const lightGroups = createMutable<SegmentTreeGroup>({ id: "0", name: "$ROOT", type: "group", children: [], data: {} });
 
-const over = (item: TreeItemProps<ItemData>, data: DragDropData<Effect>, side: string) => {
+const over = (_item: SegmentTreeItem, _data: DragDropData<Effect>, _side: string) => {
 };
 
-const drop = (item: TreeItemProps<ItemData>, data: DragDropData<Effect>) => {
+const drop = (item: SegmentTreeItem, data: DragDropData<Effect>) => {
   // Item might not have data object yet
   if (!item.data) item.data = {};
 
@@ -107,13 +115,13 @@ const drop = (item: TreeItemProps<ItemData>, data: DragDropData<Effect>) => {
       // Set effect icon      
       item.icon = effect_svg;
 
-      instanceLeaf(item, data.sourceData);
+      instanceLeaf(item, data.sourceData, data.sourceData.channels.map(c => c.default));
 
       // Store effect we just dropped
       item.data!.effect = data.sourceData;
       break;
 
-    case "light":
+    case "dmxLight":
       console.debug("TODO: special case: light and all its segments as children");
       break;
 
@@ -127,7 +135,7 @@ const drop = (item: TreeItemProps<ItemData>, data: DragDropData<Effect>) => {
 
 };
 
-const readGroups = async (filename: string): Promise<TreeItemProps | undefined> => {
+const readGroups = async (filename: string): Promise<SegmentTreeGroup | undefined> => {
   const dirs = [
         "../../../public/",
         "../public/",
@@ -139,9 +147,10 @@ const readGroups = async (filename: string): Promise<TreeItemProps | undefined> 
         const fileName = `${dir}${filename}`;
         const data = await invoke<string>("read_file", { fileName });
         if (!data) continue;
-        return JSON5.parse<TreeItemProps>(data);
+        return JSON5.parse<SegmentTreeGroup>(data);
 
       } catch (e) {
+        console.warn("Failed to open and parse tree group JSON");
         // Pass
       }      
     }
@@ -149,14 +158,12 @@ const readGroups = async (filename: string): Promise<TreeItemProps | undefined> 
 }
 
 export const LightGroupTree: Component<LightGroupTreeProps> = (props) => {
-  // const [selectedEffect, setSelectedEffect] = createSignal<Effect>();
-  // const [selectedSegment, setSelectedSegment] = createSignal<SegmentProps>();
-
   onMount(async () => {
     const LightGroupsJson = await readGroups("lightgroups.json5");
-    lightGroups.children = LightGroupsJson?.children;
+    lightGroups.children = LightGroupsJson?.children ?? [];
 
     // Assign id to each element
+    // Note: also sets data object
     assignId(lightGroups, "0");
 
     let timer: Record<string,number> = {};
@@ -164,23 +171,22 @@ export const LightGroupTree: Component<LightGroupTreeProps> = (props) => {
       if (timestamp) return; // Only from Effect
 
       // Get corresponding segment
-      const treeItem = treeItemFromArray<TreeItemProps<ItemData>>(lightGroups, id.split("_").map(s => parseInt(s)));
-      if (!treeItem?.data?.effectInstance) return;
-      if (!treeItem?.data?.segment) return;
+      const treeItem = treeItemFromArray<SegmentTreeItem>(lightGroups, id.split("_").map(s => parseInt(s)));
+      if (treeItem?.type !== "segment" || !treeItem.data.effectInstance) return;
+      console.assert(!!treeItem.data.segment, "Missing segment data");
 
       switch (type)
       {
         case "frame":
           const { address, port, universe, channelStart, channelsPerLed, width, height, ledOffset } = treeItem.data.segment;
           // TODO: we want to provide parent data, but not own effect data
-          // if (treeItem.data.effectDisabled) return;
+          // if (treeItem.data.originalEffect) return;
 
           void artnet.send(data, address, port, universe, channelStart, channelsPerLed, width * height, ledOffset)
 
           if (treeItem.disabled) return;
-
           clearTimeout(timer[id]);
-          if (treeItem.data.effectInstance.renderDelay > 0) {
+          if (treeItem.data.effectInstance?.renderDelay) {
             timer[id] = window.setTimeout(() => {
               // Hand over the leds buffer
               // Error: DataCloneError: The object can not be cloned.
@@ -203,7 +209,7 @@ export const LightGroupTree: Component<LightGroupTreeProps> = (props) => {
     });
   });
 
-  const onSelect = (selectedItem?: TreeItemProps<ItemData>) => {
+  const onSelect = (selectedItem?: SegmentTreeItem) => {
     props.onSelect?.(selectedItem);
   };
 
@@ -213,7 +219,7 @@ export const LightGroupTree: Component<LightGroupTreeProps> = (props) => {
     class={props.class}
     item={lightGroups}
     onClick={treeClickHelper(lightGroups, onSelect)}
-    accept={["effect", "light"]}
+    accept={["effect", "dmxLight"]}
     onDragOver={treeDragHelper(lightGroups, over)}
     onDrop={treeDragHelper(lightGroups, drop)}
   />;

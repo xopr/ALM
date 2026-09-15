@@ -1,7 +1,8 @@
-import { Component, For } from "solid-js";
+import { Component, createEffect, For, on } from "solid-js";
 
 import styles from "./SliderGroup.module.css";
 import { ChannelValues } from "../../../public/Effect";
+import { createStore } from "solid-js/store";
 
 export type SliderGroupProps = {
   // name: string;
@@ -14,10 +15,29 @@ export type SliderGroupProps = {
 const RES = 16384;
 
 export const SliderGroup: Component<SliderGroupProps> = (props) => {
+  // Use store so we can set individual values that don't trigger a redraw
+  const [channels, setChannels] = createStore<ChannelValues>([]);
+
+  createEffect(on(
+    () => props.channels,
+    (channels, oldChannels) => {
+      if (!channels) return;
+      // Newly set; copy all and return
+      if (!oldChannels) {
+        setChannels(channels);
+        return;
+      }
+      channels.forEach((c, i) => {
+        setChannels(i,"name", c.name);
+        setChannels(i,"default", c.default);
+        setChannels(i,"description", c.description);
+        setChannels(i,"value", c.value);
+      });
+  }));
 
   return <div class="stubbornContainer vertical">
     <div class={styles.sliderGroup}>
-      <For each={props.channels}>{(channel, idx) =>
+      <For each={channels}>{(channel, idx) =>
         <input
           type="range"
           value={Math.round(channel.value * RES)}
@@ -30,7 +50,7 @@ export const SliderGroup: Component<SliderGroupProps> = (props) => {
     <div class="stubbornContainer horizontal" style={{
       // "justify-content": "space-around",
     }}>
-      <For each={props.channels}>{(channel, idx) =>
+      <For each={props.channels}>{(channel) =>
         <button style="width: 25%">{channel.name}</button>
       }</For>
     </div>

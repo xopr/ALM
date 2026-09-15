@@ -2,9 +2,7 @@ import { Component, createSignal, Show } from "solid-js";
 import { createMutable } from "solid-js/store";
 import TreeList from "../components/treelist/TreeList";
 import { treeClickHelper } from "../components/treelist/treeListHelpers";
-import { TreeItemProps } from "../components/treelist/TreeItem";
-import Light, { LightProps } from "../components/light/Light";
-import { SegmentProps } from "../components/light/Segment";
+import Light from "../components/light/Light";
 
 import LightAddIcon from "/src/assets/light_add.svg";
 import LightRemoveIcon from "/src/assets/light_remove.svg";
@@ -12,15 +10,17 @@ import SegmentAddIcon from "/src/assets/segment_add.svg";
 import SegmentRemoveIcon from "/src/assets/segment_remove.svg";
 import EditIcon from "/src/assets/edit.svg";
 import LightIcon from "/src/assets/light.svg";
+import { DmxLightItem, LightTreeGroup, LightTreeItem } from "../types/ItemData";
+
 
 // List of lights with their segments to direct Art-net data
-const lights = createMutable<TreeItemProps<SegmentProps[]>>({
+const lights = createMutable<LightTreeGroup>({
   name: "$ROOT",
-  type: "$ROOT",
+  type: "group",
   children: [
     {
       name: "Torch",
-      type: "light",
+      type: "dmxLight",
       icon: LightIcon,
       data: [
         {
@@ -37,7 +37,7 @@ const lights = createMutable<TreeItemProps<SegmentProps[]>>({
     },
     {
       name: "Parasol",
-      type: "light",
+      type: "dmxLight",
       icon: LightIcon,
       data: [
         {
@@ -76,8 +76,8 @@ const lights = createMutable<TreeItemProps<SegmentProps[]>>({
 });
 
 export const Lights: Component = () => {
-  const [light, setLight] = createSignal<TreeItemProps<SegmentProps[]>>();
-  const onClick = (selected?: TreeItemProps<SegmentProps[]>) => {
+  const [light, setLight] = createSignal<LightTreeItem>();
+  const onClick = (selected?: LightTreeItem) => {
     setLight(selected);
   };
 
@@ -85,7 +85,7 @@ export const Lights: Component = () => {
     // light()
     lights?.children?.push({
       name: `New ${type}`,
-      type: "light",
+      type: "dmxLight",
       icon: LightIcon,
       data: [
         {
@@ -102,7 +102,7 @@ export const Lights: Component = () => {
     });
   };
 
-  const removeLight = (light: TreeItemProps<SegmentProps[]>) => {
+  const removeLight = (light: LightTreeItem) => {
     lights?.children?.some((child, idx) => {
       if (child === light) {
         lights?.children?.splice(idx, 1);
@@ -112,8 +112,10 @@ export const Lights: Component = () => {
     })
   };
 
-  const addSegment = (light: TreeItemProps<SegmentProps[]>) => {
-    light.data?.push(        {
+  const addSegment = (light: LightTreeItem) => {
+    if (light.type === "group") return;
+
+    light.data.push(        {
       address: "127.0.0.1",
       port: 7000,
       universe: 1,
@@ -125,11 +127,12 @@ export const Lights: Component = () => {
     });
   };
 
-  const removeSegment = (light?: TreeItemProps<SegmentProps[]>) => {
-    light?.data?.splice(-1, 1);
+  const removeSegment = (light?: LightTreeItem) => {
+    if (!light || light.type === "group") return;
+    light.data.splice(-1, 1);
   };
 
-  const renameItem = (light?: TreeItemProps<SegmentProps[]>) => {
+  const renameItem = (light?: LightTreeItem) => {
     if (!light) return;
     const name = prompt("New name", light.name);
     if (name) light.name = name;
@@ -139,8 +142,8 @@ export const Lights: Component = () => {
         <div class="contentContainer vertical">
           <h1>Lights section [{light()?.name}]</h1>
           <div class="contentContainer vertical">
-            <Show when={light()}>
-              <Light {...light() as LightProps} />
+            <Show when={light()?.type ==="dmxLight"}>
+              <Light {...light() as DmxLightItem} />
             </Show>
           </div>
         </div>

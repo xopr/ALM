@@ -1,9 +1,10 @@
 import { Component, splitProps } from "solid-js";
-import TreeItem, { type TreeItemProps } from "./TreeItem";
+import TreeItem from "./TreeItem";
+import type { SegmentTreeItem, LightTreeItem } from "../../types/ItemData";
 
-export type TreeListProps<T = any> = {
+export type TreeListProps = {
   /** Root node of the tree */
-  item: TreeItemProps<T>;
+  item: SegmentTreeItem | LightTreeItem;
   /** Whether to hide the root node to show a flat list */
   hideRoot?: boolean;
   /** Tree item click handler */
