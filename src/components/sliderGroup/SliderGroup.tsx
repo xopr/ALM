@@ -21,7 +21,11 @@ export const SliderGroup: Component<SliderGroupProps> = (props) => {
   createEffect(on(
     () => props.channels,
     (channels, oldChannels) => {
-      if (!channels) return;
+      if (!channels?.length) {
+        setChannels([]);
+        return;
+      }
+
       // Newly set; copy all and return
       if (!oldChannels) {
         setChannels(channels);
