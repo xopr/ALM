@@ -66,7 +66,7 @@ export class MyEffectTemplate implements IEffect {
     }
   }
 
-  frame(timestamp: number | string, data: ArrayBuffer): void {
+  frame(timestamp: number | string, _data: ArrayBuffer): void {
     // Migration: ignore messages from Effects
     if (!timestamp) return;
 
@@ -77,7 +77,4 @@ export class MyEffectTemplate implements IEffect {
   }
 }
 
-
-// export const supportedLigh
-// document.timeline.currentTime
 // "requestAnimationFrame"

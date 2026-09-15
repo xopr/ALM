@@ -56,7 +56,7 @@ export class Jacobladder extends Effect implements IEffect {
     }
   }
 
-  frame(timestamp: number, data: ArrayBuffer): void {
+  frame(timestamp: number, _data: ArrayBuffer): void {
     // Migration: ignore messages from Effects
     if (!timestamp) return;
 

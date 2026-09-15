@@ -1,13 +1,13 @@
 import type { IEffect, MinMax, Channels, MessageData } from "../Effect";
 
 const hej = [13, 0, 48]; // DonkerPaars
-const hejjer = [62, 0, 255]; // Paars
-const krej = [0, 0, 0]; // Zwert
+// const hejjer = [62, 0, 255]; // Paars
+// const krej = [0, 0, 0]; // Zwert
 const lucht = [50, 50, 50]; // Wit
 
-const roeed =  [200, 0, 0]; // Roeed
-const gael = [196, 128, 0]; // Gael
-const greun = [0, 200, 0]; // Greun
+// const roeed =  [200, 0, 0]; // Roeed
+// const gael = [196, 128, 0]; // Gael
+// const greun = [0, 200, 0]; // Greun
 
 class Particle
 {
@@ -143,7 +143,7 @@ export class Matrix extends Effect implements IEffect {
     }
   }
 
-  frame(timestamp: number, data: ArrayBuffer): void {
+  frame(timestamp: number, _data: ArrayBuffer): void {
     // Migration: ignore messages from Effects
     if (!timestamp) return;
 
@@ -198,8 +198,6 @@ export class Matrix extends Effect implements IEffect {
     if (!paletteIdx)
       return [0, c, 0];
 
-          // if (c > )
-    // console.log("c", c);
     if (c > 150)
       return lucht;
     // else if (c > )

@@ -1,4 +1,4 @@
-import { bind, Payload, send, unbind } from "@kuyoonjo/tauri-plugin-udp";
+import { bind, send, unbind } from "@kuyoonjo/tauri-plugin-udp";
 
 /**
  * The Artnet class provides operation for sending and receiving data

@@ -7,7 +7,7 @@ const period23 = 2 * period / 3;
 
 const period16 = period / 6;
 const period26 = 2 * period / 6;
-const period36 = 3 * period / 6;
+// const period36 = 3 * period / 6;
 const period46 = 4 * period / 6;
 const period56 = 5 * period / 6;
 

@@ -47,9 +47,6 @@ export const tsImport = async <T = any>(url: string): Promise<T> => {
 
 export const loadEffect = async(fileName: string): Promise<Effect | undefined> => {
   const className = fileName.match(/(?:^|\/)([A-Z][a-zA-Z0-9_]*)\.[tj]s$/)?.[1];
-
-  // const file = await invoke<string>("read_file", { fileName });
-
   if (!className) return;
 
   try {
@@ -62,11 +59,11 @@ export const loadEffect = async(fileName: string): Promise<Effect | undefined> =
     {
       const c = Object.getOwnPropertyNames(EffectClass.prototype);
       const i = Object.getOwnPropertyNames(EffectClass);
-      console.assert(["constructor", "frame"].every((k) => c.includes(k)));
+      console.assert(["constructor", "frame"].every((k) => c.includes(k)), "Unexpected class: missing functions");
 
       // TODO: determine renderDelay property after instantiating.
 
-      console.assert(["name", "description", "channels", "minMax"].every((k) => i.includes(k)));
+      console.assert(["name", "description", "channels", "minMax"].every((k) => i.includes(k)), "Unexpected class: missing static variables");
     }
     return EffectClass;
   } catch(e) {

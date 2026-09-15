@@ -1,7 +1,7 @@
 import type { IEffect, MinMax, Channels, MessageData } from "../Effect";
 
 const hej = [13, 0, 48]; // DonkerPaars
-const hejjer = [62, 0, 255]; // Paars
+// const hejjer = [62, 0, 255]; // Paars
 const krej = [0, 0, 0]; // Zwert
 const lucht = [50, 50, 50]; // Wit
 
@@ -85,7 +85,7 @@ export class Shift extends Effect implements IEffect {
     }
   }
 
-  frame(timestamp: number, data: ArrayBuffer): void {
+  frame(timestamp: number, _data: ArrayBuffer): void {
     // Migration: ignore messages from Effects
     if (!timestamp) return;
 
@@ -125,13 +125,13 @@ export class Shift extends Effect implements IEffect {
       if (colorRow < 0) colorRow += totalLength;
 
       const pos = colorRow / bw | 0;
-      
+
       // NOTE: step can be negative
       // Height is 21+3 to 63 
       // let pos = (step % ( 3 * this.strip2D.leny)) / (bandWidth + 1) | 0;
       if (pos > palette.length)
           return [0,0,0];
-      
+
       return palette[paletteIdx][2 - pos];
   }    
 }

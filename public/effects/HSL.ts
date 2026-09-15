@@ -1,7 +1,5 @@
 import type { IEffect, MinMax, Channels, MessageData } from "../Effect";
 
-const { abs, min, max, round } = Math;
-
 /**
  * Converts an HSL color value to RGB. Conversion formula
  * adapted from https://en.wikipedia.org/wiki/HSL_color_space.
@@ -27,7 +25,7 @@ function hslToRgb(h: number, s: number, l: number): number[]
         b = hueToRgb(p, q, h - 1/3);
     }
 
-    return [round(r * 255), round(g * 255), round(b * 255)];
+    return [Math.round(r * 255), Math.round(g * 255), Math.round(b * 255)];
 }
 
 function hueToRgb(p: number, q: number, t: number): number
@@ -153,7 +151,7 @@ export class HSL extends Effect implements IEffect {
     }
   }
 
-  frame(timestamp: number, data: ArrayBuffer): void {
+  frame(timestamp: number, _data: ArrayBuffer): void {
     // Migration: ignore messages from Effects
     if (!timestamp) return;
 

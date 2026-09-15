@@ -41,7 +41,7 @@ export const DragNode: Component = () => {
   const touchDown = (event: TouchEvent | MouseEvent) => {
     const { target } = event;
 
-    if (!target || (target as HTMLElement).dataset.draggable !== "true" || event.touches?.length > 1 || activePointer()) return;
+    if (!target || (target as HTMLElement).dataset.draggable !== "true" || ("touches" in event && event.touches?.length > 1) || activePointer()) return;
 
     const { pageX, pageY } = "touches" in event ? event.touches[0] : event;
 
@@ -61,7 +61,7 @@ export const DragNode: Component = () => {
 
   const touchMove = (event: TouchEvent | MouseEvent) => {
     const target = originNode() ?? event.target as HTMLElement;
-    if (!target || target.dataset.draggable !== "true" || event.touches?.length > 1) return;
+    if (!target || target.dataset.draggable !== "true" || ("touches" in event && event.touches?.length > 1)) return;
 
     const { pageX, pageY } = "touches" in event ? event.touches[0] : event;
     const { x, y } = activePointer()!;

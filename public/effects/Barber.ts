@@ -5,7 +5,7 @@ const white = [64, 64, 64];
 const blue = [  0,   0, 255];
 
 const hej = [13, 0, 48]; // DonkerPaars
-const hejjer = [62, 0, 255]; // Paars
+// const hejjer = [62, 0, 255]; // Paars
 const krej = [0, 0, 0]; // Zwert
 const lucht = [50, 50, 50]; // Wit
 

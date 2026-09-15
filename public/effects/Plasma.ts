@@ -1,7 +1,7 @@
 import type { IEffect, MinMax, Channels, MessageData } from "../Effect";
 
 const hej = [13, 0, 48]; // DonkerPaars
-const hejjer = [62, 0, 255]; // Paars
+// const hejjer = [62, 0, 255]; // Paars
 const krej = [0, 0, 0] // Zwert
 const lucht = [50, 50, 50] // Wit
 
@@ -9,7 +9,6 @@ const roeed =  [200, 0, 0]; // Roeed
 const gael = [196, 128, 0]; // Gael
 const greun = [0, 200, 0]; // Greun
 
-const colors = [hej,krej,lucht,hej,lucht,krej,hej,krej,lucht]
 const palette = [
     [roeed, gael, greun,roeed, gael, greun,roeed, gael, greun],
     [hej,krej,lucht,hej,lucht,krej,hej,krej,lucht],
@@ -107,7 +106,7 @@ export class Plasma extends Effect implements IEffect {
     }
   }
 
-  frame(timestamp: number, data: ArrayBuffer): void {
+  frame(timestamp: number, _data: ArrayBuffer): void {
     // Migration: ignore messages from Effects
     if (!timestamp) return;
 

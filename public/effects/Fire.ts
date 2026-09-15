@@ -248,7 +248,6 @@ class Particle
               this.init(x, this.height, palette);
             }
             else {
-              // debug && console.log("reset dead");
               this.rgb = [0,0,0];
             }
         }    
