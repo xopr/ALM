@@ -25,7 +25,10 @@ export type TreeListProps = {
 export const TreeList: Component<TreeListProps> = (props) => {
   const [name, other] = splitProps(props.item, ["name"]);
   const onClick = (event: MouseEvent & {currentTarget: HTMLUListElement; target: Element;}) => {
-    const { target } = event;
+    let target: Element | null  = event.target;
+    while(target && !target.hasAttribute("tabindex")) {
+      target = target.parentElement;
+    }
     if (!props.onClick || !target) return;
 
     const indexes = target.id.split("_").map(s => parseInt(s))
