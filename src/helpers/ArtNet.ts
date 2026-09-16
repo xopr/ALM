@@ -1,4 +1,4 @@
-import { bind, Payload, send, unbind } from "@kuyoonjo/tauri-plugin-udp";
+import { bind, send, unbind } from "@kuyoonjo/tauri-plugin-udp";
 
 /**
  * The Artnet class provides operation for sending and receiving data
@@ -31,7 +31,7 @@ export class Artnet
     const effectData = new Uint8Array(effectBuffer);
     const data = new Uint8Array(this.dataHeader.length + channelStart + channelsPerLed * ledCount);
     data.set(this.dataHeader);
-    data.set(effectData.slice(ledOffset), this.dataHeader.length + channelStart);
+    data.set(effectData.slice(ledOffset * channelsPerLed), this.dataHeader.length + channelStart);
 
     // Set universe
     data.set([universe], 14 );

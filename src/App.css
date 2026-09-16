@@ -108,7 +108,7 @@ main {
         color: ButtonText;
         background-color: ButtonFace;
       }
-      & > img {
+      & > svg {
         vertical-align: bottom;
         padding-right: 0.5em;
       }

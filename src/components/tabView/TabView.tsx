@@ -35,7 +35,7 @@ export const TabView: Component<TabViewProps> = (props) => {
           tabindex={0}
         >
           <Show when={tab.dataset.icon}>
-            {icons[tab.dataset.icon!]}
+            {icons[tab.dataset.icon as keyof typeof icons]}
           </Show>
           {tab.dataset.label ?? "Unnamed"}
           </li>;

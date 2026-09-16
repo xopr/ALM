@@ -1,15 +1,5 @@
 // Note: cannot import TypeScript files, only types
-// Can only import single level javascript files
 import type { IEffect, MinMax, Channels, MessageData } from "../Effect";
-
-// Uncomment this block to allow for importing single javascript files; remove if not needed
-// async function jsImport<T = any>(url : string): Promise<T> {
-//   const modUrl = URL.createObjectURL(new Blob([await (await fetch(url)).text()], {type: "text/javascript"}));
-//   const module = import(modUrl);
-//   URL.revokeObjectURL(modUrl);
-//   return module;
-// }
-// const myJsModule = await jsImport("/publicFolderFile.js");
 
 export class RGBWW implements IEffect {
   static description = "Turns all LEDs the same color.";
@@ -41,10 +31,10 @@ export class RGBWW implements IEffect {
     },
   ];
   static minMax: MinMax = { x: [1, 255], y:[1, 255] };
-  static renderDelay = 5;
 
-  channelValues: number[];
-  id: string; // Used for non-worker post message
+  public renderDelay = 5;
+  public channelValues: number[];
+  public id: string; // Used for non-worker post message
 
   private leds: ArrayBuffer;
   private boundListener: (data: MessageData) => void;
@@ -86,7 +76,6 @@ export class RGBWW implements IEffect {
           // Channel "request", response with values
           window.postMessage([this.id, 0, type, this.channelValues] );
         } else {
-          console.log("channels", RGBWW.channels.length, this.channelValues.length)
           // NOTE: Iterate sparse array
           data.forEach((v,i) => {
             // Don't set channel value that does not exist on light segment
@@ -113,10 +102,5 @@ export class RGBWW implements IEffect {
     }
 
     window.postMessage([this.id, 0, "frame", this.leds] );
-    // Hand over the leds buffer
-    // window.postMessage([this.id, 0, this.leds], { transfer: [this.leds] } );
   }
 }
-
-// Parent:
-// const myWorker = new Worker("/worker.js");

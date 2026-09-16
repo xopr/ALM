@@ -20,10 +20,10 @@ export class Fire implements IEffect {
     },
   ];
   static minMax: MinMax = { x: [1, 255], y:[1, 255] };
-  static renderDelay = 0.03
 
-  channelValues: number[];
-  id: string; // Used for non-worker post message
+  public renderDelay = 0.03
+  public channelValues: number[];
+  public id: string; // Used for non-worker post message
 
   private leds: ArrayBuffer;
   private boundListener: (data: MessageData) => void;
@@ -92,7 +92,6 @@ export class Fire implements IEffect {
         } else {
           // Iterate sparse array
           data.forEach((v,i) => this.channelValues[i] = v);
-          // this.frame(timestamp, this.leds);
         }
         break;
     }
@@ -118,11 +117,11 @@ export class Fire implements IEffect {
     }
 
     for (let i = 0; i < cv; ++i) {
-      this.particles[i].updateParticle( heat, true, palette, view, !i );
+      this.particles[i].updateParticle( heat, true, palette, view );
     }
     for (let i = cv; i < this.maxParticles; ++i) {
       // This is the "poof" magic: heat = 255
-      this.particles[i].updateParticle( this.maxHeat, false, palette, view, i === cv );
+      this.particles[i].updateParticle( this.maxHeat, false, palette, view );
     }
 
     window.postMessage([this.id, 0, "frame", this.leds] );
@@ -166,7 +165,7 @@ class Particle
         this.palette = palette;
     }
 
-    updateParticle(heat: number, alive: boolean, palette: number, view: Uint8Array, debug: boolean)
+    updateParticle(heat: number, alive: boolean, palette: number, view: Uint8Array)
     {
         // Fire goes from white -> yellow -> deep orange
         let life = Math.round(heat * this.life! / this.maxHeat);
@@ -249,7 +248,6 @@ class Particle
               this.init(x, this.height, palette);
             }
             else {
-              // debug && console.log("reset dead");
               this.rgb = [0,0,0];
             }
         }    

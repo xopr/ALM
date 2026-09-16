@@ -1,55 +1,39 @@
-import { Component, createEffect, createMemo, createSignal } from "solid-js";
+import { Component, createMemo } from "solid-js";
 import SliderGroup from "../components/sliderGroup/SliderGroup";
-import { ChannelValues, Effect, IEffect } from "../../public/Effect";
+import { ChannelValues } from "../../public/Effect";
 
 type ControlProps = {
-  effect?: Effect;
-  instances?: IEffect[];
-  channelValues?: number[];
+  /** Effect name to display */
+  name?: string;
+
+  /** Full channel data */
+  channels?: ChannelValues;
+
+  /** ChannelValues sparse array */
+  onChannelValues?: (channelValues: number[]) => void;
 }
 
+
 export const Control: Component<ControlProps> = (props) => {
-  // TODO: automatically (re)attach light group selection channels to slider groups
-  // H+S+L, R+G+B, C+M+Y+K
-  const [channelValues, setChannelValues] = createSignal<ChannelValues>([]);
-
-  createEffect(() => {
-    if (props.channelValues?.length)
-      setChannelValues(
-        props.effect?.channels.map((chan, idx) => ({...chan, value: props.channelValues![idx] })) as ChannelValues
-  );
-  });
-
-  createEffect(() => {
-    props.instances?.forEach(instance => {
-      window.postMessage([instance.id, performance.now(), "channels", []] );
-    })
-  });
-
   const group1 = createMemo(() => {
-    return channelValues()?.slice(0, 4);
+    return props.channels?.slice(0, 4);
   });
   const group2 = createMemo(() => {
-    return channelValues()?.slice(4, 8);
+    return props.channels?.slice(4, 8);
   });
 
   const valueChanged = (idx: number, value: number) => {
-    props.instances?.forEach(instance => {
-      // Set sparse array and post
-      const data = [];
-      data[idx] = value;
-      window.postMessage([instance.id, performance.now(), "channels", data]);
-    })
+    const data = [];
+    data[idx] = value;
+
+    props.onChannelValues?.(data);
   }
   return <div id="content" class="inbetweenContainer vertical">
-    <h1>Control section - [{props.effect?.name}]</h1>
+    <h1>Control section - {props.name ?? "None"}</h1>
     <div class="contentContainer horizontal">
       <SliderGroup channels={group1()} onValueChanged={valueChanged}/>
       <SliderGroup channels={group2()} onValueChanged={valueChanged} channelOffset={4}/>
     </div>
-
-    
-    Affected lights: {props.instances?.length}
   </div>;
 }
 

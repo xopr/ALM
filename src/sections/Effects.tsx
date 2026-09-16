@@ -1,11 +1,9 @@
 import { Component, createMemo, createSignal, For, on, onMount } from "solid-js";
-import { loadEffect } from "../helpers/classFileHelpers";
 import { type Effect } from "../../public/Effect";
 import ListItem from "../components/ListItem";
 import { DragDropData } from "../components/DragNode";
 
 import effect_off_svg from "/src/assets/effect_off1.svg";
-import { invoke } from "@tauri-apps/api/core";
 
 
 type EffectList = {
@@ -15,6 +13,7 @@ type EffectList = {
 
 type EffectsProps = {
   effect?: Effect;
+  effectList: EffectList[];
   onClick?: (effect?: Effect) => void;
 }
 
@@ -23,17 +22,7 @@ export const Effects: Component<EffectsProps> = (props) => {
   const [effectList, setEffectList] = createSignal<EffectList[]>([]);
   
   onMount(async () => {
-    const effectPaths = await invoke<string[]>("effect_list");
-
-    try {
-      effectPaths.forEach(async (effectPath) => {
-        const effect = await loadEffect(effectPath);
-        if (!effect) return;
-        setEffectList((list) => [...list, { effect }])
-      });
-    } catch (e) {
-      console.warn(e)
-    }
+    setEffectList(props.effectList);
   });
 
   // Raw for element doesn't seem to work; create a memo for our list
@@ -74,13 +63,15 @@ export const Effects: Component<EffectsProps> = (props) => {
           }</For>
         </ul>
       </div>
-      <div>Frame every {(props.effect?.renderDelay)?.toFixed(3)} seconds</div>
-      <div>Frame {(1 / props.effect?.renderDelay)?.toFixed(0)} times a second</div>
+      {/* TODO: find a way to read renderDelay */}
+      {/* <div>Frame every {(props.effect?.renderDelay)?.toFixed(3)} seconds</div> */}
+      {/* <div>Frame {(1 / props.effect?.renderDelay)?.toFixed(0)} times a second</div> */}
       <div>Horizontal support: {props.effect?.minMax.x[0]}-{props.effect?.minMax.x[1]} LEDs</div>
       <div>Vertical support: {props.effect?.minMax.y[0]}-{props.effect?.minMax.y[1]} LEDs</div>
     </div>
     <ul
       class="itemContainer list"
+      // @ts-ignore -- It just works
       onDragStart={(event: CustomEvent<DragDropData>) => {
         const { sourceId } = event.detail;
         if (!sourceId) return;

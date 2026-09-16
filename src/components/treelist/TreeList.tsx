@@ -1,9 +1,10 @@
 import { Component, splitProps } from "solid-js";
-import TreeItem, { type TreeItemProps } from "./TreeItem";
+import TreeItem from "./TreeItem";
+import type { SegmentTreeItem, LightTreeItem } from "../../types/ItemData";
 
-export type TreeListProps<T = any> = {
+export type TreeListProps = {
   /** Root node of the tree */
-  item: TreeItemProps<T>;
+  item: SegmentTreeItem | LightTreeItem;
   /** Whether to hide the root node to show a flat list */
   hideRoot?: boolean;
   /** Tree item click handler */
@@ -24,7 +25,10 @@ export type TreeListProps<T = any> = {
 export const TreeList: Component<TreeListProps> = (props) => {
   const [name, other] = splitProps(props.item, ["name"]);
   const onClick = (event: MouseEvent & {currentTarget: HTMLUListElement; target: Element;}) => {
-    const { target } = event;
+    let target: Element | null  = event.target;
+    while(target && !target.hasAttribute("tabindex")) {
+      target = target.parentElement;
+    }
     if (!props.onClick || !target) return;
 
     const indexes = target.id.split("_").map(s => parseInt(s))
