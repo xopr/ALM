@@ -11,6 +11,8 @@ export type DragDropData<T = any> = {
   /** Type to provide (or from ) */
   type: string;
   targetId?: string;
+  /** Vertical position of pointer */
+  y?: number;
 }
 
 let detail: DragDropData;
@@ -120,6 +122,7 @@ export const DragNode: Component = () => {
     });
     if (!dropNode) return;
 
+    detail.y = pageY;
     const dragOver = new CustomEvent("dragover", {
       bubbles: true,
       detail,
