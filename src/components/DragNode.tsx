@@ -53,9 +53,9 @@ export const DragNode: Component = () => {
     setActivePointer({x: pageX, y: pageY});
 
     if (event instanceof TouchEvent) {
-      document.body.addEventListener("touchmove", touchMove);
+      document.body.addEventListener("touchmove", touchMove, true);
     } else {
-      document.body.addEventListener("mousemove", touchMove);
+      document.body.addEventListener("mousemove", touchMove, true);
     }
   };
 
@@ -64,10 +64,22 @@ export const DragNode: Component = () => {
     if (!target || target.dataset.draggable !== "true" || ("touches" in event && event.touches?.length > 1)) return;
 
     const { pageX, pageY } = "touches" in event ? event.touches[0] : event;
+    if (!activePointer()) return;
     const { x, y } = activePointer()!;
 
-    if (!dragNode() && (Math.abs(x - pageX) > DRAG_THRESHOLD || Math.abs(y - pageY) > DRAG_THRESHOLD))
+    // Differentiate between scrollable list and drag
+    if (!dragNode() && Math.abs(y - pageY) > DRAG_THRESHOLD && event.type === "touchmove")
     {
+      setDragNode();
+      touchUp(event);
+      return;
+    }
+
+    if (!dragNode() && (Math.abs(x - pageX) > DRAG_THRESHOLD || Math.abs(y - pageY) > 2 * DRAG_THRESHOLD))
+    {
+      if (event.type === "touchmove")
+        document.body.classList.add("touchDrag");
+
       detail = {
         sourceId: target.id,
         type: target.dataset.type ?? "unknown",
@@ -122,6 +134,8 @@ export const DragNode: Component = () => {
     } else {
       document.body.removeEventListener("mousemove", touchMove);
     }
+
+    document.body.classList.remove("touchDrag");
 
     setOriginNode();
     setActivePointer();

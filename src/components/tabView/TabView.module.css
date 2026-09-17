@@ -18,3 +18,33 @@
   display: flex;
   flex: 1 0 auto;
 } */
+
+.tabs {
+  flex: 1 1 auto;
+  display: flex;
+  flex-direction: column;
+
+  & > ul > li {
+    padding: 1em;
+
+    background-color: Field;
+    cursor: pointer;
+
+    &[aria-selected=true] {
+      font-weight: bold;
+      color: ButtonText;
+      background-color: ButtonFace;
+    }
+    & > svg {
+      vertical-align: bottom;
+      padding-right: 0.5em;
+    }
+  }
+
+  & > section {
+    flex: 1 1 auto;
+    /* Can be auto to allow scroll, but also allow child to scroll */
+    overflow: auto;
+    display: flex;
+  }
+}

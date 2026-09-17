@@ -5,6 +5,8 @@ import EffectOnIcon from "/src/assets/effect.svg";
 import LightOnIcon from "/src/assets/light_on.svg";
 import HelpIcon from "/src/assets/help.svg";
 
+import styles from "./TabView.module.css";
+
 export type TabViewProps = {
   children: JSX.Element[];
   class?: string;
@@ -23,7 +25,7 @@ export const TabView: Component<TabViewProps> = (props) => {
   const [activeTab, setActiveTab] = createSignal<number>(0);
   const child = createMemo(() => props.children[activeTab()]);
 
-  return <div class="itemContainer tabs">
+  return <div class={`itemContainer ${styles.tabs}`}>
     <ul class="itemContainer horizontal">
       <For each={props.children}>{(tab, index) => {
         // Sanity check
