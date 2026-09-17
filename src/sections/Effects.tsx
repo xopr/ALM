@@ -71,6 +71,7 @@ export const Effects: Component<EffectsProps> = (props) => {
     </div>
     <ul
       class="itemContainer list"
+      data-accept
       // @ts-ignore -- It just works
       onDragStart={(event: CustomEvent<DragDropData>) => {
         const { sourceId } = event.detail;

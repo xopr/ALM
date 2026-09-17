@@ -185,7 +185,6 @@ function App() {
         <section
           data-label="Control"
           data-icon="control"
-          class="contentContainer"
         >
           <Control
             channels={channels()}
@@ -203,16 +202,9 @@ function App() {
             }}
           />
         </section>
-        {/* <section
-          data-label="Remote"
-          data-icon="remote"
-          class="contentContainer"
-        >
-        </section> */}
         <section
           data-label="Effects"
           data-icon="effect_on"
-          class="contentContainer"
         >
           <Effects
             effectList={effectList()}
@@ -223,10 +215,14 @@ function App() {
             effect={selectedEffect()}
           />
         </section>
+        {/* <section
+          data-label="Remote"
+          data-icon="remote"
+        >
+        </section> */}
         <section
           data-label="Lights"
           data-icon="light_on"
-          class="contentContainer"
         >
         <Show when={process.env.NODE_ENV === "development"}>
           <button onClick={() => window.location.reload()}>reload</button>
@@ -236,13 +232,11 @@ function App() {
         {/* <section
           data-label="Map"
           data-icon="map"
-          class="contentContainer"
         >
         </section> */}
         <section
           data-label="Help"
           data-icon="help"
-          class="contentContainer"
         >
           <Help/>
         </section>

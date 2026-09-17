@@ -99,6 +99,19 @@ export const treeDragHelper = <T extends SegmentTreeItem | LightTreeItem = Segme
     const target = event.target as HTMLElement;
     if (!target) return false;
 
+    // Drag edge scroll magic 
+    const list = (event.currentTarget as HTMLUListElement);
+    const detail = event.detail as DragDropData;
+    const margin = list.offsetHeight / 6;
+    if (detail.y && detail.y < list.offsetTop + margin) {
+      console.log("near top");
+      list.scrollBy({top: -margin / 10});
+    }
+    if (detail.y && detail.y > list.offsetTop + list.offsetHeight - margin) {
+      console.log("near bottom");
+      list.scrollBy({top: margin / 10});
+    }
+
     const child = treeItemFromArray(rootItem, target.id.split("_").map(s => parseInt(s)));
     if (!child) return false;
 
@@ -106,7 +119,7 @@ export const treeDragHelper = <T extends SegmentTreeItem | LightTreeItem = Segme
     if (event.type === "dragover")
       child.outlined = true;
 
-    callback?.(child, event.detail as DragDropData, "center");
+    callback?.(child, detail, "center");
     return false;
   };
 };
