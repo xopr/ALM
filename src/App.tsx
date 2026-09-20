@@ -5,7 +5,7 @@ const Effects = lazy(() => import("./sections/Effects"));
 
 import { Lights } from "./sections/Lights";
 import { Control } from "./sections/Control";
-import { getAncestorEffect, getDescendingInstances, LightGroupTree, removeEffect, removeItem } from "./sections/LightGroupTree";
+import { getAncestorEffect, getDescendingInstances, lightGroups, LightGroupTree, removeEffect, removeItem } from "./sections/LightGroupTree";
 import DragNode from "./components/DragNode";
 import { ChannelValues, IEffect, type Effect } from "../public/Effect";
 import Help from "./sections/Help";
@@ -22,6 +22,10 @@ import { EffectHelper } from "./helpers/EffectHelper";
 import type { SegmentTreeGroup, SegmentTreeItem } from "./types/ItemData";
 import { invoke } from "@tauri-apps/api/core";
 import { loadEffect } from "./helpers/classFileHelpers";
+import { Action } from "./sections/Remote";
+import { treeItemFromArray } from "./components/treelist/treeListHelpers";
+
+const Remote = lazy(() => import("./sections/Remote"));
 
 // Assign EffectHelper base class
 globalThis.Effect = EffectHelper;
@@ -154,6 +158,40 @@ function App() {
     if (name) item.name = name;
   }
 
+  const onData = <T extends Action = Action>(name: T["name"], target: T["target"], value: T["value"], index?: number) => {
+    switch (name) {
+      case "emit":
+        // TODO: resolve target "current" and "selected"
+        const treeItem = treeItemFromArray<SegmentTreeItem>(lightGroups, target.split("_").map(s => parseInt(s)));
+        if (treeItem) {
+          const effect = getAncestorEffect(treeItem).effect;
+          const instances = getDescendingInstances(effect!, treeItem);
+          instances.forEach((instance) => {
+            // TODO: throttle postMessage!
+            //       for now, don't relay on instant frame
+            instance.channelValues[index!] = value as number;
+
+            // const values: number[] = [];
+            // values[index!] = value as number;
+            // window.postMessage([instance.id, performance.now(), "channels", values]);
+          })
+        }
+        break;
+
+      case "setEffect":
+        // TODO:
+        break;
+
+      case "toggleEffect":
+        // TODO:
+        break;
+
+      case "current":
+        // TODO:
+        break;
+    }
+  }
+
   return (
     <main>
       <div class="inbetweenContainer vertical" style="min-width:240px">
@@ -215,11 +253,12 @@ function App() {
             effect={selectedEffect()}
           />
         </section>
-        {/* <section
+        <section
           data-label="Remote"
           data-icon="remote"
         >
-        </section> */}
+          <Remote onData={onData}/>
+        </section>
         <section
           data-label="Lights"
           data-icon="light_on"
