@@ -47,7 +47,7 @@ export const getDescendingInstances = (effect: Effect, item: SegmentTreeItem): I
 
     case "segment":
       // Do we have an instance that matches our effect?
-      if (item.data.effectInstance instanceof effect)
+      if (item.data.effectInstance && item.data.effectInstance instanceof effect)
         return [item.data.effectInstance];
       break;
   }

@@ -21,7 +21,15 @@
   margin: 8px;
   color: #333;
   background-color: currentColor !important;
+}
+.led.on {
+  animation: blink-animation 1.2s steps(1, start) infinite;
+}
 
+@keyframes blink-animation {
+  50% {
+    color: #333;
+  }
 }
 
 .slider {

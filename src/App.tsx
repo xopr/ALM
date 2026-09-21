@@ -25,6 +25,8 @@ import { loadEffect } from "./helpers/classFileHelpers";
 import { Action } from "./sections/Remote";
 import { treeItemFromArray } from "./components/treelist/treeListHelpers";
 
+import effect_svg from "/src/assets/effect.svg";
+
 const Remote = lazy(() => import("./sections/Remote"));
 
 // Assign EffectHelper base class
@@ -33,6 +35,7 @@ globalThis.Effect = EffectHelper;
 function App() {
   const [selectedEffect, setSelectedEffect] = createSignal<Effect>();
   const [selectedItem, setSelectedItem] = createSignal<SegmentTreeItem>();
+  const [remoteTreeItem, setRemoteTreeItem] = createSignal<SegmentTreeItem>();
 
   const effectClass = createMemo<Effect | undefined>(() => {
     const item = selectedItem();
@@ -105,9 +108,12 @@ function App() {
     removeItem(item!);
   }
 
-  const toggleEffect = (item?: SegmentTreeItem) => {
+  const toggleEffect = (item?: SegmentTreeItem, active?: boolean) => {
     // Only with effect applied
     if (!item?.data?.effect && !item?.data?.originalEffect) return;
+
+    // If we ask explicit active state which already represents the effect state, we're done
+    if (active !== undefined && !item.data.originalEffect === active) return;
 
     // Clean up current effect and apply the given one if "disabled"..
     if (!item.data.originalEffect) {
@@ -158,37 +164,79 @@ function App() {
     if (name) item.name = name;
   }
 
-  const onData = <T extends Action = Action>(name: T["name"], target: T["target"], value: T["value"], index?: number) => {
-    switch (name) {
-      case "emit":
-        // TODO: resolve target "current" and "selected"
-        const treeItem = treeItemFromArray<SegmentTreeItem>(lightGroups, target.split("_").map(s => parseInt(s)));
-        if (treeItem) {
-          const effect = getAncestorEffect(treeItem).effect;
-          const instances = getDescendingInstances(effect!, treeItem);
-          instances.forEach((instance) => {
-            // TODO: throttle postMessage!
-            //       for now, don't relay on instant frame
-            instance.channelValues[index!] = value as number;
+  const resolveTarget = (target: Action["target"]): SegmentTreeItem | undefined => {
+    switch (target) {
+      case "current":
+        return remoteTreeItem();
 
-            // const values: number[] = [];
-            // values[index!] = value as number;
-            // window.postMessage([instance.id, performance.now(), "channels", values]);
-          })
-        }
+      case "selected":
+        return selectedItem();
+
+      // TODO: Navigation items
+      // case "prevGroup":
+      // case "prevEffect":
+      // case "prevLeaf":
+      // case "nextGroup":
+      // case "nextEffect":
+      // case "nextLeaf":
+
+      default:
+        return treeItemFromArray<SegmentTreeItem>(lightGroups, target.split("_").map(s => parseInt(s)));
+    }
+  }
+
+  const onData = <T extends Action = Action>(name: T["name"], target: T["target"], value: T["value"], index?: number) => {
+    const item = resolveTarget(target);
+    switch (name) {
+      case "current":
+      {
+        setRemoteTreeItem(item);
+        setSelectedItem(item); // TODO: remove; for now, show navigation
         break;
+      }
+
+      case "emit":
+      {
+        if (!item) break;
+        const effect = getAncestorEffect(item).effect;
+        const instances = getDescendingInstances(effect!, item);
+        instances.forEach((instance) => {
+          // TODO: throttle postMessage!
+          //       for now, don't relay on instant frame
+          instance.channelValues[index!] = value as number;
+
+          // const values: number[] = [];
+          // values[index!] = value as number;
+          // window.postMessage([instance.id, performance.now(), "channels", values]);
+        })
+        break;
+      }
 
       case "setEffect":
-        // TODO:
+      {
+        if (!item) break;
+        const effect = value ? effectList().find((effect) => effect.effect.name === value)?.effect : undefined;
+
+        if (!effect) {
+          removeEffectHandler(item);
+        } else {
+          item.data!.effect = undefined;
+          // Set effect icon      
+          item.icon = effect_svg;
+
+          instanceLeaf(item, effect, effect.channels.map(c => c.default));
+
+          // Store effect we just dropped
+          item.data!.effect = effect;
+        }
         break;
+      }
 
       case "toggleEffect":
-        // TODO:
+      {
+        toggleEffect(item, value as boolean | undefined);
         break;
-
-      case "current":
-        // TODO:
-        break;
+      }
     }
   }
 
@@ -209,7 +257,6 @@ function App() {
             onclick={() => toggleEffect(selectedItem())}
             disabled={!selectedItem()?.data?.effect && !selectedItem()?.data?.originalEffect}
           >
-            {/* TODO verify deprecated !activeEffect() */}
             {(enabledEffect()) ? <EffectOffIcon/> : <EffectOnIcon/>}
           </button>
           <button title="Remove effect" onclick={() => removeEffectHandler(selectedItem())} disabled={!selectedItem()?.data?.effect && !selectedItem()?.data?.originalEffect}>{EffectRemoveIcon}</button>

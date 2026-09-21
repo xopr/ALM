@@ -39,60 +39,69 @@ type Target = TreeId | "current" | "selected";
 /** Navigation identifier */
 type Navigation = TreeId/* | `${"prev" | "next"}${"Group"|"Effect"|"Leaf"}`*/;
 /** Local controller item: slider_n | buttonGroup_n_m | button_n | rotary_n */ 
-type Local = `slider_${number}` | `buttonGroup_${number}_${ButtonGroup}` | `rotary_${number}`;
+type Local = `sliders_${number}` | `buttons_${number}` | `buttonGroups_${number}_${ButtonGroup}` | `rotaries_${number}`;
 
-// TODO:
-// slider LED is lock/setpoint value:
-// void invoke("trigger_note", { c: Command.NOTE_ON + 80 + idx, n: 0, v: a ? 127 : 0 });
-
+/** MIDI remote Action */
 export type Action =
 | {
-  // set effect     (target, effect|undefined) -> includes remove
-  name: "setEffect";
-  target: Target;
-  value: string;
+  /** Set current (internal selection/navigation) */
+  name: "current";
+  /** Tree item to select or navigate to */
+  target: Navigation;
+  /** No data */
+  value: never;
 }
 | {
-  // toggle effect  (target, boolean|undefined) -> includes toggle
-  name: "toggleEffect";
-  target: Target;
-  value: boolean | undefined;
-}
-| {
-  // emit channel   (target, channelIdx) -> the effect channel index
+  /** Emit channel value */
   name: "emit";
+  /** Tree item to emit to */
   target: Target;
+  /** Effect channel index */
   value: number;
 }
 | {
-  // set local      (local, boolean|number|undefined) -> probably cascades effects
+  /** Set local controller value (may cascade actions) */
   name: "local";
+  /** Local identifier */
   target: Local;
+  /** Value to set */
   value: boolean | number | undefined;
 }
 | {
-  // set current    (navigation)
-  name: "current";
-  target: Navigation;
-  value: never; // undefined?
+  /** Set/clear target effect */
+  name: "setEffect";
+  /** Tree item to set effect on */
+  target: Target;
+  /** Name of the effect, empty to clear. Note that toggle will clear on switching off */
+  value: string | undefined;
+}
+| {
+  // toggle effect  (target, boolean|undefined) -> includes toggle
+  /** Toggle effect */
+  name: "toggleEffect";
+  /** Tree item to toggle effect on */
+  target: Target;
+  value: number | undefined;
 };
 // TODO: set bind scene (needs scene[Action[]])
 // TODO: store, recall mute, pause channelValue
+type InternalAction = Partial<Pick<Action, "value">> & Omit<Action, "value">;
 
 type Button = {
     color?: "white" | "red" | "orange" | "green" | "blue";
     mode?: "follow" | "toggle" | "latch";
     active?: boolean;
-    actions?: Action[];
+    actions?: InternalAction[];
 }
 
 type Controller = {
   rotaries: Array<{
     value: number;
     mode?: "regular" | "wrap"
-    actions?: Action[];
+    actions?: InternalAction[];
   }>;
-  sliders: Array<{ value: number; actions?: Action[], setpoint?: number }>;
+  leds: boolean[];
+  sliders: Array<{ value: number; actions?: InternalAction[], setpoint?: number }>;
   buttonGroups: Array<Record<ButtonGroup, Button>>;
   buttons: Array<Button & {
     id?: number;
@@ -130,9 +139,12 @@ const getRotaryStepIndex = (note: number, velocity: number): { step: number, ind
   // 1: fast up velocity = channel
   // 65: fast down
   switch (velocity) {
-    case 1: return { step: 0.00003, index: note - 16 };
-    case 65: return { step: -0.00003, index: note - 16 };
+    case 1:
+      return { step: 0.003, index: note - 16 };
+    case 65:
+      return { step: -0.003, index: note - 16 };
     default:
+      // NOTE: Apparently, this suddenly doesn't work anymore.
       return { step: 33 - note, index: velocity > 1 ? -0.02 : 0.02 };
   }
 }
@@ -146,37 +158,38 @@ export const Remote: Component<Props> = (props) => {
   const [devices, setDevices] = createStore<MidiConnections>({ inputs: {}, outputs: {} });
   const [controller, setController] = createStore<Controller>({
     rotaries: [
-      { value: 0 },
-      { value: 0 },
-      { value: 0 },
+      { value: 0, mode: "wrap", actions: [{name: "emit", target: "0_0", value: 0}] },
+      { value: 0, mode: "wrap", actions: [{name: "emit", target: "0_0_0", value: 0}] },
+      { value: 0, mode: "wrap", actions: [{name: "emit", target: "0_0_1_0", value: 0}] },
       { value: 0 },
       { value: 0 },
       { value: 0 },
       { value: 0 },
       { value: 0 },
     ],
+    leds:[false,false,false,false,false,false,false,false],
     sliders: [
       { value: 0, actions: [{name: "emit", target: "0_0", value: 0}] },
       { value: 0, actions: [{name: "emit", target: "0_0", value: 1}] },
       { value: 0, actions: [{name: "emit", target: "0_0", value: 2}] },
-      { value: 0 },
-      { value: 0 },
-      { value: 0 },
-      { value: 0 },
-      { value: 0 },
+      { value: 0, actions: [{name: "emit", target: "0_0", value: 3}] },
+      { value: 0, actions: [{name: "emit", target: "0_0", value: 4}] },
+      { value: 0, actions: [{name: "emit", target: "0_0", value: 5}] },
+      { value: 0, actions: [{name: "emit", target: "0_0", value: 6}] },
+      { value: 0, actions: [{name: "emit", target: "0_0", value: 7}] },
     ],
     buttonGroups: [
       {
-        m: {color: "orange", mode: "toggle"},
-        s: {color: "blue"},
-        r: {color: "red"},
+        m: {color: "orange", mode: "toggle", actions: [{name: "toggleEffect", target: "0_0"}]},
+        s: {color: "blue", actions: [{name: "setEffect", target: "0_0", value: "Fire"}]},
+        r: {color: "red", actions: [{name: "setEffect", target: "0_0"}]},
         b: {}
       },
       {
-        m: {color: "orange"},
-        s: {color: "blue"},
-        r: {color: "red"},
-        b: {}
+        m: {color: "orange", actions: [{name: "local", target: "sliders_0", value: 0.5}]},
+        s: {color: "blue", actions: [{name: "local", target: "buttons_0", value: undefined}]},
+        r: {color: "red", actions: [{name: "local", target: "buttons_1", value: true}]},
+        b: {actions: [{name: "local", target: "buttonGroups_7_b", value: undefined}]},
       },
       {
         m: {color: "orange"},
@@ -219,14 +232,14 @@ export const Remote: Component<Props> = (props) => {
       { id: 94, mode: "toggle", color: "green", variant: "play"},
       { id: 93, mode: "toggle", color: "red", variant: "pause"},
       { id: 95, mode: "toggle", color: "red", variant: "record"},
-      { id: 91, mode: "latch", variant: "rewind"},
-      { id: 92, mode: "latch", variant: "fast forward"},
-      { id: 46, mode: "follow", variant: "skip backward"},
-      { id: 47, mode: "follow", variant: "skip forward"},
-      { id: 96, mode: "follow", variant: "up"},
-      { id: 97, mode: "follow", variant: "down"},
-      { id: 98, mode: "follow", variant: "left"},
-      { id: 99, mode: "follow", variant: "right"},
+      { id: 91, mode: "follow", variant: "rewind"},
+      { id: 92, mode: "follow", variant: "fast forward", actions: [{name: "setEffect", target: "0_0", value: "HSL"}]},
+      { id: 46, mode: "follow", variant: "skip backward", actions: [{name: "setEffect", target: "0_0", value: "Roll"}]},
+      { id: 47, mode: "follow", variant: "skip forward", actions: [{name: "setEffect", target: "0_0", value: "Shift"}]},
+      { id: 96, mode: "follow", variant: "up", actions: [{name: "setEffect", target: "0_0", value: "Fire"}]},
+      { id: 97, mode: "follow", variant: "down", actions: [{name: "setEffect", target: "0_0", value: "Barber"}]},
+      { id: 98, mode: "follow", variant: "left", actions: [{name: "setEffect", target: "0_0", value: "Matrix"}]},
+      { id: 99, mode: "follow", variant: "right", actions: [{name: "setEffect", target: "0_0", value: "Plasma"}]},
     ],
   });
 
@@ -243,45 +256,83 @@ export const Remote: Component<Props> = (props) => {
     }
   });
 
-  const handleActions = (actions?: Action[], value?: boolean | number) => {
+  const handleActions = (actions?: InternalAction[], value?: boolean | number, mode?: "toggle" | "follow" | "latch") => {
     // Do the actions here: update local action values and emit remote actions
-    // console.log("actions", actions, value);
     actions?.forEach((action) => {
       switch (action.name) {
-        case "local":
-          // Set local controller channel
+        case "current":
+          // Store current target: only trigger when value is true
+          if (value)
+            props.onData?.(action.name, action.target, undefined);
           break;
 
         case "emit":
-          props.onData?.(action.name, action.target, value, action.value);
+          // Emit value; replace "true" with 1
+          props.onData?.(action.name, action.target, value, action.value === true ? 1 : action.value as number);
           break;
 
-        case "current":
-          // Store current target
-          // if (action.value)
-            // props.onData?.(action.name, action.target, action.value);
+        case "local":
+        {
+          // Set local controller channel (may cascade)
+          const [group, index, buttonGroup] = (action.target as Local).split("_") as ["sliders" | "buttons" | "buttonGroups" | "rotaries", string, ButtonGroup | undefined];
+          // Translate value to boolean
+          let state = !!action.value;
+          if (action.value === undefined)
+            // Follow
+            state = !!value;
+          else if (action.value === -1)
+            // Invert
+            state = !value;
+
+          switch (group) {
+            case "buttons":
+              setController("buttons", Number(index), "active", state);
+              break;
+            case "buttonGroups":
+              setController(group, Number(index), buttonGroup!, "active", state);
+              break;
+
+            // @ts-ignore -- Fall through
+            case "sliders":
+              setController(group, Number(index), "setpoint", Number(action.value));
+            default:
+              setController(group, Number(index), "value", Number(action.value));
+              break;
+          }
           break;
+        }
 
         case "setEffect":
-          // Store/remove effect
+          // Store/remove effect: only clear when it is a toggle button
+          if (mode === "toggle" || value)
+            props.onData?.(action.name, action.target, value ? action.value : undefined);
           break;
 
         case "toggleEffect":
-          // Toggle effect
+          // Toggle effect: by default, set boolean from action value
+          let state: boolean = !!action.value;
+          if (action.value === undefined)
+            // Follow
+            state = !!value;
+          else if (action.value === -1)
+            // Invert
+            state = !value;
+
+          props.onData?.(action.name, action.target, state);
           break;
       }
     })
   };
 
   onMount(() => {
-    const { buttonGroups, buttons, sliders } = controller;
+    const { buttonGroups, buttons, sliders, rotaries } = controller;
     for (let idx = 0; idx < buttonGroups.length; ++idx) {
       createEffect(
         on(
           () => buttonGroups[idx].m.active,
           (a) => {
-            void invoke("trigger_note", { c: (a ? Command.NOTE_ON : Command.NOTE_OFF) + 80 + idx, n: 0, v: 0 });
-            handleActions(buttonGroups[idx].m.actions, a);
+            void invoke("trigger_note", { c: Command.NOTE_ON, n: 16 + idx, v: a ? 127 : 0 })
+            handleActions(buttonGroups[idx].m.actions, a, buttonGroups[idx].m.mode);
           },
           { defer: true },
         ),
@@ -291,7 +342,7 @@ export const Remote: Component<Props> = (props) => {
           () => buttonGroups[idx].s.active,
           (a) => {
             void invoke("trigger_note", { c: Command.NOTE_ON, n: 8 + idx, v: a ? 127 : 0 });
-            handleActions(buttonGroups[idx].s.actions, a);
+            handleActions(buttonGroups[idx].s.actions, a, buttonGroups[idx].s.mode);
           },
           { defer: true },
         ),
@@ -301,7 +352,7 @@ export const Remote: Component<Props> = (props) => {
           () => buttonGroups[idx].r.active,
           (a) => {
             void invoke("trigger_note", { c: Command.NOTE_ON, n: idx, v: a ? 127 : 0 });
-            handleActions(buttonGroups[idx].r.actions, a);
+            handleActions(buttonGroups[idx].r.actions, a, buttonGroups[idx].r.mode);
           },
           { defer: true },
         ),
@@ -311,7 +362,7 @@ export const Remote: Component<Props> = (props) => {
           () => buttonGroups[idx].b.active,
           (a) => {
             void invoke("trigger_note", { c: Command.NOTE_ON, n: 24 + idx, v: a ? 127 : 0 })
-            handleActions(buttonGroups[idx].b.actions, a);
+            handleActions(buttonGroups[idx].b.actions, a, buttonGroups[idx].b.mode);
           },
           { defer: true },
         ),
@@ -324,31 +375,47 @@ export const Remote: Component<Props> = (props) => {
           () => buttons[idx].active,
           (a) => {
             void invoke("trigger_note", { c: Command.NOTE_ON, n: buttons[idx].id, v: a ? 127 : 0 })
-            handleActions(buttons[idx].actions, a);
+            handleActions(buttons[idx].actions, a, buttons[idx].mode);
           },
           { defer: true },
         ),
       );
     };
 
-    for (let idx = 0; idx < sliders.length; ++idx) {
+    for (let idx = 0; idx < rotaries.length; ++idx) {
       createEffect(
         on(
-          () => sliders[idx].value,
+          () => rotaries[idx].value,
           (v) => {
-            handleActions(sliders[idx].actions, v);
+            handleActions(rotaries[idx].actions, v);
           },
           { defer: true },
         ),
       );
       createEffect(
         on(
-          () => sliders[idx].setpoint,
+          () => sliders[idx].value,
+          (value) => {
+            handleActions(sliders[idx].actions, value);
+            // Check value against setpoint: restore light and clear setpoint
+            if (sliders[idx].setpoint !== undefined && Math.abs(value - sliders[idx].setpoint!) < 0.01) {
+              console.warn("RESET");
+              setController("sliders", idx, "setpoint", undefined);
+            }
+          },
+          { defer: true },
+        ),
+      );
+      createEffect(
+        on(
+          () => sliders[idx].setpoint, // We're differentiating from value or the system overloads
           (setpoint) => {
-            const v = setpoint ?? sliders[idx].value;
-            // Sets to a new value to enable LED or current slider value to disable it
-            void invoke("trigger_note", { c: Command.NOTE_ON + 80 + idx, n: 0, v });
-            setController("sliders", idx, "value", v);
+            setController("leds", idx, setpoint !== undefined);
+            if (setpoint) {
+              // Sets to a new value to enable LED or current slider value to disable it
+              const v = setpoint * 127 | 0;
+              void invoke("trigger_note", { c: Command.NOTE_ON + 80 + idx, n: 0, v });
+            }
           },
           { defer: true },
         ),
@@ -394,14 +461,13 @@ export const Remote: Component<Props> = (props) => {
           // channel buttons command b0, t-b: 20, 28 ,36, 44 to right = +1, velocity 127=on, 0=off
           // Ex: slider value, command b0, note: 40-47, velocity:0-127
           // bottom buttons: command b0, notes (l-r) 52-62, velocity 127=on, 0=off
-
           switch (payload.message[0] & 0xf0) {
             case Command.CONTINUOUS: // Rotary button or all buttons in right side mode
             {
               // 30-37: rotary velocity
               const { step, index } = getRotaryStepIndex(payload.message[1], payload.message[2]);
-              // TODO: check if we need to return other attributes as well
               setController("rotaries", index, (old) => {
+                // Handle wraparound
                 if (old.value + step < 0) {
                   return { value: old.mode === "wrap" ? old.value + step + 1 : 0 };
                 } else if (old.value + step > 1) {
@@ -409,7 +475,6 @@ export const Remote: Component<Props> = (props) => {
                 }
                 return { value: old.value + step };
               });
-              console.log(index, step);
               break;
             }
 
@@ -448,19 +513,7 @@ export const Remote: Component<Props> = (props) => {
               break;
             }
           }
-
-          // console.log(
-          //   "MIDI:",
-          //   payload.timestamp,
-          //   "command",
-          //   payload.message[0].toString(16),
-          //   "note",
-          //   payload.message[1],
-          //   "velocity",
-          //   payload.message[2],
-          // );
         });
-
       }
   }));
 
@@ -488,6 +541,7 @@ export const Remote: Component<Props> = (props) => {
           <For each={controller.sliders}>{(slider, i) =>
             <ControllerChannel
               slider={slider.value}
+              led={controller.leds[i()]}
               m={controller.buttonGroups[i()].m.active}
               s={controller.buttonGroups[i()].s.active}
               r={controller.buttonGroups[i()].r.active}

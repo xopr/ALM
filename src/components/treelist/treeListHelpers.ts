@@ -104,11 +104,9 @@ export const treeDragHelper = <T extends SegmentTreeItem | LightTreeItem = Segme
     const detail = event.detail as DragDropData;
     const margin = list.offsetHeight / 6;
     if (detail.y && detail.y < list.offsetTop + margin) {
-      console.log("near top");
       list.scrollBy({top: -margin / 10});
     }
     if (detail.y && detail.y > list.offsetTop + list.offsetHeight - margin) {
-      console.log("near bottom");
       list.scrollBy({top: margin / 10});
     }
 

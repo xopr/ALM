@@ -95,16 +95,3 @@ export type DmxLightItem = TreeItem & {
   /** Light data */
   data: SegmentProps[];
 }
-
-// @deprecated
-export type TreeItemMap = {
-  light: {
-    parent: LightTreeGroup;
-    item: LightTreeGroup | DmxLightItem;
-  };
-
-  segment: {
-    parent: SegmentTreeGroup;
-    item: SegmentTreeGroup | SegmentItem;
-  };
-};
