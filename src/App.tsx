@@ -35,7 +35,6 @@ globalThis.Effect = EffectHelper;
 function App() {
   const [selectedEffect, setSelectedEffect] = createSignal<Effect>();
   const [selectedItem, setSelectedItem] = createSignal<SegmentTreeItem>();
-  const [remoteTreeItem, setRemoteTreeItem] = createSignal<SegmentTreeItem>();
 
   const effectClass = createMemo<Effect | undefined>(() => {
     const item = selectedItem();
@@ -166,9 +165,6 @@ function App() {
 
   const resolveTarget = (target: Action["target"]): SegmentTreeItem | undefined => {
     switch (target) {
-      case "current":
-        return remoteTreeItem();
-
       case "selected":
         return selectedItem();
 
@@ -188,10 +184,9 @@ function App() {
   const onData = <T extends Action = Action>(name: T["name"], target: T["target"], value: T["value"], index?: number) => {
     const item = resolveTarget(target);
     switch (name) {
-      case "current":
+      case "selected":
       {
-        setRemoteTreeItem(item);
-        setSelectedItem(item); // TODO: remove; for now, show navigation
+        setSelectedItem(item);
         break;
       }
 
@@ -304,7 +299,7 @@ function App() {
           data-label="Remote"
           data-icon="remote"
         >
-          <Remote onData={onData}/>
+          <Remote channels={channels()} onData={onData}/>
         </section>
         <section
           data-label="Lights"

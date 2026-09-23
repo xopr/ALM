@@ -31,6 +31,7 @@ export const SliderGroup: Component<SliderGroupProps> = (props) => {
         setChannels(channels);
         return;
       }
+      // NOTE: this triggers an error -> c is undefined
       channels.forEach((c, i) => {
         setChannels(i,"name", c.name);
         setChannels(i,"default", c.default);

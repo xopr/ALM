@@ -4,6 +4,7 @@ import { listen, UnlistenFn } from "@tauri-apps/api/event";
 import { createStore } from "solid-js/store";
 import { ControllerChannel } from "../components/Controller/ControllerChannel";
 import { ControllerButton } from "../components/Controller/ControllerButton";
+import { ChannelValues } from "../../public/Effect";
 
 type MidiMessage = {
   timestamp: number;
@@ -35,7 +36,7 @@ type TreeIdPart<
 type TreeId = `${number}${TreeIdPart}`;
 
 /** Emit target */
-type Target = TreeId | "current" | "selected";
+type Target = TreeId | "selected";
 /** Navigation identifier */
 type Navigation = TreeId/* | `${"prev" | "next"}${"Group"|"Effect"|"Leaf"}`*/;
 /** Local controller item: slider_n | buttonGroup_n_m | button_n | rotary_n */ 
@@ -44,8 +45,8 @@ type Local = `sliders_${number}` | `buttons_${number}` | `buttonGroups_${number}
 /** MIDI remote Action */
 export type Action =
 | {
-  /** Set current (internal selection/navigation) */
-  name: "current";
+  /** Set selected item */
+  name: "selected";
   /** Tree item to select or navigate to */
   target: Navigation;
   /** No data */
@@ -150,6 +151,11 @@ const getRotaryStepIndex = (note: number, velocity: number): { step: number, ind
 }
 
 type Props = {
+  /** Full channel data for selected item */
+  channels?: ChannelValues;
+  /** Effect active */
+  enabledEffect?: boolean;
+  /** Data event handler */
   onData?: <T extends Action = Action>(name: T["name"], target: T["target"], value: T["value"], index?: number) => void;
 }
 
@@ -169,14 +175,14 @@ export const Remote: Component<Props> = (props) => {
     ],
     leds:[false,false,false,false,false,false,false,false],
     sliders: [
-      { value: 0, actions: [{name: "emit", target: "0_0", value: 0}] },
-      { value: 0, actions: [{name: "emit", target: "0_0", value: 1}] },
-      { value: 0, actions: [{name: "emit", target: "0_0", value: 2}] },
-      { value: 0, actions: [{name: "emit", target: "0_0", value: 3}] },
-      { value: 0, actions: [{name: "emit", target: "0_0", value: 4}] },
-      { value: 0, actions: [{name: "emit", target: "0_0", value: 5}] },
-      { value: 0, actions: [{name: "emit", target: "0_0", value: 6}] },
-      { value: 0, actions: [{name: "emit", target: "0_0", value: 7}] },
+      { value: 0, actions: [{name: "emit", target: "selected", value: 0}] },
+      { value: 0, actions: [{name: "emit", target: "selected", value: 1}] },
+      { value: 0, actions: [{name: "emit", target: "selected", value: 2}] },
+      { value: 0, actions: [{name: "emit", target: "selected", value: 3}] },
+      { value: 0, actions: [{name: "emit", target: "selected", value: 4}] },
+      { value: 0, actions: [{name: "emit", target: "selected", value: 5}] },
+      { value: 0, actions: [{name: "emit", target: "selected", value: 6}] },
+      { value: 0, actions: [{name: "emit", target: "selected", value: 7}] },
     ],
     buttonGroups: [
       {
@@ -243,24 +249,11 @@ export const Remote: Component<Props> = (props) => {
     ],
   });
 
-  createEffect(() => {
-    if (controller.buttons[3].active) setController("buttons", 4, "active", false);
-  });
-  createEffect(() => {
-    if (controller.buttons[4].active) setController("buttons", 3, "active", false);
-  });
-  createEffect(() => {
-    if (controller.buttons[1].active) {
-      setController("buttons", 3, "active", false);
-      setController("buttons", 4, "active", false);
-    }
-  });
-
   const handleActions = (actions?: InternalAction[], value?: boolean | number, mode?: "toggle" | "follow" | "latch") => {
     // Do the actions here: update local action values and emit remote actions
     actions?.forEach((action) => {
       switch (action.name) {
-        case "current":
+        case "selected":
           // Store current target: only trigger when value is true
           if (value)
             props.onData?.(action.name, action.target, undefined);
@@ -399,7 +392,6 @@ export const Remote: Component<Props> = (props) => {
             handleActions(sliders[idx].actions, value);
             // Check value against setpoint: restore light and clear setpoint
             if (sliders[idx].setpoint !== undefined && Math.abs(value - sliders[idx].setpoint!) < 0.01) {
-              console.warn("RESET");
               setController("sliders", idx, "setpoint", undefined);
             }
           },
@@ -517,6 +509,41 @@ export const Remote: Component<Props> = (props) => {
       }
   }));
 
+  createEffect(
+    on(
+      () => props.channels,
+      () => {
+        props.channels?.forEach((channel, idx) => {
+          // Check current slider and see if it contains "emit" "selected" action
+          if (controller.sliders[idx].actions?.some(a => a.name === "emit" && a.target === "selected")) {
+            // Only set/update value if the difference is large
+            if (Math.abs(channel.value - controller.sliders[idx].value) >= 0.01) {
+              setController("sliders", idx, "setpoint", channel.value);
+            }
+          }
+        });
+      },
+    )
+  );
+  createEffect(
+    on(
+      () => props.enabledEffect,
+      (active) => {
+        // Assume one button tied to current active state
+        const m = controller.buttonGroups.findIndex(g => g.m.actions?.some(a => a.name === "emit" && a.target === "selected"));
+        const s = controller.buttonGroups.findIndex(g => g.s.actions?.some(a => a.name === "emit" && a.target === "selected"));
+        const r = controller.buttonGroups.findIndex(g => g.r.actions?.some(a => a.name === "emit" && a.target === "selected"));
+        const b = controller.buttonGroups.findIndex(g => g.b.actions?.some(a => a.name === "emit" && a.target === "selected"));
+        const o = controller.buttons.findIndex(g => g.actions?.some(a => a.name === "emit" && a.target === "selected"));
+        if (m !== -1) setController("buttonGroups", m, "m", "active", active);
+        if (s !== -1) setController("buttonGroups", s, "s", "active", active);
+        if (r !== -1) setController("buttonGroups", r, "r", "active", active);
+        if (b !== -1) setController("buttonGroups", b, "b", "active", active);
+        if (o !== -1) setController("buttons", o, "active", active);
+      },
+    )
+  );
+
   const updateDevices = async () => {
     const availableDevices = await invoke<MidiConnections>("list_midi_connections");
     setDevices(availableDevices);
@@ -540,7 +567,7 @@ export const Remote: Component<Props> = (props) => {
         <div>
           <For each={controller.sliders}>{(slider, i) =>
             <ControllerChannel
-              slider={slider.value}
+              slider={slider.setpoint ?? slider.value}
               led={controller.leds[i()]}
               m={controller.buttonGroups[i()].m.active}
               s={controller.buttonGroups[i()].s.active}
