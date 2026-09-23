@@ -94,8 +94,8 @@ export class Barber implements IEffect {
     this.leds = data;
     const view = new Uint8Array(this.leds);
 
-
-    const currentPalette = palette[this.channelValues[0] * palette.length | 0];
+    console.log("p", this.channelValues[0], palette.length);
+    const currentPalette = palette[Math.round(this.channelValues[0] * (palette.length - 1))];
     let p = 0;
     for (let y = 0; y < this.height; ++y) {
       for (let x = 0; x < this.width; ++x) {
