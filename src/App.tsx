@@ -5,7 +5,7 @@ const Effects = lazy(() => import("./sections/Effects"));
 
 import { Lights } from "./sections/Lights";
 import { Control } from "./sections/Control";
-import { getAncestorEffect, getDescendingInstances, lightGroups, LightGroupTree, removeEffect, removeItem } from "./sections/LightGroupTree";
+import { lightGroups, LightGroupTree } from "./sections/LightGroupTree";
 import DragNode from "./components/DragNode";
 import { ChannelValues, IEffect, type Effect } from "../public/Effect";
 import Help from "./sections/Help";
@@ -23,7 +23,7 @@ import type { SegmentTreeGroup, SegmentTreeItem } from "./types/ItemData";
 import { invoke } from "@tauri-apps/api/core";
 import { loadEffect } from "./helpers/classFileHelpers";
 import { Action } from "./sections/Remote";
-import { treeItemFromArray } from "./components/treelist/treeListHelpers";
+import { getAncestorEffect, getDescendingInstances, removeEffect, removeItem, treeItemFromArray } from "./components/treelist/treeListHelpers";
 
 import effect_svg from "/src/assets/effect.svg";
 
