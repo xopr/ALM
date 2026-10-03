@@ -33,7 +33,7 @@ export type EffectControlData = {
 }
 
 type SegmentControlData = {
-  /** The light segment communication details (TODO) */
+  /** The light segment communication details (TODO: other communication details) */
   segment: SegmentProps;
   /** The running effect instance */
   effectInstance?: IEffect;

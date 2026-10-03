@@ -7,7 +7,7 @@ import { Lights } from "./sections/Lights";
 import { Control } from "./sections/Control";
 import { lightGroups, LightGroupTree } from "./sections/LightGroupTree";
 import DragNode from "./components/DragNode";
-import { ChannelValues, IEffect, type Effect } from "../public/Effect";
+import { ChannelValues, type Effect } from "../public/Effect";
 import Help from "./sections/Help";
 
 import DeleteIcon from "/src/assets/delete.svg";
@@ -23,7 +23,7 @@ import type { SegmentTreeGroup, SegmentTreeItem } from "./types/ItemData";
 import { invoke } from "@tauri-apps/api/core";
 import { loadEffect } from "./helpers/classFileHelpers";
 import { Action } from "./sections/Remote";
-import { getAncestorEffect, getDescendingInstances, removeEffect, removeItem, treeItemFromArray } from "./components/treelist/treeListHelpers";
+import { getAncestorEffect, getMatchingDescendants, removeEffect, removeItem, treeItemFromArray } from "./components/treelist/treeListHelpers";
 
 import effect_svg from "/src/assets/effect.svg";
 
@@ -44,16 +44,10 @@ function App() {
     return getAncestorEffect(item).effect;
   });
 
-  const effectInstances = createMemo<IEffect[] | undefined>(() => {
-    const effect = effectClass();
-    const item = selectedItem();
-    if (!item || !effect) return [];
-
-    // Look for/aggregate effect instances down the descendants
-    return getDescendingInstances(effect, item);
-  });
-
   const channels = createMemo<ChannelValues | undefined>(() => {
+    // TODO: if item data channelValues are all set initially,
+    //       we don't need the effect class channel default
+    //       see effectHelpers.ts#35
     const item = selectedItem();
     const effect = effectClass();
 
@@ -83,6 +77,14 @@ function App() {
       console.warn(e)
     }
   });
+
+  const instanceAncestorLeaf = (item: SegmentTreeItem) => {
+    // TODO: first channel value found
+    const { effect, channelValues } = getAncestorEffect(item);
+    if (effect) {
+      instanceLeaf(item, effect, channelValues);
+    }
+  }
 
   const addLightGroup = (parent?: SegmentTreeItem) => {
     if (!parent || parent.type !== "group") return;
@@ -118,12 +120,7 @@ function App() {
     if (!item.data.originalEffect) {
       item.data.originalEffect = item.data?.effect;
       removeEffect(item);
-
-      // TODO: first channel value found
-      const { effect, channelValues } = getAncestorEffect(item);
-      if (effect) {
-        instanceLeaf(item, effect, channelValues);
-      }
+      instanceAncestorLeaf(item);
     } else {
       const { effect } = getAncestorEffect(item);
       item.data.effect = effect; // Store to match
@@ -149,12 +146,7 @@ function App() {
 
     // Disabled effects are effectively not removed; delete icon
     delete item.icon;
-
-    // TODO: first channel value found
-    const { effect, channelValues } = getAncestorEffect(item);
-    if (effect) {
-      instanceLeaf(item, effect, channelValues);
-    }
+    instanceAncestorLeaf(item);
   }
 
   const renameItem = (item?: SegmentTreeItem) => {
@@ -181,6 +173,27 @@ function App() {
     }
   }
 
+  const updateChannelValues = (item: SegmentTreeItem | undefined, values: number[]) => {
+    if (!item) return;
+
+    const effect = getAncestorEffect(item).effect;
+    const descendants = getMatchingDescendants(effect!, item);
+
+    descendants.forEach((descendant) => {
+      values.forEach((v,i) => {
+        // Local tree item
+        descendant.data.channelValues![i] = v;
+
+        // Effect instance value
+        // TODO: postMessage for triggering frame
+        if (descendant.type === "segment") {
+          // window.postMessage([item.data.effectInstance!.id, performance.now(), "channels", values]);
+          descendant.data.effectInstance!.channelValues[i] = v;
+        }
+      });
+    })
+  }
+
   const onData = <T extends Action = Action>(name: T["name"], target: T["target"], value: T["value"], index?: number) => {
     const item = resolveTarget(target);
     switch (name) {
@@ -192,18 +205,9 @@ function App() {
 
       case "emit":
       {
-        if (!item) break;
-        const effect = getAncestorEffect(item).effect;
-        const instances = getDescendingInstances(effect!, item);
-        instances.forEach((instance) => {
-          // TODO: throttle postMessage!
-          //       for now, don't relay on instant frame
-          instance.channelValues[index!] = value as number;
-
-          // const values: number[] = [];
-          // values[index!] = value as number;
-          // window.postMessage([instance.id, performance.now(), "channels", values]);
-        })
+        const values: number[] = [];
+        values[index!] = value as number;
+        updateChannelValues(item, values);
         break;
       }
 
@@ -270,15 +274,8 @@ function App() {
             channels={channels()}
             name={effectClass()?.name}
             onChannelValues={(values) => {
-
-              effectInstances()?.forEach((instance) => {
-                window.postMessage([instance.id, performance.now(), "channels", values]);
-              })
               const item = selectedItem();
-              if (item?.data.channelValues) {
-                // sparse
-                values.forEach((v,i) => item.data.channelValues![i] = v);
-              }
+              updateChannelValues(item, values);
             }}
           />
         </section>

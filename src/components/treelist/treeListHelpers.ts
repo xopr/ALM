@@ -1,8 +1,8 @@
 import { batch } from "solid-js";
 import { DragDropData } from "../DragNode";
-import type { SegmentTreeItem, LightTreeItem, TreeItem, EffectControlData, SegmentTreeGroup } from "../../types/ItemData";
+import type { SegmentTreeItem, LightTreeItem, TreeItem, EffectControlData, SegmentTreeGroup, SegmentItem } from "../../types/ItemData";
 import { lightGroups } from "../../sections/LightGroupTree";
-import { IEffect, type Effect } from "../../../public/Effect";
+import { type Effect } from "../../../public/Effect";
 import { invoke } from "@tauri-apps/api/core";
 import JSON5 from "json5";
 import { instanceLeaf } from "../../helpers/effectHelpers";
@@ -193,21 +193,21 @@ export const getAncestorEffect = (item: SegmentTreeItem): { effect: Effect | und
  * Get descending instances
  * @param effect The effect we are looking for
  * @param item The item we want to traverse
- * @returns a list of effect instances that match the desired effect
+ * @returns a list of Segment tree items that have an effect instances attached that match the desired effect
  */
-export const getDescendingInstances = (effect: Effect, item: SegmentTreeItem): IEffect[] => {
+export const getMatchingDescendants = (effect: Effect, item: SegmentTreeItem): SegmentTreeItem[] => {
   switch (item.type) {
     case "group":
-      // We're not leaf level; collect our descendants
-      if (item.children.length) {
-        return Array.prototype.concat.call(item.children.map(getDescendingInstances.bind(this, effect))).flat();
-      }
-      break;
+      // Skip if our active effect does not match
+      if (item.data.effect && item.data.effect.name !== effect.name) break;
+
+      // We're not leaf level; add our descendants as well
+      return Array.prototype.concat.call(item, item.children.map(getMatchingDescendants.bind(this, effect))).flat();
 
     case "segment":
       // Do we have an instance that matches our effect?
       if (item.data.effectInstance && item.data.effectInstance instanceof effect)
-        return [item.data.effectInstance];
+        return [item];
       break;
   }
   return [];

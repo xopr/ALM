@@ -11,14 +11,11 @@ export const instanceLeaf = (item: SegmentTreeItem, Effect: Effect, channelValue
 
   switch (item.type) {
     case "group":
-      // Override the channel values from determined values
-      item.data.channelValues = values.slice();
-
       // Iterate children recursively
       item.children.forEach((child) => {
         instanceLeaf(child, Effect, values);
       });
-      return;
+      break;
 
     case "segment":
       // Calculate indexes from item
@@ -30,9 +27,12 @@ export const instanceLeaf = (item: SegmentTreeItem, Effect: Effect, channelValue
       const { channelsPerLed, width, height } = item.data.segment;
       item.data.effectInstance?.destroy();
       item.data.effectInstance = new Effect(width, height, channelsPerLed, id);
-
-      // Override the channel values
-      item.data.channelValues = values.slice();
       break;
   }
+
+  // Override the channel values
+  // TODO: if item data channelValues are all set initially,
+  //       we don't need the effect class channel default
+  //       see App.tsx#55
+  item.data.channelValues = values.slice();
 }
