@@ -265,12 +265,11 @@ function App() {
           </Show>
         </div>
       </div>
-      <TabView>
-        <section
-          data-label="Control"
-          data-icon="control"
-        >
-          <Control
+      <TabView tabs={[
+        {
+          label: "Control",
+          icon: "control",
+          component: () => <Control
             channels={channels()}
             name={effectClass()?.name}
             onChannelValues={(values) => {
@@ -278,12 +277,11 @@ function App() {
               updateChannelValues(item, values);
             }}
           />
-        </section>
-        <section
-          data-label="Effects"
-          data-icon="effect_on"
-        >
-          <Effects
+        },
+        {
+          label: "Effects",
+          icon: "effect_on",
+          component: () => <Effects
             effectList={effectList()}
             onClick={(e) => {
               // Invoke as function since Effect constructor is a function on its own.
@@ -291,34 +289,33 @@ function App() {
             }}
             effect={selectedEffect()}
           />
-        </section>
-        <section
-          data-label="Remote"
-          data-icon="remote"
-        >
-          <Remote channels={channels()} onData={onData}/>
-        </section>
-        <section
-          data-label="Lights"
-          data-icon="light_on"
-        >
-        <Show when={process.env.NODE_ENV === "development"}>
-          <button onClick={() => window.location.reload()}>reload</button>
-        </Show>
-          <Lights /*effect={}?*/ /*light={}*/ />
-        </section>
-        {/* <section
-          data-label="Map"
-          data-icon="map"
-        >
-        </section> */}
-        <section
-          data-label="Help"
-          data-icon="help"
-        >
-          <Help/>
-        </section>
-      </TabView>
+        },
+        {
+          label: "Remote",
+          icon: "remote",
+          component: () => <Remote channels={channels()} onData={onData}/>
+        },
+        {
+          label: "Lights",
+          icon: "light_on",
+          component: () => <>
+            <Show when={process.env.NODE_ENV === "development"}>
+              <button onClick={() => window.location.reload()}>reload</button>
+            </Show>
+            <Lights /*effect={}?*/ /*light={}*/ />
+          </>
+        },
+        // {
+        //   label: "Map",
+        //   icon: "map",
+        //   component: () => <></>
+        // },
+        {
+          label: "Help",
+          icon: "help",
+          component: () => <Help/>
+        },
+      ]}/>
       <DragNode/>
     </main>
   );
