@@ -293,6 +293,7 @@ function App() {
         {
           label: "Remote",
           icon: "remote",
+          persistent: true,
           component: () => <Remote channels={channels()} onData={onData}/>
         },
         {

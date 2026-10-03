@@ -160,7 +160,6 @@ type Props = {
 }
 
 export const Remote: Component<Props> = (props) => {
-  console.log("component load");
   const [devices, setDevices] = createStore<MidiConnections>({ inputs: {}, outputs: {} });
   const [controller, setController] = createStore<Controller>({
     rotaries: [
@@ -240,6 +239,7 @@ export const Remote: Component<Props> = (props) => {
       { id: 95, mode: "toggle", color: "red", variant: "record"},
       { id: 91, mode: "follow", variant: "rewind"},
       { id: 92, mode: "follow", variant: "fast forward", actions: [{name: "setEffect", target: "0_0", value: "HSL"}]},
+      // Note: starting from here, there is no button feedback: toggle and latch will not be visible
       { id: 46, mode: "follow", variant: "skip backward", actions: [{name: "setEffect", target: "0_0", value: "Roll"}]},
       { id: 47, mode: "follow", variant: "skip forward", actions: [{name: "setEffect", target: "0_0", value: "Shift"}]},
       { id: 96, mode: "follow", variant: "up", actions: [{name: "setEffect", target: "0_0", value: "Fire"}]},
@@ -416,7 +416,6 @@ export const Remote: Component<Props> = (props) => {
   });
 
   onMount(async () => {
-    console.log("async load");
     await updateDevices();
 
     await listen("midi-device-disconnected", updateDevices);
@@ -432,7 +431,7 @@ export const Remote: Component<Props> = (props) => {
     async ([currentConnection, currentInputs, currentOutputs], old) => {      
       // Cleanup listener if we don't want a connection or when it's lost
       if (unlisten && (!currentConnection || currentConnection && !Object.values(currentInputs).includes(currentConnection))) {
-        console.log("disconnect");
+        console.info("disconnect");
         await invoke("disconnect_midi_input");
         await invoke("disconnect_midi_output");
 
@@ -443,7 +442,7 @@ export const Remote: Component<Props> = (props) => {
       if (currentConnection && Object.values(currentInputs).includes(currentConnection) && (!old?.[0] || !Object.values(old?.[1]).includes(currentConnection))) {
         const portIndex = Number(Object.entries(currentInputs).find(ci => ci[1] === currentConnection)?.[0]);
         const portOutdex = Number(Object.entries(currentOutputs).find(ci => ci[1] === currentConnection)?.[0]);
-        console.log("connect", currentConnection, portIndex);
+        console.info("connect", currentConnection, portIndex);
 
         await invoke("connect_midi_input", { portIndex });
         await invoke("connect_midi_output", { portIndex: portOutdex });

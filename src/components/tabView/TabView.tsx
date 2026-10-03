@@ -11,6 +11,7 @@ import styles from "./TabView.module.css";
 type Tab = {
   label: string;
   icon?: string;
+  persistent?: boolean;
   component: () => JSX.Element;
 };
 
@@ -49,9 +50,24 @@ return (
         )}
       </For>
     </ul>
-    <section>
-      {props.tabs[activeTab()].component()}
-    </section>
+      <For each={props.tabs}>
+        {(tab, index) => (tab.persistent ? (
+            <section
+              style={{
+                display: index() === activeTab() ? "block" : "none"
+              }}
+            >
+              {tab.component()}
+            </section>
+          ) : (
+            <Show when={index() === activeTab()}>
+              <section>
+                {tab.component()}
+              </section>
+            </Show>
+          )
+        )}
+      </For>
   </div>);
 };
 
