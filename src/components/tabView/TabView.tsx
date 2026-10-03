@@ -2,6 +2,7 @@ import { Component, createSignal, For, JSX, Show } from "solid-js";
 
 import ControlIcon from "/src/assets/control.svg";
 import EffectOnIcon from "/src/assets/effect.svg";
+import Remote from "/src/assets/remote.svg";
 import LightOnIcon from "/src/assets/light_on.svg";
 import HelpIcon from "/src/assets/help.svg";
 
@@ -20,8 +21,8 @@ type TabViewProps = {
 
 const icons = {
   control: ControlIcon,
-  // remote: ,
   effect_on: EffectOnIcon,
+  remote: Remote,
   light_on: LightOnIcon,
   // map
   help: HelpIcon,
