@@ -3,6 +3,7 @@
     "artnet",
     "Artnet",
     "lightgroup",
-    "tauri"
+    "tauri",
+    "unlisten"
   ]
 }

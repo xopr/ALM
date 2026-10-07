@@ -22,12 +22,12 @@ import { EffectHelper } from "./helpers/EffectHelper";
 import type { SegmentTreeGroup, SegmentTreeItem } from "./types/ItemData";
 import { invoke } from "@tauri-apps/api/core";
 import { loadEffect } from "./helpers/classFileHelpers";
-import { Action } from "./sections/Remote";
 import { getAncestorEffect, getMatchingDescendants, removeEffect, removeItem, treeItemFromArray } from "./components/treelist/treeListHelpers";
 
 import effect_svg from "/src/assets/effect.svg";
+import { Action } from "./sections/Remote/types";
 
-const Remote = lazy(() => import("./sections/Remote"));
+const Remote = lazy(() => import("./sections/Remote/Remote"));
 
 // Assign EffectHelper base class
 globalThis.Effect = EffectHelper;

@@ -6,10 +6,14 @@ type Props = {
   variant: "play" | "pause" | "record" | "rewind" | "fast forward" | "skip backward" | "skip forward" | "up" | "down" | "left" | "right";
   color?: "white" | "red" | "orange" | "green" | "blue";
   active?: boolean;
+  onClick?: () => void;
 }
 
 export const ControllerButton: Component<Props> = (props) => {
-  return <div class={`${styles.button} ${styles[props.color ?? "white"]} ${props.active ? styles.on : ""}`}>
+  return <div
+    class={`${styles.button} ${styles[props.color ?? "white"]} ${props.active ? styles.on : ""}`}
+    onClick={props.onClick}
+    >
     <Switch>
       <Match when={props.variant === "play"}>&#9654;</Match>
       <Match when={props.variant === "pause"}>&#8545;</Match>

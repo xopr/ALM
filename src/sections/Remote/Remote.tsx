@@ -2,113 +2,11 @@ import { invoke } from "@tauri-apps/api/core";
 import { Component, createEffect, createSignal, For, on, onCleanup, onMount, Show } from "solid-js";
 import { listen, UnlistenFn } from "@tauri-apps/api/event";
 import { createStore } from "solid-js/store";
-import { ControllerChannel } from "../components/Controller/ControllerChannel";
-import { ControllerButton } from "../components/Controller/ControllerButton";
-import { ChannelValues } from "../../public/Effect";
-
-type MidiMessage = {
-  timestamp: number;
-  message: [command: Command, note: number, velocity: number];
-};
-
-enum Command {
-  "NOTE_OFF" = 0x80,
-  "NOTE_ON" = 0x90,
-  "AFTER_TOUCH" = 0xA0,
-  "CONTINUOUS" = 0xB0, // Rotary
-  "PATCH" = 0xC0,
-  "PRESSURE" = 0xD0,
-  "PITCH" = 0xE0, // Slider 0xEx
-  "MISC" = 0xF0,
-};
-
-type MidiConnections = Record<"inputs" | "outputs", Record<string, string>>;
-
-
-type ButtonGroup = "m" | "s" | "r" | "b";
-type TreeIdPart<
-  Depth extends unknown[] = []
-> =
-  Depth["length"] extends 10
-    ? ""
-    : `_${number}${TreeIdPart<[...Depth, unknown]> | ""}`;
-
-type TreeId = `${number}${TreeIdPart}`;
-
-/** Emit target */
-type Target = TreeId | "selected";
-/** Navigation identifier */
-type Navigation = TreeId/* | `${"prev" | "next"}${"Group"|"Effect"|"Leaf"}`*/;
-/** Local controller item: slider_n | buttonGroup_n_m | button_n | rotary_n */ 
-type Local = `sliders_${number}` | `buttons_${number}` | `buttonGroups_${number}_${ButtonGroup}` | `rotaries_${number}`;
-
-/** MIDI remote Action */
-export type Action =
-| {
-  /** Set selected item */
-  name: "selected";
-  /** Tree item to select or navigate to */
-  target: Navigation;
-  /** No data */
-  value: never;
-}
-| {
-  /** Emit channel value */
-  name: "emit";
-  /** Tree item to emit to */
-  target: Target;
-  /** Effect channel index */
-  value: number;
-}
-| {
-  /** Set local controller value (may cascade actions) */
-  name: "local";
-  /** Local identifier */
-  target: Local;
-  /** Value to set */
-  value: boolean | number | undefined;
-}
-| {
-  /** Set/clear target effect */
-  name: "setEffect";
-  /** Tree item to set effect on */
-  target: Target;
-  /** Name of the effect, empty to clear. Note that toggle will clear on switching off */
-  value: string | undefined;
-}
-| {
-  // toggle effect  (target, boolean|undefined) -> includes toggle
-  /** Toggle effect */
-  name: "toggleEffect";
-  /** Tree item to toggle effect on */
-  target: Target;
-  value: number | undefined;
-};
-// TODO: set bind scene (needs scene[Action[]])
-// TODO: store, recall mute, pause channelValue
-type InternalAction = Partial<Pick<Action, "value">> & Omit<Action, "value">;
-
-type Button = {
-    color?: "white" | "red" | "orange" | "green" | "blue";
-    mode?: "follow" | "toggle" | "latch";
-    active?: boolean;
-    actions?: InternalAction[];
-}
-
-type Controller = {
-  rotaries: Array<{
-    value: number;
-    mode?: "regular" | "wrap"
-    actions?: InternalAction[];
-  }>;
-  leds: boolean[];
-  sliders: Array<{ value: number; actions?: InternalAction[], setpoint?: number }>;
-  buttonGroups: Array<Record<ButtonGroup, Button>>;
-  buttons: Array<Button & {
-    id?: number;
-    variant: "play" | "pause" | "record" | "rewind" | "fast forward" | "skip backward" | "skip forward" | "up" | "down" | "left" | "right";
-  }>;
-}
+import { ControllerChannel } from "../../components/Controller/ControllerChannel";
+import { ControllerButton } from "../../components/Controller/ControllerButton";
+import { ChannelValues } from "../../../public/Effect";
+import { ControllerBinding } from "../../components/Controller/ControllerBinding";
+import { Action, Button, ButtonGroup, Command, Controller, InternalAction, Local, MidiConnections, MidiMessage, Slider } from "./types";
 
 let unlisten: UnlistenFn;
 const [connection, setConnection] = createSignal<string>();
@@ -230,7 +128,7 @@ export const Remote: Component<Props> = (props) => {
         m: {color: "orange"},
         s: {color: "blue"},
         r: {color: "red"},
-        b: {}
+        b: {actions: [{name: "selected", target: "0_0"}]}
       },
     ],
     buttons: [
@@ -548,8 +446,40 @@ export const Remote: Component<Props> = (props) => {
     setDevices(availableDevices);
   }
 
+  const [activeSetting, setActiveSetting] = createSignal<(Button| Slider) & {
+    path: Array< string | number>;
+  }>();
+
+  const onClick = (type: string, index: number) => {
+    // if not slider, rotary or buttons, its buttonGroups
+    const path = [type, index];
+    if (!["sliders", "rotaries", "buttons"].includes(type)) {
+      // path.unshift(path.pop());
+      path.push(path.shift()!);
+      path.unshift("buttonGroups");
+    }
+
+    console.log(path);
+
+    const input = path.reduce<any>((obj, key) => obj[key], controller) as Button| Slider;
+
+    // path (value/active)
+    // mode: follow/toggle/latch(Button), regular/wrap(rotaries)
+    // actions: selected(target), emit(target, value?), local(target, value), setEffect(target, value), toggleEffect(target, value)
+    // 
+    setActiveSetting({
+      path,
+      mode: "mode" in input ? input.mode : undefined,
+      actions: input.actions,
+    });
+  }
   return <>
     <div>
+      <dialog style={{"z-index": 10}} open={!!activeSetting()}>
+        <ControllerBinding {...activeSetting()} onClose={() => {
+          setActiveSetting();
+        }}/>
+      </dialog>
       <div>
         Connection:
         <select onchange={(e) => setConnection(e.target.value)}>
@@ -562,6 +492,7 @@ export const Remote: Component<Props> = (props) => {
           </Show>
         </select>
       </div>
+
       <div style={{"background-color": "#eee", padding: "16px", "border-radius": "16px"}}>
         <div>
           <For each={controller.sliders}>{(slider, i) =>
@@ -572,12 +503,13 @@ export const Remote: Component<Props> = (props) => {
               s={controller.buttonGroups[i()].s.active}
               r={controller.buttonGroups[i()].r.active}
               b={controller.buttonGroups[i()].b.active}
+              onClick={(type) => onClick(type, i())}
             />
           }</For>
         </div>
         <div>
-          <For each={controller.buttons}>{(button) =>
-            <ControllerButton {...button} />
+          <For each={controller.buttons}>{(button, idx) =>
+            <ControllerButton {...button} onClick={() => onClick("buttons", idx())} />
           }</For>
         </div>
       </div>
