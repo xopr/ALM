@@ -55,6 +55,7 @@ export class Plasma extends Effect implements IEffect {
 
   public renderDelay = 0.1;
   public channelValues: number[];
+  public channelMute: boolean[];
 
   private boundListener: (data: MessageData) => void;
 
@@ -68,6 +69,7 @@ export class Plasma extends Effect implements IEffect {
     super(x, y, channelsPerLed, id);
 
     this.channelValues = Plasma.channels.map(channel => channel.default);
+    this.channelMute = new Array(Plasma.channels.length).fill(false);
 
     this.boundListener = this.onWindowMessage.bind(this);
     window.addEventListener("message", this.boundListener);
@@ -110,22 +112,28 @@ export class Plasma extends Effect implements IEffect {
     // Migration: ignore messages from Effects
     if (!timestamp) return;
 
-    this.plasma_counter = this.plasma_counter
-        + this.channelValues[2] * 10;
-        // + this.plasma_step_width / 10.0;
+    if (!this.channelMute[2]) {
+      this.plasma_counter = this.plasma_counter
+          + this.channelValues[2] * 10;
+          // + this.plasma_step_width / 10.0;
+    } 
     const calc1 = Math.sin(this.plasma_counter * 0.006);
     const calc2 = Math.sin(this.plasma_counter * -0.06);
     let xc = 25.0;
     for (let x = 0; x < this.width; ++x)
     {
         // xc += this.plasma_cell_size_x / 10.0;
-        xc += this.channelValues[1];
+        if (!this.channelMute[1]) {
+          xc += this.channelValues[1];
+        }
         let yc = 25.0;
         const s1 = this.num_col + this.num_col * Math.sin(xc) * calc1;
         for (let y = 0; y < this.height; ++y)
         {
             // yc += this.plasma_cell_size_y / 10.0;
-            yc += this.channelValues[1];
+            if (!this.channelMute[1]) {
+              yc += this.channelValues[1];
+            }
             const s2 = this.num_col + this.num_col * Math.sin(yc) * calc2;
             const s3 = this.num_col + this.num_col
               * Math.sin((xc + yc + (this.plasma_counter / 10.0)) / 2.0);
@@ -139,7 +147,7 @@ export class Plasma extends Effect implements IEffect {
 
   color(count: number)
   {
-      const paletteIdx = Math.round((palette.length - 1) * this.channelValues[0]);
+      const paletteIdx = this.channelMute[0] ? 0 : Math.round((palette.length - 1) * this.channelValues[0]);
       const colors = palette[paletteIdx];
 
       return rangeFade(colors, count / 1600)

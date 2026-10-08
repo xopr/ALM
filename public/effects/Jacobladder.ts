@@ -8,12 +8,15 @@ export class Jacobladder extends Effect implements IEffect {
 
   public renderDelay = 0.05;
   public channelValues: number[];
+  public channelMute: boolean[];
+
   private boundListener: (data: MessageData) => void;
 
   constructor(x: number, y: number, channelsPerLed: number, id?: string) {
     super(x, y, channelsPerLed, id);
 
     this.channelValues = Jacobladder.channels.map(channel => channel.default);
+    this.channelMute = new Array(Jacobladder.channels.length).fill(false);
 
     this.boundListener = this.onWindowMessage.bind(this);
     window.addEventListener("message", this.boundListener);

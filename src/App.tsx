@@ -7,7 +7,7 @@ import { Lights } from "./sections/Lights";
 import { Control } from "./sections/Control";
 import { lightGroups, LightGroupTree } from "./sections/LightGroupTree";
 import DragNode from "./components/DragNode";
-import { ChannelValues, type Effect } from "../public/Effect";
+import { ChannelData, type Effect } from "../public/Effect";
 import Help from "./sections/Help";
 
 import DeleteIcon from "/src/assets/delete.svg";
@@ -44,7 +44,7 @@ function App() {
     return getAncestorEffect(item).effect;
   });
 
-  const channels = createMemo<ChannelValues | undefined>(() => {
+  const channels = createMemo<ChannelData | undefined>(() => {
     // TODO: if item data channelValues are all set initially,
     //       we don't need the effect class channel default
     //       see effectHelpers.ts#35
@@ -55,6 +55,7 @@ function App() {
     return effect.channels.map((channel, idx) => ({
       ...channel,
       value: item.data.channelValues![idx] ?? channel.default,
+      muted: item.data.channelMute?.[idx] ?? false,
     }));
   });
 
@@ -80,9 +81,9 @@ function App() {
 
   const instanceAncestorLeaf = (item: SegmentTreeItem) => {
     // TODO: first channel value found
-    const { effect, channelValues } = getAncestorEffect(item);
+    const { effect, channelValues, channelMute } = getAncestorEffect(item);
     if (effect) {
-      instanceLeaf(item, effect, channelValues);
+      instanceLeaf(item, effect, channelValues, channelMute);
     }
   }
 
@@ -194,6 +195,27 @@ function App() {
     })
   }
 
+  const toggleChannelMute = (item: SegmentTreeItem | undefined, c: number) => {
+    if (!item) return;
+
+    const effect = getAncestorEffect(item).effect;
+    const descendants = getMatchingDescendants(effect!, item);
+
+    const v = !item.data.channelMute?.[c];
+
+    descendants.forEach((descendant) => {
+      // Local tree item
+      descendant.data.channelMute![c] = v;
+
+      // Effect instance value
+      // TODO: postMessage for triggering frame
+      if (descendant.type === "segment") {
+        // window.postMessage([item.data.effectInstance!.id, performance.now(), "channels", values]);
+        descendant.data.effectInstance!.channelMute[c] = v;
+      }
+    })
+  }
+
   const onData = <T extends Action = Action>(name: T["name"], target: T["target"], value: T["value"], index?: number) => {
     const item = resolveTarget(target);
     switch (name) {
@@ -275,6 +297,10 @@ function App() {
             onChannelValues={(values) => {
               const item = selectedItem();
               updateChannelValues(item, values);
+            }}
+            onClick={(channel) => {
+              const item = selectedItem();
+              toggleChannelMute(item, channel);
             }}
           />
         },

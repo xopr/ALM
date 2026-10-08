@@ -46,3 +46,12 @@
 .sliderGroup input:focus::-webkit-slider-runnable-track {
   background: #898586;
 }
+
+.button {
+  width: 25%;
+  border-radius: 0.5em;
+  background-color: rgb(59, 59, 59);
+}
+.active {
+  background-color: rgb(135, 30, 30);
+}

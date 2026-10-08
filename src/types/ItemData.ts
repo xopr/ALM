@@ -30,6 +30,8 @@ export type EffectControlData = {
   originalEffect?: Effect; // -> effectDisabled
   /** Base channel values for descendants */
   channelValues?: number[];
+  /** Base channel mute status for descendants */
+  channelMute?: boolean[];
 }
 
 type SegmentControlData = {

@@ -168,9 +168,9 @@ export const treeDragHelper = <T extends SegmentTreeItem | LightTreeItem = Segme
  * Determine ancestor effect
  *
  * @param item The item to start traversing.
- * @returns The effect and channelValues from the ancestor that mandates the current item's effect
+ * @returns The effect, channelValues and channelMute from the ancestor that mandates the current item's effect
  */
-export const getAncestorEffect = (item: SegmentTreeItem): { effect: Effect | undefined, channelValues: number[] } => {
+export const getAncestorEffect = (item: SegmentTreeItem): { effect: Effect | undefined, channelValues: number[], channelMute: boolean[] } => {
   const indexes = arrayFromTreeItem(item)
   let effect: Effect | undefined;
 
@@ -180,13 +180,17 @@ export const getAncestorEffect = (item: SegmentTreeItem): { effect: Effect | und
     effect = data?.effect;
 
     if (effect) {
-      return { effect, channelValues: data?.channelValues?.slice() ?? []}
+      return {
+        effect,
+        channelValues: data?.channelValues?.slice() ?? [],
+        channelMute: data?.channelMute?.slice() ?? [],
+      }
     }
 
     indexes.pop();
   }
 
-  return { effect, channelValues: [] };
+  return { effect, channelValues: [], channelMute: [] };
 };
 
 /**

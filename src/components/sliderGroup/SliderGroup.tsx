@@ -1,14 +1,14 @@
 import { Component, Index } from "solid-js";
 
 import styles from "./SliderGroup.module.css";
-import { ChannelValues } from "../../../public/Effect";
+import { ChannelData } from "../../../public/Effect";
 
 export type SliderGroupProps = {
   // name: string;
-  // onClick?: (index: number) => void;
-  channels?: ChannelValues;
+  channels?: ChannelData;
   channelOffset?: number;
   onValueChanged?: (index: number, value: number) => void;
+  onClick?: (index: number) => void;
 };
 
 const RES = 16384;
@@ -29,8 +29,8 @@ export const SliderGroup: Component<SliderGroupProps> = (props) => (
     <div class="stubbornContainer horizontal" style={{
       // "justify-content": "space-around",
     }}>
-      <Index each={props.channels}>{(channel) =>
-        <button style="width: 25%">{channel().name}</button>
+      <Index each={props.channels}>{(channel, idx) =>
+        <button onClick={() => props.onClick?.(idx + (props.channelOffset ?? 0))} class={`${styles.button} ${channel().muted ? styles.active : ""}`}>{channel().name}</button>
       }</Index>
     </div>
   </div>

@@ -79,6 +79,7 @@ export class Matrix extends Effect implements IEffect {
 
   public renderDelay = 0.05;
   public channelValues: number[];
+  public channelMute: boolean[];
 
   private boundListener: (data: MessageData) => void;
 
@@ -93,6 +94,7 @@ export class Matrix extends Effect implements IEffect {
     super(x, y, channelsPerLed, id);
 
     this.channelValues = Matrix.channels.map(channel => channel.default);
+    this.channelMute = new Array(Matrix.channels.length).fill(false);
 
     this.boundListener = this.onWindowMessage.bind(this);
     window.addEventListener("message", this.boundListener);
@@ -165,7 +167,11 @@ export class Matrix extends Effect implements IEffect {
                 {
                   case 1:
                   case 2:
-                    p.speedCount = 10 - (this.channelValues[3 - level] * 10 | 0);
+                    if (this.channelMute[3 - level]) {
+                      p.speedCount = 20;
+                    } else {
+                      p.speedCount = 10 - (this.channelValues[3 - level] * 10 | 0);
+                    }
                     break;
                 }
                 // p.speedCount = p.speed;
@@ -193,7 +199,7 @@ export class Matrix extends Effect implements IEffect {
 
   colorFromIntensity(c: number): number[]
   {
-    const paletteIdx = this.channelValues[0];
+    const paletteIdx = this.channelMute[0] ? 0 : Math.round(this.channelValues[0]);
     // const bandWidthType = this.channelValues[1];
     if (!paletteIdx)
       return [0, c, 0];

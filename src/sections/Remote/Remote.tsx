@@ -4,7 +4,7 @@ import { listen, UnlistenFn } from "@tauri-apps/api/event";
 import { createStore } from "solid-js/store";
 import { ControllerChannel } from "../../components/Controller/ControllerChannel";
 import { ControllerButton } from "../../components/Controller/ControllerButton";
-import { ChannelValues } from "../../../public/Effect";
+import { ChannelData } from "../../../public/Effect";
 import { ControllerBinding } from "../../components/Controller/ControllerBinding";
 import { Action, Button, ButtonGroup, Command, Controller, InternalAction, Local, MidiConnections, MidiMessage, Slider } from "./types";
 
@@ -50,7 +50,7 @@ const getRotaryStepIndex = (note: number, velocity: number): { step: number, ind
 
 type Props = {
   /** Full channel data for selected item */
-  channels?: ChannelValues;
+  channels?: ChannelData;
   /** Effect active */
   enabledEffect?: boolean;
   /** Data event handler */

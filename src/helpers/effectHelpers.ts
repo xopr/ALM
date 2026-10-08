@@ -1,11 +1,13 @@
 import { Effect } from "../../public/Effect";
 import type { SegmentTreeItem } from "../types/ItemData";
 
-export const instanceLeaf = (item: SegmentTreeItem, Effect: Effect, channelValues?: number[]) => {
+export const instanceLeaf = (item: SegmentTreeItem, Effect: Effect, channelValues?: number[], channelMute?: boolean[]) => {
   // (Different) effect applied to this subtree, stop propagation.
   if (item.data?.effect) return;
 
   const values = channelValues ?? item.data.channelValues ?? Effect.channels.map(channel => channel.default);
+  const mute = channelMute ?? item.data.channelMute ?? new Array(Effect.channels.length).fill(false);
+
   // Enable item
   item.disabled = false;
 
@@ -13,7 +15,7 @@ export const instanceLeaf = (item: SegmentTreeItem, Effect: Effect, channelValue
     case "group":
       // Iterate children recursively
       item.children.forEach((child) => {
-        instanceLeaf(child, Effect, values);
+        instanceLeaf(child, Effect, values, mute);
       });
       break;
 
@@ -35,4 +37,5 @@ export const instanceLeaf = (item: SegmentTreeItem, Effect: Effect, channelValue
   //       we don't need the effect class channel default
   //       see App.tsx#55
   item.data.channelValues = values.slice();
+  item.data.channelMute = mute.slice();
 }

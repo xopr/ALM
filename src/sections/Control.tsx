@@ -1,16 +1,19 @@
 import { Component, createMemo } from "solid-js";
 import SliderGroup from "../components/sliderGroup/SliderGroup";
-import { ChannelValues } from "../../public/Effect";
+import { ChannelData } from "../../public/Effect";
 
 type ControlProps = {
   /** Effect name to display */
   name?: string;
 
   /** Full channel data */
-  channels?: ChannelValues;
+  channels?: ChannelData;
 
   /** ChannelValues sparse array */
   onChannelValues?: (channelValues: number[]) => void;
+
+  /** Button click handler */
+  onClick?: (index: number) => void;
 }
 
 
@@ -31,8 +34,8 @@ export const Control: Component<ControlProps> = (props) => {
   return <div id="content" class="inbetweenContainer vertical">
     <h1>Control section - {props.name ?? "None"}</h1>
     <div class="contentContainer horizontal">
-      <SliderGroup channels={group1()} onValueChanged={valueChanged}/>
-      <SliderGroup channels={group2()} onValueChanged={valueChanged} channelOffset={4}/>
+      <SliderGroup channels={group1()} onValueChanged={valueChanged} onClick={props.onClick}/>
+      <SliderGroup channels={group2()} onValueChanged={valueChanged} onClick={props.onClick} channelOffset={4}/>
     </div>
   </div>;
 }

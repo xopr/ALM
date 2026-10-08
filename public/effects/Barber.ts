@@ -33,6 +33,7 @@ export class Barber implements IEffect {
 
   public renderDelay = 0.2;
   public channelValues: number[];
+  public channelMute: boolean[];
   public id: string; // Used for non-worker post message
 
   private leds: ArrayBuffer;
@@ -45,6 +46,7 @@ export class Barber implements IEffect {
 
   constructor(x: number, y: number, channelsPerLed: number, id?: string) {
     this.channelValues = Barber.channels.map(channel => channel.default);
+    this.channelMute = new Array(Barber.channels.length).fill(false);
     this.id = id ?? (Math.random() + 1).toString(36).substring(2);
     this.leds = new ArrayBuffer(x * y * channelsPerLed);
 
@@ -94,8 +96,7 @@ export class Barber implements IEffect {
     this.leds = data;
     const view = new Uint8Array(this.leds);
 
-    console.log("p", this.channelValues[0], palette.length);
-    const currentPalette = palette[Math.round(this.channelValues[0] * (palette.length - 1))];
+    const currentPalette = palette[this.channelMute[0] ? 0 : Math.round(this.channelValues[0] * (palette.length - 1))];
     let p = 0;
     for (let y = 0; y < this.height; ++y) {
       for (let x = 0; x < this.width; ++x) {
