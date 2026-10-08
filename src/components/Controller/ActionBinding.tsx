@@ -11,6 +11,9 @@ export const ActionBinding: Component<Action> = (props) => {
       <Match when={props.name === "emit"}>
         <EmitAction {...props}/>
       </Match>
+      <Match when={props.name === "mute"}>
+        <MuteAction {...props}/>
+      </Match>
       <Match when={props.name === "local"}>
         <LocalAction {...props}/>
       </Match>
@@ -34,6 +37,12 @@ const SelectAction: Component<Action> = (props) => {
 const EmitAction: Component<Action> = (props) => {
   // emit(target, value?)
   return <>Emit for <ActionTarget target={props.target}/><ActionChannel channel={props.value}/></>
+}
+
+/** Mute */
+const MuteAction: Component<Action> = (props) => {
+  // emit(target, value?)
+  return <>Mute <ActionTarget target={props.target}/><ActionChannel channel={props.value}/></>
 }
 
 

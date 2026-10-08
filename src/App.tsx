@@ -195,13 +195,13 @@ function App() {
     })
   }
 
-  const toggleChannelMute = (item: SegmentTreeItem | undefined, c: number) => {
+  const toggleChannelMute = (item: SegmentTreeItem | undefined, c: number, mute?: boolean) => {
     if (!item) return;
 
     const effect = getAncestorEffect(item).effect;
     const descendants = getMatchingDescendants(effect!, item);
 
-    const v = !item.data.channelMute?.[c];
+    const v = mute ?? !item.data.channelMute?.[c];
 
     descendants.forEach((descendant) => {
       // Local tree item
@@ -230,6 +230,12 @@ function App() {
         const values: number[] = [];
         values[index!] = value as number;
         updateChannelValues(item, values);
+        break;
+      }
+
+      case "mute":
+      {
+        toggleChannelMute(item, index!, !!value);
         break;
       }
 

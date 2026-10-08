@@ -53,6 +53,14 @@ export type Action =
   value: number;
 }
 | {
+  /** Mute channel value */
+  name: "mute";
+  /** Tree item to emit to */
+  target: Target;
+  /** Effect channel index */
+  value: number;
+}
+| {
   /** Set local controller value (may cascade actions) */
   name: "local";
   /** Local identifier */

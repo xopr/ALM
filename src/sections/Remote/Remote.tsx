@@ -83,49 +83,49 @@ export const Remote: Component<Props> = (props) => {
     ],
     buttonGroups: [
       {
-        m: {color: "orange", mode: "toggle", actions: [{name: "toggleEffect", target: "0_0"}]},
+        m: {color: "orange", mode: "toggle", actions: [{name: "mute", target: "selected", value: 0}]},
         s: {color: "blue", actions: [{name: "setEffect", target: "0_0", value: "Fire"}]},
         r: {color: "red", actions: [{name: "setEffect", target: "0_0"}]},
-        b: {}
+        b: {mode: "toggle", actions: [{name: "toggleEffect", target: "0_0"}]},
       },
       {
-        m: {color: "orange", actions: [{name: "local", target: "sliders_0", value: 0.5}]},
+        m: {color: "orange", mode: "toggle", actions: [{name: "mute", target: "selected", value: 1}]},
         s: {color: "blue", actions: [{name: "local", target: "buttons_0", value: undefined}]},
         r: {color: "red", actions: [{name: "local", target: "buttons_1", value: true}]},
         b: {actions: [{name: "local", target: "buttonGroups_7_b", value: undefined}]},
       },
       {
-        m: {color: "orange"},
+        m: {color: "orange", mode: "toggle", actions: [{name: "mute", target: "selected", value: 2}]},
         s: {color: "blue"},
         r: {color: "red"},
         b: {}
       },
       {
-        m: {color: "orange"},
+        m: {color: "orange", mode: "toggle", actions: [{name: "mute", target: "selected", value: 3}]},
         s: {color: "blue"},
         r: {color: "red"},
         b: {}
       },
       {
-        m: {color: "orange"},
+        m: {color: "orange", mode: "toggle", actions: [{name: "mute", target: "selected", value: 4}]},
         s: {color: "blue"},
         r: {color: "red"},
         b: {}
       },
       {
-        m: {color: "orange"},
+        m: {color: "orange", mode: "toggle", actions: [{name: "mute", target: "selected", value: 5}]},
         s: {color: "blue"},
         r: {color: "red"},
         b: {}
       },
       {
-        m: {color: "orange"},
+        m: {color: "orange", mode: "toggle", actions: [{name: "mute", target: "selected", value: 6}]},
         s: {color: "blue"},
         r: {color: "red"},
         b: {}
       },
       {
-        m: {color: "orange"},
+        m: {color: "orange", mode: "toggle", actions: [{name: "mute", target: "selected", value: 7}]},
         s: {color: "blue"},
         r: {color: "red"},
         b: {actions: [{name: "selected", target: "0_0"}]}
@@ -160,6 +160,10 @@ export const Remote: Component<Props> = (props) => {
         case "emit":
           // Emit value; replace "true" with 1
           props.onData?.(action.name, action.target, value, action.value === true ? 1 : action.value as number);
+          break;
+
+        case "mute":
+          props.onData?.(action.name, action.target, typeof value === "number" ? (value > 63) : value, action.value === true ? 1 : action.value as number);
           break;
 
         case "local":
