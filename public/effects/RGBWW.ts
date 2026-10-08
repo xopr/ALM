@@ -34,6 +34,7 @@ export class RGBWW implements IEffect {
 
   public renderDelay = 5;
   public channelValues: number[];
+  public channelMute: boolean[];
   public id: string; // Used for non-worker post message
 
   private leds: ArrayBuffer;
@@ -43,6 +44,7 @@ export class RGBWW implements IEffect {
     this.channelValues = RGBWW.channels.map(channel => channel.default);
     // HACK: limit effect channel amount to incoming channels
     this.channelValues.length = channelsPerLed;
+    this.channelMute = new Array(channelsPerLed).fill(false);
 
     this.id = id ?? (Math.random() + 1).toString(36).substring(2);
     this.leds = new ArrayBuffer(x * y * channelsPerLed);
@@ -97,7 +99,7 @@ export class RGBWW implements IEffect {
 
     for (let i = 0; i < view.length; i += this.channelValues.length) {
         this.channelValues.forEach((v, c) => {
-            view[i + c] = Math.round(255 * v);
+            view[i + c] = this.channelMute[c] ? 0 : Math.round(255 * v);
         })
     }
 

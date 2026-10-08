@@ -104,13 +104,15 @@ export class HSL extends Effect implements IEffect {
 
   public renderDelay = 0.05;
   public channelValues: number[];
-
+  public channelMute: boolean[];
+ 
   private boundListener: (data: MessageData) => void;
 
   constructor(x: number, y: number, channelsPerLed: number, id?: string) {
     super(x, y, channelsPerLed, id);
 
     this.channelValues = HSL.channels.map(channel => channel.default);
+    this.channelMute = new Array(HSL.channels.length).fill(false);
 
     this.boundListener = this.onWindowMessage.bind(this);
     window.addEventListener("message", this.boundListener);
@@ -169,16 +171,21 @@ export class HSL extends Effect implements IEffect {
     //         this.channelValues[c] = this.channelMaxValues[c];
     // }
     const count = timestamp / 50 | 0;
-    const curveFactor = flashCurveToFactor(count, this.channelValues[3] * 128 | 0, this.channelValues[4] * 255 | 0);
+    const curveFactor = flashCurveToFactor(
+      count,
+      this.channelMute[3] ? 0 : this.channelValues[3] * 128 | 0,
+      this.channelMute[4] ? 0 : this.channelValues[4] * 255 | 0
+    );
 
     // TODO: add flash/curve
     const color = hslToRgb(
-        this.channelValues[0],
-        this.channelValues[1],
-        this.channelValues[2] * curveFactor,
+        this.channelMute[0] ? 0 : this.channelValues[0],
+        this.channelMute[1] ? 0 : this.channelValues[1],
+        this.channelMute[2] ? 0 : this.channelValues[2] * curveFactor,
     );
 
     this.clear();
+    // TODO: mute channel 5 and 6
     if ( this.channelValues[6] <= this.channelValues[5])
     {
         for (let y = this.channelValues[6] * this.height | 0; y < (this.channelValues[5] * this.height | 0); ++y)

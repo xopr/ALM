@@ -14,6 +14,7 @@ export class Turquoise implements IEffect {
 
   public renderDelay = 5;
   public channelValues: number[];
+  public channelMute: boolean[];
   public id: string; // Used for non-worker post message
 
   private leds: ArrayBuffer;
@@ -21,6 +22,7 @@ export class Turquoise implements IEffect {
 
   constructor(x: number, y: number, channelsPerLed: number, id?: string) {
     this.channelValues = Turquoise.channels.map(channel => channel.default);
+    this.channelMute = new Array(Turquoise.channels.length).fill(false);
     this.id = id ?? (Math.random() + 1).toString(36).substring(2);
     this.leds = new ArrayBuffer(x * y * channelsPerLed);
 
@@ -70,8 +72,8 @@ export class Turquoise implements IEffect {
 
     for (let i = 0; i < view.length; i += 3/*channels*/) {
       // view[i + 0] = 0; // R
-      view[i + 1] = Math.round(255 * this.channelValues[0]); // G
-      view[i + 2] = Math.round(204 * this.channelValues[0]); // B
+      view[i + 1] = this.channelMute[0] ? 0 : Math.round(255 * this.channelValues[0]); // G
+      view[i + 2] = this.channelMute[0] ? 0 : Math.round(204 * this.channelValues[0]); // B
     }
 
     // #0fc

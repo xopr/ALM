@@ -30,10 +30,12 @@ export type EffectControlData = {
   originalEffect?: Effect; // -> effectDisabled
   /** Base channel values for descendants */
   channelValues?: number[];
+  /** Base channel mute status for descendants */
+  channelMute?: boolean[];
 }
 
 type SegmentControlData = {
-  /** The light segment communication details (TODO) */
+  /** The light segment communication details (TODO: other communication details) */
   segment: SegmentProps;
   /** The running effect instance */
   effectInstance?: IEffect;
@@ -95,16 +97,3 @@ export type DmxLightItem = TreeItem & {
   /** Light data */
   data: SegmentProps[];
 }
-
-// @deprecated
-export type TreeItemMap = {
-  light: {
-    parent: LightTreeGroup;
-    item: LightTreeGroup | DmxLightItem;
-  };
-
-  segment: {
-    parent: SegmentTreeGroup;
-    item: SegmentTreeGroup | SegmentItem;
-  };
-};

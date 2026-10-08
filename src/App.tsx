@@ -5,9 +5,9 @@ const Effects = lazy(() => import("./sections/Effects"));
 
 import { Lights } from "./sections/Lights";
 import { Control } from "./sections/Control";
-import { getAncestorEffect, getDescendingInstances, LightGroupTree, removeEffect, removeItem } from "./sections/LightGroupTree";
+import { lightGroups, LightGroupTree } from "./sections/LightGroupTree";
 import DragNode from "./components/DragNode";
-import { ChannelValues, IEffect, type Effect } from "../public/Effect";
+import { ChannelData, type Effect } from "../public/Effect";
 import Help from "./sections/Help";
 
 import DeleteIcon from "/src/assets/delete.svg";
@@ -22,6 +22,12 @@ import { EffectHelper } from "./helpers/EffectHelper";
 import type { SegmentTreeGroup, SegmentTreeItem } from "./types/ItemData";
 import { invoke } from "@tauri-apps/api/core";
 import { loadEffect } from "./helpers/classFileHelpers";
+import { getAncestorEffect, getMatchingDescendants, removeEffect, removeItem, treeItemFromArray } from "./components/treelist/treeListHelpers";
+
+import effect_svg from "/src/assets/effect.svg";
+import { Action } from "./sections/Remote/types";
+
+const Remote = lazy(() => import("./sections/Remote/Remote"));
 
 // Assign EffectHelper base class
 globalThis.Effect = EffectHelper;
@@ -38,16 +44,10 @@ function App() {
     return getAncestorEffect(item).effect;
   });
 
-  const effectInstances = createMemo<IEffect[] | undefined>(() => {
-    const effect = effectClass();
-    const item = selectedItem();
-    if (!item || !effect) return [];
-
-    // Look for/aggregate effect instances down the descendants
-    return getDescendingInstances(effect, item);
-  });
-
-  const channels = createMemo<ChannelValues | undefined>(() => {
+  const channels = createMemo<ChannelData | undefined>(() => {
+    // TODO: if item data channelValues are all set initially,
+    //       we don't need the effect class channel default
+    //       see effectHelpers.ts#35
     const item = selectedItem();
     const effect = effectClass();
 
@@ -55,6 +55,7 @@ function App() {
     return effect.channels.map((channel, idx) => ({
       ...channel,
       value: item.data.channelValues![idx] ?? channel.default,
+      muted: item.data.channelMute?.[idx] ?? false,
     }));
   });
 
@@ -77,6 +78,14 @@ function App() {
       console.warn(e)
     }
   });
+
+  const instanceAncestorLeaf = (item: SegmentTreeItem) => {
+    // TODO: first channel value found
+    const { effect, channelValues, channelMute } = getAncestorEffect(item);
+    if (effect) {
+      instanceLeaf(item, effect, channelValues, channelMute);
+    }
+  }
 
   const addLightGroup = (parent?: SegmentTreeItem) => {
     if (!parent || parent.type !== "group") return;
@@ -101,20 +110,18 @@ function App() {
     removeItem(item!);
   }
 
-  const toggleEffect = (item?: SegmentTreeItem) => {
+  const toggleEffect = (item?: SegmentTreeItem, active?: boolean) => {
     // Only with effect applied
     if (!item?.data?.effect && !item?.data?.originalEffect) return;
+
+    // If we ask explicit active state which already represents the effect state, we're done
+    if (active !== undefined && !item.data.originalEffect === active) return;
 
     // Clean up current effect and apply the given one if "disabled"..
     if (!item.data.originalEffect) {
       item.data.originalEffect = item.data?.effect;
       removeEffect(item);
-
-      // TODO: first channel value found
-      const { effect, channelValues } = getAncestorEffect(item);
-      if (effect) {
-        instanceLeaf(item, effect, channelValues);
-      }
+      instanceAncestorLeaf(item);
     } else {
       const { effect } = getAncestorEffect(item);
       item.data.effect = effect; // Store to match
@@ -140,18 +147,124 @@ function App() {
 
     // Disabled effects are effectively not removed; delete icon
     delete item.icon;
-
-    // TODO: first channel value found
-    const { effect, channelValues } = getAncestorEffect(item);
-    if (effect) {
-      instanceLeaf(item, effect, channelValues);
-    }
+    instanceAncestorLeaf(item);
   }
 
   const renameItem = (item?: SegmentTreeItem) => {
     if (!item) return;
     const name = prompt("New name", item.name);
     if (name) item.name = name;
+  }
+
+  const resolveTarget = (target: Action["target"]): SegmentTreeItem | undefined => {
+    switch (target) {
+      case "selected":
+        return selectedItem();
+
+      // TODO: Navigation items
+      // case "prevGroup":
+      // case "prevEffect":
+      // case "prevLeaf":
+      // case "nextGroup":
+      // case "nextEffect":
+      // case "nextLeaf":
+
+      default:
+        return treeItemFromArray<SegmentTreeItem>(lightGroups, target.split("_").map(s => parseInt(s)));
+    }
+  }
+
+  const updateChannelValues = (item: SegmentTreeItem | undefined, values: number[]) => {
+    if (!item) return;
+
+    const effect = getAncestorEffect(item).effect;
+    const descendants = getMatchingDescendants(effect!, item);
+
+    descendants.forEach((descendant) => {
+      values.forEach((v,i) => {
+        // Local tree item
+        descendant.data.channelValues![i] = v;
+
+        // Effect instance value
+        // TODO: postMessage for triggering frame
+        if (descendant.type === "segment") {
+          // window.postMessage([item.data.effectInstance!.id, performance.now(), "channels", values]);
+          descendant.data.effectInstance!.channelValues[i] = v;
+        }
+      });
+    })
+  }
+
+  const toggleChannelMute = (item: SegmentTreeItem | undefined, c: number, mute?: boolean) => {
+    if (!item) return;
+
+    const effect = getAncestorEffect(item).effect;
+    const descendants = getMatchingDescendants(effect!, item);
+
+    const v = mute ?? !item.data.channelMute?.[c];
+
+    descendants.forEach((descendant) => {
+      // Local tree item
+      descendant.data.channelMute![c] = v;
+
+      // Effect instance value
+      // TODO: postMessage for triggering frame
+      if (descendant.type === "segment") {
+        // window.postMessage([item.data.effectInstance!.id, performance.now(), "channels", values]);
+        descendant.data.effectInstance!.channelMute[c] = v;
+      }
+    })
+  }
+
+  const onData = <T extends Action = Action>(name: T["name"], target: T["target"], value: T["value"], index?: number) => {
+    const item = resolveTarget(target);
+    switch (name) {
+      case "selected":
+      {
+        setSelectedItem(item);
+        break;
+      }
+
+      case "emit":
+      {
+        const values: number[] = [];
+        values[index!] = value as number;
+        updateChannelValues(item, values);
+        break;
+      }
+
+      case "mute":
+      {
+        toggleChannelMute(item, index!, !!value);
+        break;
+      }
+
+      case "setEffect":
+      {
+        if (!item) break;
+        const effect = value ? effectList().find((effect) => effect.effect.name === value)?.effect : undefined;
+
+        if (!effect) {
+          removeEffectHandler(item);
+        } else {
+          item.data!.effect = undefined;
+          // Set effect icon      
+          item.icon = effect_svg;
+
+          instanceLeaf(item, effect, effect.channels.map(c => c.default));
+
+          // Store effect we just dropped
+          item.data!.effect = effect;
+        }
+        break;
+      }
+
+      case "toggleEffect":
+      {
+        toggleEffect(item, value as boolean | undefined);
+        break;
+      }
+    }
   }
 
   return (
@@ -171,7 +284,6 @@ function App() {
             onclick={() => toggleEffect(selectedItem())}
             disabled={!selectedItem()?.data?.effect && !selectedItem()?.data?.originalEffect}
           >
-            {/* TODO verify deprecated !activeEffect() */}
             {(enabledEffect()) ? <EffectOffIcon/> : <EffectOnIcon/>}
           </button>
           <button title="Remove effect" onclick={() => removeEffectHandler(selectedItem())} disabled={!selectedItem()?.data?.effect && !selectedItem()?.data?.originalEffect}>{EffectRemoveIcon}</button>
@@ -181,32 +293,27 @@ function App() {
           </Show>
         </div>
       </div>
-      <TabView>
-        <section
-          data-label="Control"
-          data-icon="control"
-        >
-          <Control
+      <TabView tabs={[
+        {
+          label: "Control",
+          icon: "control",
+          component: () => <Control
             channels={channels()}
             name={effectClass()?.name}
             onChannelValues={(values) => {
-
-              effectInstances()?.forEach((instance) => {
-                window.postMessage([instance.id, performance.now(), "channels", values]);
-              })
               const item = selectedItem();
-              if (item?.data.channelValues) {
-                // sparse
-                values.forEach((v,i) => item.data.channelValues![i] = v);
-              }
+              updateChannelValues(item, values);
+            }}
+            onClick={(channel) => {
+              const item = selectedItem();
+              toggleChannelMute(item, channel);
             }}
           />
-        </section>
-        <section
-          data-label="Effects"
-          data-icon="effect_on"
-        >
-          <Effects
+        },
+        {
+          label: "Effects",
+          icon: "effect_on",
+          component: () => <Effects
             effectList={effectList()}
             onClick={(e) => {
               // Invoke as function since Effect constructor is a function on its own.
@@ -214,33 +321,34 @@ function App() {
             }}
             effect={selectedEffect()}
           />
-        </section>
-        {/* <section
-          data-label="Remote"
-          data-icon="remote"
-        >
-        </section> */}
-        <section
-          data-label="Lights"
-          data-icon="light_on"
-        >
-        <Show when={process.env.NODE_ENV === "development"}>
-          <button onClick={() => window.location.reload()}>reload</button>
-        </Show>
-          <Lights /*effect={}?*/ /*light={}*/ />
-        </section>
-        {/* <section
-          data-label="Map"
-          data-icon="map"
-        >
-        </section> */}
-        <section
-          data-label="Help"
-          data-icon="help"
-        >
-          <Help/>
-        </section>
-      </TabView>
+        },
+        {
+          label: "Remote",
+          icon: "remote",
+          persistent: true,
+          component: () => <Remote channels={channels()} onData={onData}/>
+        },
+        {
+          label: "Lights",
+          icon: "light_on",
+          component: () => <>
+            <Show when={process.env.NODE_ENV === "development"}>
+              <button onClick={() => window.location.reload()}>reload</button>
+            </Show>
+            <Lights /*effect={}?*/ /*light={}*/ />
+          </>
+        },
+        // {
+        //   label: "Map",
+        //   icon: "map",
+        //   component: () => <></>
+        // },
+        {
+          label: "Help",
+          icon: "help",
+          component: () => <Help/>
+        },
+      ]}/>
       <DragNode/>
     </main>
   );

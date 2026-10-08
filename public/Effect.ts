@@ -11,7 +11,7 @@ type Channel = {
   // persistent?: boolean;
 };
 export type Channels = Channel[];
-export type ChannelValues = Array<Channel & { value: number}>;
+export type ChannelData = Array<Channel & { value: number; muted: boolean; }>;
 
 /** Static properties for Effect */
 type EffectStatics = {
@@ -41,6 +41,9 @@ export interface IEffect {
 
   /** Current channel values */
   channelValues: number[];
+
+  /** Current channel mute status */
+  channelMute: boolean[];
 
   /** Desired refresh rate in seconds */
   renderDelay: number;

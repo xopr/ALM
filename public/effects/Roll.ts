@@ -21,7 +21,7 @@ export class Roll extends Effect implements IEffect {
     {
       name: "P",
       description: "Palette",
-      default: 0,
+      default: 1,
     },
     {
       name: "B",
@@ -38,6 +38,7 @@ export class Roll extends Effect implements IEffect {
 
   public renderDelay = 0.05;
   public channelValues: number[];
+  public channelMute: boolean[];
 
   private boundListener: (data: MessageData) => void;
 
@@ -47,6 +48,7 @@ export class Roll extends Effect implements IEffect {
     super(x, y, channelsPerLed, id);
 
     this.channelValues = Roll.channels.map(channel => channel.default);
+    this.channelMute = new Array(Roll.channels.length).fill(false);
 
     this.boundListener = this.onWindowMessage.bind(this);
     window.addEventListener("message", this.boundListener);
@@ -89,8 +91,8 @@ export class Roll extends Effect implements IEffect {
     // Migration: ignore messages from Effects
     if (!timestamp) return;
 
-    const paletteIdx = Math.round((palette.length - 1) * this.channelValues[0]);
-    const bandWidthType = Math.round(this.channelValues[1] * 2);
+    const paletteIdx = this.channelMute[0] ? 0 : Math.round((palette.length - 1) * this.channelValues[0]);
+    const bandWidthType = this.channelMute[1] ? 0 : Math.round(this.channelValues[1] * 2);
 
     for (let x = 0; x < this.width; ++x)
     {
@@ -101,7 +103,7 @@ export class Roll extends Effect implements IEffect {
         }
     }
 
-    const speed = this.channelValues[2] * 2 - 1; // -1 to 1
+    const speed = this.channelMute[2] ? 0 : (this.channelValues[2] * 2 - 1); // -1 to 1
     const centerWidth = 0.1;
     if ( speed > centerWidth )
         this.step = (this.step + 1) % this.width;

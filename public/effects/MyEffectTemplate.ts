@@ -29,6 +29,7 @@ export class MyEffectTemplate implements IEffect {
 
   public renderDelay = 1 / 1; // One frame per second
   public channelValues: number[];
+  public channelMute: boolean[];
   public id: string; // Used for non-worker post message
 
   private leds: ArrayBuffer;
@@ -36,6 +37,7 @@ export class MyEffectTemplate implements IEffect {
 
   constructor(x: number, y: number, channelsPerLed: number, id?: string) {
     this.channelValues = MyEffectTemplate.channels.map(channel => channel.default);
+    this.channelMute = new Array(MyEffectTemplate.channels.length).fill(false);
     this.id = id ?? (Math.random() + 1).toString(36).substring(2);
     this.leds = new ArrayBuffer(x * y * channelsPerLed);
 

@@ -23,6 +23,7 @@ export class Fire implements IEffect {
 
   public renderDelay = 0.03
   public channelValues: number[];
+  public channelMute: boolean[];
   public id: string; // Used for non-worker post message
 
   private leds: ArrayBuffer;
@@ -41,6 +42,7 @@ export class Fire implements IEffect {
 
   constructor(x: number, y: number, channelsPerLed: number, id?: string) {
     this.channelValues = Fire.channels.map(channel => channel.default);
+    this.channelMute = new Array(Fire.channels.length).fill(false);
     this.id = id ?? (Math.random() + 1).toString(36).substring(2);
     this.leds = new ArrayBuffer(x * y * channelsPerLed);
 
@@ -56,7 +58,7 @@ export class Fire implements IEffect {
         y,
         x,
         y,
-        Math.round(this.channelValues[0] * 5),
+        this.channelMute[0] ? 0 : Math.round(this.channelValues[0] * 5),
         this.maxHeat,
       );
     }
@@ -103,9 +105,9 @@ export class Fire implements IEffect {
 
     this.leds = data;
     const view = new Uint8Array(this.leds);
-    const heat = Math.round(this.channelValues[2] * this.maxHeat);
-    const cv = Math.round(this.channelValues[1] * this.maxParticles);
-    const palette = Math.round(this.channelValues[0] * this.maxPalette);
+    const heat = this.channelMute[2] ? 0 : Math.round(this.channelValues[2] * this.maxHeat);
+    const cv = this.channelMute[1] ? 0 : Math.round(this.channelValues[1] * this.maxParticles);
+    const palette = this.channelMute[0] ? 0 : Math.round(this.channelValues[0] * this.maxPalette);
 
     if (!this.particles || !this.particles.length) {
       return;

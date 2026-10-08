@@ -25,6 +25,7 @@ export class Rainbow implements IEffect {
 
   public renderDelay = 0.1;
   public channelValues: number[];
+  public channelMute: boolean[];
   public id: string; // Used for non-worker post message
 
   private leds: ArrayBuffer;
@@ -36,6 +37,7 @@ export class Rainbow implements IEffect {
 
   constructor(x: number, y: number, channelsPerLed: number, id?: string) {
     this.channelValues = Rainbow.channels.map(channel => channel.default);
+    this.channelMute = new Array(Rainbow.channels.length).fill(false);
     this.id = id ?? (Math.random() + 1).toString(36).substring(2);
     this.leds = new ArrayBuffer(x * y * channelsPerLed);
 
