@@ -69,11 +69,11 @@ function App() {
     const effectPaths = await invoke<string[]>("effect_list");
 
     try {
-      effectPaths.forEach(async (effectPath) => {
+      for await (const effectPath of effectPaths) {
         const effect = await loadEffect(effectPath);
-        if (!effect) return;
-        setEffectList((list) => [...list, {effect}])
-      });
+        if (effect)
+          setEffectList((list) => [...list, {effect}])
+      }
     } catch (e) {
       console.warn(e)
     }

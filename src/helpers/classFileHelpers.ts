@@ -1,4 +1,4 @@
-import ts from "@typescript/typescript6";
+import * as esbuild from "esbuild-wasm";
 import { Effect, type IEffect } from "../../public/Effect";
 import { readTextFile } from "@tauri-apps/plugin-fs";
 
@@ -11,12 +11,12 @@ export type ClassConstructor<C, A = any[], T = any> = {
   // [key: string]: any;
 } & T;
 
-
-
 /** Class module with class K export that constructs instance of C */
 type ClassMod<C, K extends string = string, A = any> = {
   [P in K]: ClassConstructor<C, A>; // new mod[K](...A) creates an instance of interface C
 }
+
+let initPromise: Promise<void> | undefined;
 
 /**
  * Import and transpile Typescript url
@@ -25,25 +25,42 @@ type ClassMod<C, K extends string = string, A = any> = {
  * @returns An async loaded module of type T.
  *          Use 
  */
-export const tsImport = async <T = any>(url: string): Promise<T> => {
-  try
-  {
-    const data = await readTextFile(url);
-    let result = ts.transpileModule(data, { compilerOptions: { module: ts.ModuleKind.ES2015 }});
-    const blob = new Blob([result.outputText], {type: "text/javascript"});
-    const modUrl = URL.createObjectURL(blob);
-    const module = await import(
-      /* @vite-ignore */
-      /* We know what we're doing; importing arbitrary modules with a safety guard. */
-      modUrl
-    );
-    URL.revokeObjectURL(modUrl);
-    return module;
-  } catch (e) {
-    console.warn("tsImport", e);
-    throw new TypeError("TypeScript import failed");
+function ensureEsbuildInitialized(): Promise<void> {
+  if (!initPromise) {
+    initPromise = esbuild.initialize({
+      wasmURL: "/esbuild.wasm",
+      worker: false,
+    }).catch((error) => {
+      initPromise = undefined;
+      throw error;
+    });
   }
-};
+
+  return initPromise;
+}
+
+export async function tsImport<T = unknown>(
+  url: string,
+): Promise<T> {
+  await ensureEsbuildInitialized();
+  const source = await readTextFile(url);
+
+  const { code } = await esbuild.transform(source, {
+    loader: url.endsWith(".tsx") ? "tsx" : "ts",
+    format: "esm",
+    target: "esnext",
+  });
+
+  const blobUrl = URL.createObjectURL(
+    new Blob([code], { type: "text/javascript" }),
+  );
+
+  try {
+    return await import(/* @vite-ignore */ blobUrl) as T;
+  } finally {
+    URL.revokeObjectURL(blobUrl);
+  }
+}
 
 export const loadEffect = async(fileName: string): Promise<Effect | undefined> => {
   const className = fileName.match(/(?:^|\/)([A-Z][a-zA-Z0-9_]*)\.[tj]s$/)?.[1];
