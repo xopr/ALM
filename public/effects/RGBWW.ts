@@ -37,7 +37,7 @@ export class RGBWW implements IEffect {
   public channelMute: boolean[];
   public id: string; // Used for non-worker post message
 
-  private leds: ArrayBuffer;
+  protected leds: ArrayBuffer;
   private boundListener: (data: MessageData) => void;
 
   constructor(x: number, y: number, channelsPerLed: number, id?: string) {
