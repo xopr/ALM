@@ -36,7 +36,7 @@ export class Barber implements IEffect {
   public channelMute: boolean[];
   public id: string; // Used for non-worker post message
 
-  private leds: ArrayBuffer;
+  protected leds: ArrayBuffer;
   private boundListener: (data: MessageData) => void;
 
   private width: number;
