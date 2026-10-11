@@ -29,12 +29,17 @@ export class Artnet
   async send(effectBuffer: ArrayBuffer, address: string, port: number, universe: number, channelStart: number, channelsPerLed: number, ledCount: number, ledOffset = 0)
   {
     const effectData = new Uint8Array(effectBuffer);
-    const data = new Uint8Array(this.dataHeader.length + channelStart + channelsPerLed * ledCount);
+    const data = new Uint8Array(this.dataHeader.length + channelStart + channelsPerLed * (ledCount - ledOffset));
     data.set(this.dataHeader);
     data.set(effectData.slice(ledOffset * channelsPerLed), this.dataHeader.length + channelStart);
 
+    const view = new DataView(data.buffer);
     // Set universe
-    data.set([universe], 14 );
+    view.setInt16(14, universe, false);
+
+    // Set length
+    // TODO: force even parity directed by spec
+    view.setInt16(16, length, false);
 
     await send(this.id, `${address}:${port}`, Array.from(data)).catch((e) => { console.warn("cannot send", e)});
   }

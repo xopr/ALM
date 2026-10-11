@@ -31,7 +31,8 @@ export class EffectHelper {
 
   set(x: number, y: number, color: number[]) {
     const view = new Uint8Array(this.leds);
-    const pos = this.channelsPerLed * (x + this.width * (this.height - y));
+    // Note that we adjust with -1 which the original python code did not do and had a wrong offset
+    const pos = this.channelsPerLed * (this.width * (this.height - y) - x - 1);
 
     for (let c = 0; c < this.channelsPerLed; ++c) {
       view[pos + c] = color[c] ?? 0;
