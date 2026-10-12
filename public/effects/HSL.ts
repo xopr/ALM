@@ -43,21 +43,15 @@ function transitionCurve(x: number, c: number): number
     return x < 0.5 ? Math.pow(2, c - 1) * Math.pow(x, c) : 1 - Math.pow(-2 * x + 2, c) / 2;
 }
 
-function flashCurveToFactor(count: number, flash: number, curve: number): number
-{
-    // Flash off
-    if (!flash)
-        return 1;
+function edgeSharpnessA(input: number, sharpness: number): number {
+  const x = 2 * input - 1;
+  const exponent = 1 / ((1 + Math.tan(sharpness * 1.57) / 5));
 
-    // TODO: determine fade value against curve
-    const roundtrip = count % (2 * flash);
-    let f = (roundtrip > flash ? flash - roundtrip : roundtrip) / flash;
+  return 0.5 + 0.5 * Math.sign(x) * Math.pow(Math.abs(x), exponent);
+}
 
-    // Negative values are the "Return" path
-    if (f < 0)
-        f = 1 + f;
-
-    return curve ? transitionCurve(f, Math.pow(curve, 0.54)) : f;
+function easeInCubic(x: number): number {
+  return x * x * x;
 }
 
 // Note: Effect is available via globalThis
@@ -108,6 +102,10 @@ export class HSL extends Effect implements IEffect {
  
   private boundListener: (data: MessageData) => void;
 
+  private previousTimestamp = 0;
+  private incrementing = false;
+  private currentCurveFactor = 1;
+
   constructor(x: number, y: number, channelsPerLed: number, id?: string) {
     super(x, y, channelsPerLed, id);
 
@@ -157,31 +155,11 @@ export class HSL extends Effect implements IEffect {
     // Migration: ignore messages from Effects
     if (!timestamp) return;
 
-    // Hue loops around
-    // if (this.channelValues[0] > this.channelMaxValues[0])
-    //     this.channelValues[0] = 0;
-    // if (this.channelValues[0] < 0)
-    //     this.channelValues[0] = this.channelMaxValues[0];
-
-    // for (let c = 1; c < this.channelValues.length; ++c)
-    // {
-    //     if (this.channelValues[c] < 0)
-    //         this.channelValues[c] = 0;
-    //     else if (this.channelValues[c] > this.channelMaxValues[c])
-    //         this.channelValues[c] = this.channelMaxValues[c];
-    // }
-    const count = timestamp / 50 | 0;
-    const curveFactor = flashCurveToFactor(
-      count,
-      this.channelMute[3] ? 0 : this.channelValues[3] * 128 | 0,
-      this.channelMute[4] ? 0 : this.channelValues[4] * 255 | 0
-    );
-
     // TODO: add flash/curve
     const color = hslToRgb(
         this.channelMute[0] ? 0 : this.channelValues[0],
         this.channelMute[1] ? 0 : this.channelValues[1],
-        this.channelMute[2] ? 0 : this.channelValues[2] * curveFactor,
+        this.channelMute[2] ? 0 : this.channelValues[2] * this.getCurveFactor(timestamp),
     );
 
     this.clear();
@@ -193,5 +171,31 @@ export class HSL extends Effect implements IEffect {
     }
 
     window.postMessage([this.id, 0, "frame", this.leds] );
+  }
+
+  getCurveFactor(timestamp: number): number {
+    const flashSpeed = this.channelMute[3] ? 0 : easeInCubic(this.channelValues[3]);
+    const flashCurve = this.channelMute[4] ? 0 : this.channelValues[4];
+    // Initialization and "no flash mode"
+    if (!this.previousTimestamp || !flashSpeed) {
+      this.previousTimestamp = timestamp;
+      return this.currentCurveFactor = 1;
+    }
+
+    if (this.incrementing) {
+      this.currentCurveFactor += flashSpeed;
+      if (this.currentCurveFactor > 1) {
+        this.currentCurveFactor = 1;
+        this.incrementing = !this.incrementing;
+      }
+    } else {
+      this.currentCurveFactor -= flashSpeed;
+      if (this.currentCurveFactor < 0) {
+        this.currentCurveFactor = 0;
+        this.incrementing = !this.incrementing;
+      }
+    }
+
+    return edgeSharpnessA(this.currentCurveFactor, flashCurve);
   }
 }
