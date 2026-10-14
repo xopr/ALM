@@ -83,7 +83,7 @@ export const DragNode: Component = () => {
         document.body.classList.add("touchDrag");
 
       detail = {
-        sourceId: target.id,
+        sourceId: target.id.slice(1),
         type: target.dataset.type ?? "unknown",
       };
       const dragStart = new CustomEvent("dragstart", {
