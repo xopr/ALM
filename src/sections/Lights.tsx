@@ -154,7 +154,7 @@ export const Lights: Component = () => {
             item={lights}
             onSelect={treeClickHelper(lights, onClick)}
           />
-          <div>
+          <div class="buttonBar">
             <button title="Add light" onClick={() => addLight()}>{LightAddIcon}</button>
             <button title="Delete light" onClick={() => removeLight(light()!)} disabled={!light()}>{LightRemoveIcon}</button>
             <button title="Add segment" onClick={() => addSegment(light()!)} disabled={!light()}>{SegmentAddIcon}</button>

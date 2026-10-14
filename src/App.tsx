@@ -274,7 +274,7 @@ function App() {
           class="contentContainer list"
           onSelect={setSelectedItem}
         />
-        <div>
+        <div class="buttonBar">
           {/* @ts-ignore -- optional chain check */}
           <button title="Add child light group" onclick={() => addLightGroup(selectedItem())} disabled={!!selectedItem()?.data?.segment}>{LightGroupAddIcon}</button>
           {/* @ts-ignore -- optional chain check */}

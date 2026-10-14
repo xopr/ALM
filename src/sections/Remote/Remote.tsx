@@ -61,9 +61,9 @@ export const Remote: Component<Props> = (props) => {
   const [devices, setDevices] = createStore<MidiConnections>({ inputs: {}, outputs: {} });
   const [controller, setController] = createStore<Controller>({
     rotaries: [
-      { value: 0, mode: "wrap", actions: [{name: "emit", target: "0_0", value: 0}] },
-      { value: 0, mode: "wrap", actions: [{name: "emit", target: "0_0_0", value: 0}] },
-      { value: 0, mode: "wrap", actions: [{name: "emit", target: "0_0_1_0", value: 0}] },
+      { value: 0, mode: "wrap", actions: [{name: "emit", target: "0_1_0", value: 0}] },
+      { value: 0, mode: "wrap", actions: [{name: "emit", target: "0_1_1", value: 0}] },
+      { value: 0, mode: "wrap", actions: [{name: "emit", target: "0_1_2", value: 0}] },
       { value: 0 },
       { value: 0 },
       { value: 0 },
@@ -136,14 +136,14 @@ export const Remote: Component<Props> = (props) => {
       { id: 93, mode: "toggle", color: "red", variant: "pause"},
       { id: 95, mode: "toggle", color: "red", variant: "record"},
       { id: 91, mode: "follow", variant: "rewind"},
-      { id: 92, mode: "follow", variant: "fast forward", actions: [{name: "setEffect", target: "0_0", value: "HSL"}]},
+      { id: 92, mode: "follow", variant: "fast forward", actions: [{name: "setEffect", target: "selected", value: "HSL"}]},
       // Note: starting from here, there is no button feedback: toggle and latch will not be visible
-      { id: 46, mode: "follow", variant: "skip backward", actions: [{name: "setEffect", target: "0_0", value: "Roll"}]},
-      { id: 47, mode: "follow", variant: "skip forward", actions: [{name: "setEffect", target: "0_0", value: "Shift"}]},
-      { id: 96, mode: "follow", variant: "up", actions: [{name: "setEffect", target: "0_0", value: "Fire"}]},
-      { id: 97, mode: "follow", variant: "down", actions: [{name: "setEffect", target: "0_0", value: "Barber"}]},
-      { id: 98, mode: "follow", variant: "left", actions: [{name: "setEffect", target: "0_0", value: "Matrix"}]},
-      { id: 99, mode: "follow", variant: "right", actions: [{name: "setEffect", target: "0_0", value: "Plasma"}]},
+      { id: 46, mode: "follow", variant: "skip backward", actions: [{name: "setEffect", target: "selected", value: "Roll"}]},
+      { id: 47, mode: "follow", variant: "skip forward", actions: [{name: "setEffect", target: "selected", value: "Shift"}]},
+      { id: 96, mode: "follow", variant: "up", actions: [{name: "setEffect", target: "selected", value: "Fire"}]},
+      { id: 97, mode: "follow", variant: "down", actions: [{name: "setEffect", target: "selected", value: "Barber"}]},
+      { id: 98, mode: "follow", variant: "left", actions: [{name: "setEffect", target: "selected", value: "Matrix"}]},
+      { id: 99, mode: "follow", variant: "right", actions: [{name: "setEffect", target: "selected", value: "Plasma"}]},
     ],
   });
 
@@ -497,7 +497,7 @@ export const Remote: Component<Props> = (props) => {
         </select>
       </div>
 
-      <div style={{"background-color": "#eee", padding: "16px", "border-radius": "16px"}}>
+      <div style={{"background-color": "#eee", padding: "16px", "border-radius": "16px", width: "800px"}}>
         <div>
           <For each={controller.sliders}>{(slider, i) =>
             <ControllerChannel

@@ -64,6 +64,7 @@
   width: 50%;
   height: 180px;
   font-weight: bold;
+  vertical-align: top;
 }
 
 .button {

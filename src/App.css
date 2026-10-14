@@ -155,3 +155,11 @@ button:not(:disabled) {
 button:disabled img {
   opacity: 0.5;
 }
+
+.buttonBar > button {
+  aspect-ratio: 1;
+}
+
+button, input, select {
+  min-height: 3.5em;
+}
