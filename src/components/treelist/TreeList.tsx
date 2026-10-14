@@ -8,7 +8,7 @@ export type TreeListProps = {
   /** Whether to hide the root node to show a flat list */
   hideRoot?: boolean;
   /** Tree item click handler */
-  onClick?: (indexes: number[], ctrl?: boolean) => void;
+  onSelect?: (indexes: number[], ctrl?: boolean) => void;
   class?: string;
   /** Whether to allow horizontal scrolling */
   horizontalScroll?: boolean;
@@ -29,10 +29,53 @@ export const TreeList: Component<TreeListProps> = (props) => {
     while(target && !target.hasAttribute("tabindex")) {
       target = target.parentElement;
     }
-    if (!props.onClick || !target) return;
+    if (!props.onSelect || !target) return;
 
-    const indexes = target.id.split("_").map(s => parseInt(s))
-    props.onClick?.(indexes, event.ctrlKey);
+    const indexes = target.id.slice(1).split("_").map(s => parseInt(s))
+    props.onSelect?.(indexes, event.ctrlKey);
+  }
+  
+  const onKeyDown = (event: KeyboardEvent & {currentTarget: HTMLUListElement; target: Element;}) => {
+    let target: Element | null  = event.target;
+    while(target && !target.hasAttribute("tabindex")) {
+      target = target.parentElement;
+    }
+    if (!props.onSelect || !target) return;
+
+    const indexes = target.id.slice(1).split("_").map(s => parseInt(s));
+
+    switch (event.key) {
+      case "ArrowDown":
+        indexes[indexes.length - 1]++;
+        if (!document.querySelector(`#L${indexes.join("_")}`)) return;
+        break;
+      case "ArrowUp":
+        indexes[indexes.length - 1]--;
+        if (!document.querySelector(`#L${indexes.join("_")}`))
+          indexes.pop();
+        if (!document.querySelector(`#L${indexes.join("_")}`))
+          return;
+        break;
+      case "ArrowLeft":
+        const child = indexes.pop();
+        if (!document.querySelector(`#L${indexes.join("_")}`)) {
+          indexes.push(child!);
+          indexes[indexes.length - 1]--;
+          if (!document.querySelector(`#L${indexes.join("_")}`)) return;
+        }
+        break;
+      case "ArrowRight":
+        indexes.push(0);
+        if (!document.querySelector(`#L${indexes.join("_")}`)) {
+          indexes.pop();
+          indexes[indexes.length - 1]++;
+          if (!document.querySelector(`#L${indexes.join("_")}`)) return;
+        }
+        break;
+    }
+    (document.querySelector(`#L${indexes.join("_")}`) as HTMLElement).focus();
+
+    props.onSelect?.(indexes, event.ctrlKey);
   }
 
   return <ul
@@ -47,6 +90,7 @@ export const TreeList: Component<TreeListProps> = (props) => {
       e.preventDefault()
       return false;
     }}
+    onKeyDown={onKeyDown}
   >
     <TreeItem
       {...other}

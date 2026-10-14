@@ -78,7 +78,7 @@ export const LightGroupTree: Component<LightGroupTreeProps> = (props) => {
     hideRoot
     class={props.class}
     item={lightGroups}
-    onClick={treeClickHelper(lightGroups, onSelect)}
+    onSelect={treeClickHelper(lightGroups, onSelect)}
     accept={["effect", "dmxLight"]}
     onDragOver={treeDragHelper(lightGroups, over)}
     onDrop={treeDragHelper(lightGroups, drop)}
