@@ -17,7 +17,7 @@ export const ListItem: ParentComponent<ListItemProps> = (props) => {
   return <li class={`${styles.item} ${props.name ? "" : "flat"}`}>
     <Show when={props.name}>
       <div
-        id={props.id}
+        id={`L${props.id}`}
         data-draggable={!!props.type}
         data-type={props.type}
         tabindex={0}

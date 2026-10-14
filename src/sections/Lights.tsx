@@ -152,7 +152,7 @@ export const Lights: Component = () => {
             hideRoot
             class="contentContainer list vertical"
             item={lights}
-            onClick={treeClickHelper(lights, onClick)}
+            onSelect={treeClickHelper(lights, onClick)}
           />
           <div>
             <button title="Add light" onClick={() => addLight()}>{LightAddIcon}</button>
