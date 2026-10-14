@@ -160,6 +160,6 @@ button:disabled img {
   aspect-ratio: 1;
 }
 
-button, input, select {
+button, input:not([type=range]), select {
   min-height: 3.5em;
 }
