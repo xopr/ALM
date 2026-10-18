@@ -23,9 +23,9 @@
     "noFallthroughCasesInSwitch": true
   },
   "include": [
-    "src",
-    "public/Effect.ts",
-    "public/effects",
+    "apps/controller/src",
+    "apps/controller/public/Effect.ts",
+    "apps/controller/public/effects",
   ],
   "references": [{ "path": "./tsconfig.node.json" }]
 }
