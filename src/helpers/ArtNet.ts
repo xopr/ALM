@@ -8,15 +8,19 @@ export class Artnet
 {
   id = "unique_id";
 
-  //                           01234567   8   9   a   b   c   d   e   f   10  11
-  //                                 op-code protver seq phy universe len
-  // dataHeader = bytearray( b"Art-Net\x00\x00\x50\x00\x0e\x00\x00\x00\x00\x02\x00" )                    uni   uni
+  //                            A    r    t   -   N    e    t   [0]  Opcode....  Protocol..  Seq.  Phy.  Universe..  Length....
   dataHeader = new Uint8Array([65, 114, 116, 45, 78, 101, 116, 0x00, 0x00, 0x50, 0x00, 0x0e, 0x00, 0x00, 0x00, 0x00, 0x02, 0x00]);
+  // Opcode: ArtDMX (0x5000 little endian)
+  // Protocol: hi:0, lo: 14
+  // Sequence: 0: disable or 1-255
+  // Physical: unused
+  // Universe little endian
+  // Length: hi: ?, lo: 2-512, even
 
   constructor()
   {
     // listen<Payload>("plugin://udp", (x) => console.log(x.payload)).then(unlisten => this.cleanupListener = unlisten);
-    bind(this.id, "0.0.0.0:6454").catch((e) => {
+    bind(this.id, "0.0.0.0:0").catch((e) => {
       console.warn("Failed to bind:", e);
     });
   }
