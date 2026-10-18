@@ -17,7 +17,7 @@ import EffectOffIcon from "/src/assets/effect_off1.svg";
 import EffectRemoveIcon from "/src/assets/effect_remove.svg";
 import LightGroupAddIcon from "/src/assets/lightgroup_add.svg";
 import LightGroupRemoveIcon from "/src/assets/lightgroup_remove.svg";
-import { instanceLeaf } from "./helpers/effectHelpers";
+import { cleanup, instanceLeaf } from "./helpers/effectHelpers";
 import { EffectHelper } from "./helpers/EffectHelper";
 import type { SegmentTreeGroup, SegmentTreeItem } from "./types/ItemData";
 import { invoke } from "@tauri-apps/api/core";
@@ -84,6 +84,8 @@ function App() {
     const { effect, channelValues, channelMute } = getAncestorEffect(item);
     if (effect) {
       instanceLeaf(item, effect, channelValues, channelMute);
+    } else {
+      cleanup(item);
     }
   }
 
@@ -127,14 +129,12 @@ function App() {
       item.data.effect = effect; // Store to match
 
       removeEffect(item);
-      if (item.data.originalEffect) {
-        // Instance original effect
-        instanceLeaf(item, item.data.originalEffect, /* item.data.originalChannelValues */);
-        // Restore effect to enable channels (afterwards or the effect)
-        item.data.effect = item.data.originalEffect;
-        // TODO: reprocess setChannelValues
-        delete item.data.originalEffect;
-      }
+      // Instance original effect
+      instanceLeaf(item, item.data.originalEffect, /* item.data.originalChannelValues */);
+      // Restore effect to enable channels (afterwards or the effect)
+      item.data.effect = item.data.originalEffect;
+      // TODO: reprocess setChannelValues
+      delete item.data.originalEffect;
     }
 
     item.icon = item.data.originalEffect ? <EffectOffIcon/> : <EffectOnIcon/>;
