@@ -38,7 +38,7 @@ export class Plasma extends Effect implements IEffect {
     {
       name: "P",
       description: "Palette",
-      default: 0,
+      default: 1,
     },
     {
       name: "B",

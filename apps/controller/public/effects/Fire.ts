@@ -6,7 +6,7 @@ export class Fire implements IEffect {
     {
       name: "P",
       description: "Palette",
-      default: 0, // max: 5
+      default: 3 / 5, // max: 5
     },
     {
       name: "C",

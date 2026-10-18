@@ -26,7 +26,7 @@ export class Barber implements IEffect {
     {
       name: "P",
       description: "Palette",
-      default: 0,
+      default: 1,
     },
   ];
   static minMax: MinMax = { x: [1, 255], y:[1, 255] };

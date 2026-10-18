@@ -1,31 +1,13 @@
 {
   "name": "ALM",
-  "version": "0.1.0",
-  "description": "",
-  "type": "module",
+  "private": true,
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
   "scripts": {
-    "start": "vite",
-    "dev": "vite",
-    "build": "vite build",
-    "serve": "vite preview",
-    "tauri": "tauri",
-    "simstrips": "cd ../../bitlair-ohm2013-ledstrip-contol/tools; ./simstrip.py 2"
-  },
-  "license": "MIT",
-  "dependencies": {
-    "@kuyoonjo/tauri-plugin-udp": "^0.1.1",
-    "@tauri-apps/api": "=2.11.1",
-    "@tauri-apps/plugin-fs": "=2.5.1",
-    "@tauri-apps/plugin-opener": "^2",
-    "esbuild-wasm": "^0.28.2",
-    "solid-js": "^1.9.3"
-  },
-  "devDependencies": {
-    "@tauri-apps/cli": "^2",
-    "@types/node": "^26.4.1",
-    "typescript": "^7.0.2",
-    "vite": "^8.2.1",
-    "vite-plugin-solid": "^2.11.0",
-    "vite-plugin-solid-svg": "^0.8.1"
+    "dev:controller": "npm run tauri --workspace=alm-controller -- dev",
+    "build:controller": "npm run tauri --workspace=alm-controller -- build",
+    "build": "npm run build:controller"
   }
 }

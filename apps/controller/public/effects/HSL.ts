@@ -38,12 +38,7 @@ function hueToRgb(p: number, q: number, t: number): number
     return p;
 }
 
-function transitionCurve(x: number, c: number): number
-{
-    return x < 0.5 ? Math.pow(2, c - 1) * Math.pow(x, c) : 1 - Math.pow(-2 * x + 2, c) / 2;
-}
-
-function edgeSharpnessA(input: number, sharpness: number): number {
+function edgeSharpness(input: number, sharpness: number): number {
   const x = 2 * input - 1;
   const exponent = 1 / ((1 + Math.tan(sharpness * 1.57) / 5));
 
@@ -196,6 +191,6 @@ export class HSL extends Effect implements IEffect {
       }
     }
 
-    return edgeSharpnessA(this.currentCurveFactor, flashCurve);
+    return edgeSharpness(this.currentCurveFactor, flashCurve);
   }
 }
