@@ -1,6 +1,6 @@
 import { batch } from "solid-js";
 import { DragDropData } from "../DragNode";
-import type { SegmentTreeItem, LightTreeItem, TreeItem, EffectControlData, SegmentTreeGroup, SegmentItem } from "../../types/ItemData";
+import type { SegmentTreeItem, LightTreeItem, TreeItem, EffectControlData, SegmentTreeGroup } from "../../types/ItemData";
 import { lightGroups } from "../../sections/LightGroupTree";
 import { type Effect } from "../../../public/Effect";
 import { invoke } from "@tauri-apps/api/core";

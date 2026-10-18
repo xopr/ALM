@@ -137,7 +137,7 @@ function App() {
       delete item.data.originalEffect;
     }
 
-    item.icon = item.data.originalEffect ? <EffectOffIcon/> : <EffectOnIcon/>;
+    item.icon = item.data.originalEffect ? EffectOffIcon : EffectOnIcon;
   }
 
   const removeEffectHandler = (item?: SegmentTreeItem) => {
