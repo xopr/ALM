@@ -1,5 +1,5 @@
 [package]
-name = "ALM"
+name = "ALM-controller"
 version = "0.1.0"
 description = "Art-Net Light & Magic"
 authors = ["xopr"]

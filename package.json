@@ -1,13 +1,16 @@
 {
-  "name": "ALM",
+  "name": "alm",
   "private": true,
   "workspaces": [
     "apps/*",
     "packages/*"
   ],
   "scripts": {
-    "dev:controller": "npm run tauri --workspace=alm-controller -- dev",
-    "build:controller": "npm run tauri --workspace=alm-controller -- build",
-    "build": "npm run build:controller"
+    "dev:controller": "npm --workspace=alm-controller run tauri build --",
+    "dev:simdev": "npm --workspace=simdev run tauri dev --",
+    "build:controller": "npm --workspace=alm-controller run tauri build --",
+    "build:simdev": "npm --workspace=simdev run tauri build --",
+    "build": "npm run build:controller -- && npm run build:simdev --",
+    "build:debug": "npm run build:controller -- --debug && npm run build:simdev -- --debug"
   }
 }

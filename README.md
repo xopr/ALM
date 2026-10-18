@@ -13,7 +13,7 @@ Effects can have value channels that can be controlled either from the Control t
 
 The list of effects can be expanded easily by writing TypeScript (or Javascript if one prefers)
 
-## Application
+## Application (ALM-controller)
 The application consists of several segments used to select and control effects for certain (groups of) lights.
 
 The left tree control will contain light segments, optionally within a hierarchy to easily control multiple lights at once.
@@ -164,6 +164,18 @@ The base class might get extra helpers in the future.
 
 Simple examples can be found at *Jacobladder.ts* and *SleeveTest.ts*.
 
+
+## Simulator (simdev)
+
+For local visual feedback (debugging, and possibly in the future, adding screens to the setup), one can run `npm run dev:simdev`
+(or `./apps/simdev/src-tauri/target/debug/simdev` or `./apps/simdev/src-tauri/target/release/simdev`)
+
+By default, it listens on port 7000 (like the OHM2013 simstrip), but this can be altered by appending the port number:
+`./apps/simdev/src-tauri/target/release/simdev 6454`
+
+Move the window by dragging with the finger or mouse, and close it by pressing alt+F4 or right click on the taskbar and choose close.
+
+
 ## Development / bugfixing
 
 ### Prerequisites
@@ -180,7 +192,7 @@ Simple examples can be found at *Jacobladder.ts* and *SleeveTest.ts*.
 
 
 ### Run / debug
-`npm run tauri dev`
+`npm run dev:controller`
 
 ### Maintenance
 TODO
