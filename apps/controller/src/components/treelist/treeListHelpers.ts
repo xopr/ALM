@@ -55,8 +55,6 @@ export const treeItemFromArray = <T = SegmentTreeItem | LightTreeItem>(rootItem:
     const item = indexes.slice(1).reduce</*T|undefined*/any>((parent, childIndex) =>
       parent?.children?.[childIndex], rootItem);
 
-    // Assign id dynamically
-    item.id = indexes.join("_");
     return item;
 };
 

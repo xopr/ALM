@@ -45,8 +45,9 @@ export const Effects: Component<EffectsProps> = (props) => {
     if (!target.id) return;
     const newList = [...effectList()];
     newList.forEach((listItem) => listItem.selected = false);
-    newList[parseInt(target.id)].selected = true;
-    const effect = newList[parseInt(target.id)].effect
+    const idx = parseInt(target.id.slice(1));
+    newList[idx].selected = true;
+    const effect = newList[idx].effect;
     setEffectList(newList);
     props.onClick?.(effect);
   }
