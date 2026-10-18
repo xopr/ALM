@@ -6,11 +6,15 @@
     "packages/*"
   ],
   "scripts": {
-    "dev:controller": "npm --workspace=alm-controller run tauri build --",
+    "dev:controller": "npm --workspace=alm-controller run tauri dev --",
     "dev:simdev": "npm --workspace=simdev run tauri dev --",
     "build:controller": "npm --workspace=alm-controller run tauri build --",
     "build:simdev": "npm --workspace=simdev run tauri build --",
     "build": "npm run build:controller -- && npm run build:simdev --",
-    "build:debug": "npm run build:controller -- --debug && npm run build:simdev -- --debug"
+    "build:debug": "npm run build:controller -- --debug && npm run build:simdev -- --debug",
+    "dev": "npm run dev:controller",
+    "simstrip:7000": "nohup ./apps/simdev/src-tauri/target/release/simdev 7000  > /dev/null 2>&1 &",
+    "simstrip:7001": "nohup ./apps/simdev/src-tauri/target/release/simdev 7001  > /dev/null 2>&1 &",
+    "simstrips": "npm run simstrip:7000 && npm run simstrip:7001"
   }
 }

@@ -463,8 +463,6 @@ export const Remote: Component<Props> = (props) => {
       path.unshift("buttonGroups");
     }
 
-    console.log(path);
-
     const input = path.reduce<any>((obj, key) => obj[key], controller) as Button| Slider;
 
     // path (value/active)

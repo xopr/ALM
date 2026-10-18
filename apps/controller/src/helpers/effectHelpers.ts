@@ -1,6 +1,34 @@
 import { Effect } from "../../public/Effect";
 import type { SegmentTreeItem } from "../types/ItemData";
+import { Artnet } from "./ArtNet";
 
+export const cleanup = async (item: SegmentTreeItem): Promise<void> => {
+  // Only applies for groups and segments that have no effect applied
+  if (item.data.effect) return;
+
+  switch (item.type) {
+    case "group":
+      // Iterate children recursively
+      for await (const child of item.children) {
+        await cleanup(child);
+      }
+      break;
+
+    case "segment":
+      const { id } = item;
+      console.assert(!!id, "Tree item missing id", item);
+
+      const { address, port, universe, channelStart, channelsPerLed, width, height, ledOffset } = item.data.segment;
+
+      // Send empty packet
+      const ledCount = width * height;
+      const data = new ArrayBuffer(channelsPerLed * ledCount);
+      const artnet = new Artnet();
+      await artnet.send(data, address, port, universe, channelStart, channelsPerLed, ledCount, ledOffset)
+
+      break;
+  }
+}
 export const instanceLeaf = (item: SegmentTreeItem, Effect: Effect, channelValues?: number[], channelMute?: boolean[]) => {
   // (Different) effect applied to this subtree, stop propagation.
   if (item.data?.effect) return;

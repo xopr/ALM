@@ -7,6 +7,7 @@ import { bind, send, unbind } from "@kuyoonjo/tauri-plugin-udp";
 export class Artnet
 {
   id = "unique_id";
+  private static _instance: Artnet;
 
   //                            A    r    t   -   N    e    t   [0]  Opcode....  Protocol..  Seq.  Phy.  Universe..  Length....
   dataHeader = new Uint8Array([65, 114, 116, 45, 78, 101, 116, 0x00, 0x00, 0x50, 0x00, 0x0e, 0x00, 0x00, 0x00, 0x00, 0x02, 0x00]);
@@ -19,6 +20,12 @@ export class Artnet
 
   constructor()
   {
+    // Force singleton
+    if (Artnet._instance) {
+      return Artnet._instance;
+    }
+    Artnet._instance = this;
+    
     // listen<Payload>("plugin://udp", (x) => console.log(x.payload)).then(unlisten => this.cleanupListener = unlisten);
     bind(this.id, "0.0.0.0:0").catch((e) => {
       console.warn("Failed to bind:", e);
